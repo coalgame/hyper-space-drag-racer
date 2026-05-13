@@ -27,7 +27,7 @@ func _enter_tree() -> void:
 		
 func _ready() -> void:
 	if !is_multiplayer_authority():
-		$Camera3D.queue_free()
+		cam.queue_free()
 		#$Area3D.queue_free()
 		$ScoreLabel.queue_free()
 
