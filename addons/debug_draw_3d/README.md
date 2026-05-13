@@ -2,7 +2,7 @@
 
 # Debug drawing utility for Godot
 
-This is an add-on for debug drawing in 3D and for some 2D overlays, which is written in `C++` and can be used with `GDScript`, `C++` or `C#`.
+This is an add-on for debug drawing in 3D and for some 2D overlays, which is written in `C++` and can be used with `GDScript` or `C#`.
 
 Based on my previous addon, which was developed [only for C#](https://github.com/DmitriySalnikov/godot_debug_draw_cs), and which was inspired by [Zylann's GDScript addon](https://github.com/Zylann/godot_debug_draw)
 
@@ -28,7 +28,6 @@ Your support adds motivation to develop my public projects.
 * Billboard opaque square
 * Box
 * Camera Frustum
-* Capsule
 * Cylinder
 * Gizmo
 * Grid
@@ -54,11 +53,10 @@ Precompiled for:
 * iOS
 * Web (Firefox is supported by Godot 4.3+)
 
-This addon supports working with several World3D and different Viewports. [More information](https://dd3d.dmitriysalnikov.ru/docs/?page=md_docs_2SubViewports.html).
-
+This addon supports working with several World3D and different Viewports.
 There is also a no depth test mode and other settings that can be changed for each instance.
 
-This addon supports double-precision builds, for more information, [see the documentation](https://dd3d.dmitriysalnikov.ru/docs/?page=md_docs_2DoublePrecision.html).
+This library supports double-precision builds, for more information, [see the documentation](https://dd3d.dmitriysalnikov.ru/docs/?page=md_docs_2DoublePrecision.html).
 
 ## [Interactive Web Demo](https://dd3d.dmitriysalnikov.ru/demo/)
 
@@ -145,14 +143,6 @@ The text in the keys and values of a text group cannot contain multi-line string
 The entire text overlay can only be placed in one corner.
 
 [Frustum of Camera3D does not take into account the window size from ProjectSettings](https://github.com/godotengine/godot/issues/70362).
-
-## Usage Analytics
-
-This addon collects anonymous statistics on **editor** usage time. The data includes the library version, engine version, operating system, system architecture, and locale. No personally identifiable information is gathered.
-
-Libraries without **editor** support do not collect statistics in any way. Also, previews running in the editor do not collect any usage statistics.
-
-You can disable this in the editor settings at: `debug_draw_3d/settings/telemetry_state`.
 
 ## More screenshots
 

@@ -50,7 +50,7 @@ func generate() -> void:
 
 		var x := randf_range(x_range.x, x_range.y)
 		var y := randf_range(y_range.x, y_range.y)
-		var z := i * z_spacing
+		var z := 20 + ( i * z_spacing)
 
 		block.position = Vector3(x, y, -z)
 

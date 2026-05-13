@@ -7,7 +7,7 @@ func _ready() -> void:
 	if OS.get_cmdline_args().has("-capfps"):
 		maxfps("60")
 	
-	DebugDraw2D.debug_enabled = false
+	DebugDraw2D.debug_enabled = true
 
 func _process(delta: float) -> void:
 	DebugDraw2D.begin_text_group("main", 5, Color.WHITE)

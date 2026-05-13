@@ -1,14 +1,19 @@
-class_name Player extends Node3D
+class_name Player extends CharacterBody3D
 
-@export var move_speed := 8.0
-@export var forward_speed := 10.0
+var sideways_speed := 16.0
+var top_speed := 30.0
 
 # Optional movement bounds so the ship stays inside the obstacle field.
 @export var x_limit := 5.0
 @export var y_limit := 5.0
 
-var slowdown = 1.
+var speed = 0
 
+var hit_cooldown = 0
+
+var move_velocity := Vector2.ZERO
+var acceleration := 65.0
+var deceleration := 60.0
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
@@ -18,36 +23,66 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	if !is_multiplayer_authority():
 		$Camera3D.queue_free()
-		$Area3D.queue_free()
+		#$Area3D.queue_free()
 		$ScoreLabel.queue_free()
+
+func _process(delta: float) -> void:
+	DebugDraw2D.set_text("top_speed", snappedf(top_speed, 0.1))
+	DebugDraw2D.set_text("speed", snappedf(speed, 0.1))
+	DebugDraw2D.set_text("velocity", velocity)
+	
 
 func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority(): 
 		return
 	
-	slowdown = move_toward(slowdown, 1, delta * .1)
+	var camoffset = Vector3(0, 1.2, 2.5)
+	$Camera3D.global_position = $Camera3D.global_position.lerp((global_position+camoffset), delta *15)
+	
+	hit_cooldown = move_toward(hit_cooldown, 0, delta)
+	
+	top_speed += delta * 0.5
+	speed = move_toward(speed, top_speed, delta * 10)
 	
 	$ScoreLabel.text = str(int(-global_position.z))
 
-	var input := Vector2.ZERO
-
 	# Using action strengths avoids weird diagonal speed differences.
-	input.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	input.y = Input.get_action_strength("move_up") - Input.get_action_strength("move_down")
-
+	var input := Vector2(
+	Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
+	Input.get_action_strength("move_up") - Input.get_action_strength("move_down")
+)
 	input = input.normalized()
+	
+	
+	
+	var target_velocity := input * sideways_speed
 
 	# Move forward constantly.
-	global_position.z -= (forward_speed * slowdown) * delta
 
-	# Move sideways and vertically.
-	global_position.x += input.x * move_speed * delta
-	global_position.y += input.y * move_speed * delta
+	var target_roll := -input.x * 0.6
+	var target_pitch := input.y * 0.4
 
-	# Prevent the ship from leaving the playable area.
+	# rotate the whole ship
+	rotation.z = lerp(rotation.z, target_roll, delta * 16)
+	rotation.x = lerp(rotation.x, target_pitch, delta * 16)
+
+	# faster response when pushing, slower when releasing
+	var rate := acceleration if input != Vector2.ZERO else deceleration
+
+	move_velocity = move_velocity.move_toward(target_velocity, rate * delta)
+
+	velocity.x = move_velocity.x
+	velocity.y = move_velocity.y
+	velocity.z = -speed  # still force forward travel direction
+
 	global_position.x = clamp(global_position.x, -x_limit, x_limit)
 	global_position.y = clamp(global_position.y, -y_limit, y_limit)
-
-
-func _on_area_3d_body_entered(body: Node3D) -> void:
-	slowdown = 0.5
+		
+	move_and_slide()
+	
+	for i in get_slide_collision_count():
+		if is_zero_approx(hit_cooldown):
+			speed = -2
+			top_speed = max(top_speed - 5, 0) 
+			
+			hit_cooldown = 1

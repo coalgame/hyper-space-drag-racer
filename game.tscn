@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://cwxnxadtjd7g0"]
 
 [ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://game.gd" id="1_e2o6t"]
-[ext_resource type="PackedScene" uid="uid://ccg8f1p4hr1pj" path="res://player.tscn" id="2_e2o6t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_80nbo"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -24,9 +23,6 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=537346513]
 environment = SubResource("Environment_feb5d")
-
-[node name="Player" parent="." unique_id=1665700210 instance=ExtResource("2_e2o6t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 41)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=758682921]
 _spawnable_scenes = PackedStringArray("uid://ccg8f1p4hr1pj")
