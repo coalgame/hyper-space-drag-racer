@@ -11,13 +11,14 @@ var speed = 0
 var hit_cooldown = 0
 
 var move_velocity := Vector2.ZERO
-var acceleration := 100.0
-var deceleration := 90.0
+var acceleration := 145.0
+var deceleration := 130.0
+var top_acceleration = acceleration
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
-	if is_multiplayer_authority():
-		Global.local_player=self
+	#if is_multiplayer_authority():
+		#Global.local_player=self
 		
 func _ready() -> void:
 	if !is_multiplayer_authority():
@@ -38,13 +39,18 @@ func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority(): 
 		return
 	
-	var camoffset = Vector3(0, 1.2, -2.5)
+	var camoffset = Vector3(0, 1.05, -2.2)
 	$Camera3D.global_position = $Camera3D.global_position.lerp((global_position+camoffset), delta * 12)
 	
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
+	var speed_damp_strength = -0.008
+	var speed_damp = ((speed_damp_strength*top_speed)+1)-(20*speed_damp_strength)
+	#print(speed_damp)
+	top_speed += delta * 0.5 * speed_damp
+	speed = move_toward(speed, top_speed, delta * (10+(top_speed*0.4)))
 	
-	top_speed += delta * 0.5
-	speed = move_toward(speed, top_speed, delta * 20)
+	acceleration = move_toward(acceleration, top_acceleration, delta * (10+(top_speed*0.4)))
+	print(acceleration)
 	
 	$ScoreLabel.text = str(int(global_position.z))
 
@@ -88,11 +94,15 @@ func _physics_process(delta: float) -> void:
 			# convert impact into backward push
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
 
-			speed = -knockback
+			speed = -knockback*1.6
 
 			# optional: also reduce max speed so it matters long-term
-			top_speed = max(top_speed - knockback * 1.2, starting_speed)
+			top_speed -= (knockback-5)*2.5
 			
+			if top_speed < 20:
+				top_speed = 20
+				
+			print((knockback-5)*2.5)
 			hit_cooldown = 1
 
 func speed_boost(amount):
