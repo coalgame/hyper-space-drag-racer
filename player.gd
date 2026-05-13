@@ -82,7 +82,8 @@ func _physics_process(delta: float) -> void:
 	
 	for i in get_slide_collision_count():
 		if is_zero_approx(hit_cooldown):
-			speed = -2
+			speed = -10
+			
 			top_speed = max(top_speed - 5, 0) 
 			
 			hit_cooldown = 1
