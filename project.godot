@@ -74,3 +74,14 @@ brake={
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[shader_globals]
+
+world_curve={
+"type": "vec2",
+"value": Vector2(0.001, 0.001)
+}
+world_curve_z_dist={
+"type": "float",
+"value": 1.0
+}
