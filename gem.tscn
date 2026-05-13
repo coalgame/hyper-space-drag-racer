@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://cyaijmcchcr48"]
+
+[ext_resource type="Script" uid="uid://db6s3botc0m5n" path="res://gem.gd" id="1_whk3i"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_141ds"]
+radius = 1.095
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_141ds"]
+transparency = 1
+albedo_color = Color(1, 0, 0, 0.70980394)
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+emission_energy_multiplier = 3.24
+
+[sub_resource type="BoxMesh" id="BoxMesh_141ds"]
+material = SubResource("StandardMaterial3D_141ds")
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_whk3i"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="Gem" type="CharacterBody3D" unique_id=1086933115]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_whk3i")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=991278939]
+shape = SubResource("SphereShape3D_141ds")
+debug_color = Color(0.7580378, 0.4134143, 0.5074079, 0.41960785)
+debug_fill = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=812773577]
+mesh = SubResource("BoxMesh_141ds")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1354028035]
+replication_config = SubResource("SceneReplicationConfig_whk3i")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=319216000]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1687797814]
+shape = SubResource("SphereShape3D_141ds")
+debug_color = Color(0.7580378, 0.4134143, 0.5074079, 0.41960785)
+debug_fill = false

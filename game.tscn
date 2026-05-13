@@ -13,19 +13,32 @@ sky_material = SubResource("PanoramaSkyMaterial_feb5d")
 background_mode = 2
 sky = SubResource("Sky_e2o6t")
 ambient_light_source = 2
-ambient_light_color = Color(0.23031491, 0.23031494, 0.23031494, 1)
+ambient_light_color = Color(0.23137255, 0.23137255, 0.23137255, 1)
+reflected_light_source = 2
 tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.74
+glow_bloom = 0.15
+fog_mode = 1
+fog_light_color = Color(9.535274e-05, 0.00011561906, 0.00015177995, 1)
+fog_density = 1.0
+fog_aerial_perspective = 1.0
 
 [node name="Game" type="Node3D" unique_id=628509721]
 script = ExtResource("1_e2o6t")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=443020558]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
-shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=537346513]
 environment = SubResource("Environment_feb5d")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=758682921]
-_spawnable_scenes = PackedStringArray("uid://ccg8f1p4hr1pj")
+_spawnable_scenes = PackedStringArray("uid://ccg8f1p4hr1pj", "uid://cyaijmcchcr48")
 spawn_path = NodePath("..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=770697600]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1291271778]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)

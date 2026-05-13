@@ -38,6 +38,13 @@ materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={
+"materials": {
+"Material.001": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://new_shader_material.tres",
+"use_external/path": "uid://cujmuax7kp65a"
+}
+},
 "nodes": {
 "PATH:Cube": {
 "generate/physics": true
