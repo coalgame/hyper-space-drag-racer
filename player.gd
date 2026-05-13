@@ -13,16 +13,17 @@ var speed = 0
 var hit_cooldown = 0
 
 var move_velocity := Vector2.ZERO
-var acceleration := 100.0
-var deceleration := 90.0
+var acceleration := 145.0
+var deceleration := 130.0
+var top_acceleration = acceleration
 
 var near_miss_tracking = []
 var near_miss_hit_cooldown = 0
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
-	if is_multiplayer_authority():
-		Global.local_player=self
+	#if is_multiplayer_authority():
+		#Global.local_player=self
 		
 func _ready() -> void:
 	if !is_multiplayer_authority():
@@ -52,20 +53,23 @@ func _physics_process(delta: float) -> void:
 		if current_dist < min_distance:
 			min_distance = current_dist
 	
-	var camoffset = Vector3(0, 1.2, -2.5)
-	cam.global_position = cam.global_position.lerp((global_position+camoffset), delta * 11)
+	var camoffset = Vector3(0, 1.06, -2.2)
+	cam.global_position = cam.global_position.lerp((global_position+camoffset), delta * 12)
 	
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
 	near_miss_hit_cooldown = move_toward(near_miss_hit_cooldown, 0, delta)
 	
-	top_speed += delta * 0.3
+
+	var speed_damp_strength = -0.008
+	var speed_damp = ((speed_damp_strength*top_speed)+1)-(20*speed_damp_strength)
+	top_speed += delta * 0.5 * speed_damp
 	
 	var braking = Input.is_action_pressed("brake")
 	
 	if braking:
 		speed = move_toward(speed, 0, delta * 40.0)
 	else:
-		speed = move_toward(speed, top_speed, delta * 20.0)
+		speed = move_toward(speed, top_speed, delta * (10+(top_speed*0.4)))
 	
 	$ScoreLabel.text = str(int(global_position.z))
 
@@ -108,24 +112,22 @@ func _physics_process(delta: float) -> void:
 		#print(1)
 		
 		if is_zero_approx(hit_cooldown):
-			var col := get_slide_collision(i)
-		
-			var forward := global_transform.basis.z.normalized()
-			var normal := col.get_normal().normalized()
+				# how fast we were moving into the hit
+			var impact_strength = abs(velocity.z)
+
+			# convert impact into backward push
+			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
+
+			speed = -knockback*1.6
+
+			# optional: also reduce max speed so it matters long-term
+			top_speed -= (knockback-5)*2.5
 			
-			# how directly we hit the surface (1 = head-on, 0 = grazing)
-			var impact_factor := clampf(forward.dot(-normal), 0.0, 1.0)
-			
-			var speed_into_wall := absf(velocity.z)
-			
-			var impact_strength := speed_into_wall * impact_factor
-			
-			var knockback := clampf(impact_strength * 0.3, 5.0, 40.0)
-			
-			speed = -knockback
-			top_speed = max(top_speed - knockback * 1.2, starting_speed)
-			
-			hit_cooldown = 1.0
+			if top_speed < 20:
+				top_speed = 20
+				
+			print((knockback-5)*2.5)
+			hit_cooldown = 1
 
 @rpc("any_peer", "call_local")
 func speed_boost(amount):
