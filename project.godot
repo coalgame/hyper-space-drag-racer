@@ -11,9 +11,19 @@ config_version=5
 [application]
 
 config/name="Hyper Space Drag Racer"
-run/main_scene="uid://cwxnxadtjd7g0"
+run/main_scene="uid://dcu50kf72okmx"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Notifications="*uid://typcishnk0yg"
+NetworkManager="*uid://mqwg8crgkrgk"
+Global="*uid://ddqmq77yq25f7"
+
+[debug_draw_3d]
+
+settings/addon_root_folder="res://addons/debug_draw_3d"
 
 [dotnet]
 

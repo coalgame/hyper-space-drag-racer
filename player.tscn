@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://ccg8f1p4hr1pj"]
+
+[ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player.gd" id="1_4flbx"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mwb40"]
+transparency = 1
+albedo_color = Color(1, 1, 0, 0.48235294)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_feb5d"]
+material = SubResource("StandardMaterial3D_mwb40")
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_4flbx"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="Player" type="Node3D" unique_id=1665700210]
+script = ExtResource("1_4flbx")
+move_speed = 15.0
+forward_speed = 30.0
+x_limit = 4.0
+y_limit = 4.0
+
+[node name="Area3D" type="Area3D" parent="." unique_id=612478912]
+
+[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1592202414]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -6.674096e-09, -0.0067625046)
+shape = SubResource("CapsuleShape3D_e2o6t")
+
+[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="." unique_id=2022402204]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_feb5d")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1006056850]
+transform = Transform3D(1, 0, 0, 0, 0.97228837, 0.23378477, 0, -0.23378477, 0.97228837, 0, 1.349253, 2.4463093)
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=1850027877]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 32
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=187439324]
+replication_config = SubResource("SceneReplicationConfig_4flbx")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

@@ -1,9 +1,34 @@
-extends Node3D
+class_name Game extends Node3D
+
+static var game : Game
+
+
+func _init() -> void:
+	game=self
 
 func _ready() -> void:
+	seed(Global.game_seed)
+	
+	if NetworkManager.is_host():
+		add_player(1)
+		for i in len(multiplayer.get_peers()):
+			var peer = multiplayer.get_peers()[i]
+			add_player(peer)
+			
 	generate()
 	
+
+# the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
+func add_player(id):
+	assert(is_multiplayer_authority())
+	Notifications.notify(multiplayer.get_unique_id() , "add_player", id)
+	
+	var player = load("res://player.tscn").instantiate()
+	player.name = str(id)
+	add_child.call_deferred(player)
+
 func generate() -> void:
+	
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
 		preload("res://pieces/cube2.blend"),

@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://bvusq48lsawmj"]
+
+[ext_resource type="Script" uid="uid://dckwognm32u08" path="res://addons/notifications/notification_item.gd" id="1_o8s6m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eaiqv"]
+bg_color = Color(0, 0, 0, 0.35686275)
+
+[node name="NotificationItem" type="Label" unique_id=408210491]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_eaiqv")
+text = "gfhgf"
+script = ExtResource("1_o8s6m")

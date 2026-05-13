@@ -1,4 +1,4 @@
-extends Node3D
+class_name Player extends Node3D
 
 @export var move_speed := 8.0
 @export var forward_speed := 10.0
@@ -7,9 +7,27 @@ extends Node3D
 @export var x_limit := 5.0
 @export var y_limit := 5.0
 
-func _physics_process(delta: float) -> void:
+var slowdown = 1.
 
-	$ScoreLabel.text = str(int( global_position.distance_to(Vector3.ZERO)))
+
+func _enter_tree() -> void:
+	set_multiplayer_authority(str(name).to_int())
+	if is_multiplayer_authority():
+		Global.local_player=self
+		
+func _ready() -> void:
+	if !is_multiplayer_authority():
+		$Camera3D.queue_free()
+		$Area3D.queue_free()
+		$ScoreLabel.queue_free()
+
+func _physics_process(delta: float) -> void:
+	if !is_multiplayer_authority(): 
+		return
+	
+	slowdown = move_toward(slowdown, 1, delta * .1)
+	
+	$ScoreLabel.text = str(int(-global_position.z))
 
 	var input := Vector2.ZERO
 
@@ -20,7 +38,7 @@ func _physics_process(delta: float) -> void:
 	input = input.normalized()
 
 	# Move forward constantly.
-	global_position.z -= forward_speed * delta
+	global_position.z -= (forward_speed * slowdown) * delta
 
 	# Move sideways and vertically.
 	global_position.x += input.x * move_speed * delta
@@ -32,6 +50,4 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
-	print("die")
-	
-	get_tree().reload_current_scene()
+	slowdown = 0.5
