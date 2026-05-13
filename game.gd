@@ -18,8 +18,7 @@ func _ready() -> void:
 	
 	if NetworkManager.is_host():
 		add_player(1)
-		for i in len(multiplayer.get_peers()):
-			var peer = multiplayer.get_peers()[i]
+		for peer in multiplayer.get_peers():
 			add_player(peer)
 
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
@@ -43,10 +42,10 @@ func generate() -> void:
 	var y_range := Vector2(-Y_SIZE, Y_SIZE)
 
 	
-	var z_spacing := 2
-	var random_scale := Vector2(0.8, 1.5)
+	var z_spacing := 6
+	var random_scale := Vector2(1.3, 2)
 	
-	for i in 5000:
+	for i in 3000:
 		var block_scene = scenes.pick_random()
 		
 		var block = block_scene.instantiate()
@@ -54,7 +53,7 @@ func generate() -> void:
 
 		var x := randf_range(x_range.x, x_range.y)
 		var y := randf_range(y_range.x, y_range.y)
-		var z := 20 + (i * z_spacing)
+		var z := 50 + (i * z_spacing)
 
 		block.position = Vector3(x, y, z)
 
@@ -84,7 +83,8 @@ func _process(delta: float) -> void:
 	var y = Y_SIZE
 	var z = 99999
 	var c = Color(3.746, 3.746, 3.266, 1.0)
-	DebugDraw3D.draw_line(Vector3(x,y, 0), Vector3(x,y, -z), c)
-	DebugDraw3D.draw_line(Vector3(-x,y, 0), Vector3(-x,y, -z), c)
-	DebugDraw3D.draw_line(Vector3(x,-y, 0), Vector3(x,-y, -z), c)
-	DebugDraw3D.draw_line(Vector3(-x,-y, 0), Vector3(-x,-y, -z), c)
+	DebugDraw3D.draw_line(Vector3(x,y, 0), Vector3(x,y, z), c)
+	DebugDraw3D.draw_line(Vector3(-x,y, 0), Vector3(-x,y, z), c)
+	DebugDraw3D.draw_line(Vector3(x,-y, 0), Vector3(x,-y, z), c)
+	DebugDraw3D.draw_line(Vector3(-x,-y, 0), Vector3(-x,-y, z), c)
+	

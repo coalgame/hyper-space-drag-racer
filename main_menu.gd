@@ -70,8 +70,8 @@ func _on_singleplayer_button_pressed():
 	_switch_to_game(randi())
 
 @rpc("authority", "call_local", "reliable")
-func _switch_to_game(seed):
-	Global.game_seed = seed
+func _switch_to_game(_seed):
+	Global.game_seed = _seed
 	get_tree().change_scene_to_file("res://game.tscn")
 
 

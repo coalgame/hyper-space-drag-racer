@@ -1,6 +1,8 @@
 class_name Gem extends CharacterBody3D
 
-var speed := 6.0
+@onready var mesh: MeshInstance3D = $MeshInstance3D
+
+var speed := 2.0
 
 func _ready() -> void:
 	if multiplayer.is_server():
@@ -12,6 +14,10 @@ func _ready() -> void:
 		).normalized() * speed
 		
 func _physics_process(delta: float) -> void:
+	mesh.rotate_x(delta)
+	mesh.rotate_y(delta)
+	mesh.rotate_z(delta)
+	
 	if !multiplayer.is_server():
 		return
 		
@@ -26,9 +32,24 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.normalized() * speed
 	
 func _on_body_entered(body: Node3D) -> void:
-	
 	if body is Player:
-		body.speed_boost(3)
+		if not body.is_multiplayer_authority():
+			return
+		
+		request_pickup.rpc_id(1)
+		
+@rpc("any_peer", "call_local")
+func request_pickup():
+	if not multiplayer.is_server():
+		return
 	
-	if multiplayer.is_server():
+	# already collected?
+	if is_queued_for_deletion():
+		return
+		
+	var id = multiplayer.get_remote_sender_id()
+	var player : Player = Game.game.get_node_or_null(str(id))
+	if player:
+		player.speed_boost.rpc_id(id, 3)
+		# deletes for everyone (multiplayerspawner)
 		queue_free()
