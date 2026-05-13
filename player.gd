@@ -5,6 +5,7 @@ class_name Player extends CharacterBody3D
 var starting_speed := 20.
 
 var sideways_speed := 16.0
+var top_sideways_speed = sideways_speed
 var top_speed := starting_speed
 
 
@@ -70,6 +71,12 @@ func _physics_process(delta: float) -> void:
 		speed = move_toward(speed, 0, delta * 40.0)
 	else:
 		speed = move_toward(speed, top_speed, delta * (10+(top_speed*0.4)))
+	acceleration = move_toward(acceleration, top_acceleration, delta *(10+(top_speed*0.4)))
+	sideways_speed = move_toward(sideways_speed, top_sideways_speed, delta*10 )
+	if sideways_speed < 0:
+		sideways_speed = 0
+	print(acceleration)
+	print(sideways_speed)
 	
 	$ScoreLabel.text = str(int(global_position.z))
 
@@ -119,6 +126,8 @@ func _physics_process(delta: float) -> void:
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
 
 			speed = -knockback*1.6
+			acceleration -=knockback*5
+			sideways_speed-= knockback *0.6
 
 			# optional: also reduce max speed so it matters long-term
 			top_speed -= (knockback-5)*2.5
@@ -126,7 +135,6 @@ func _physics_process(delta: float) -> void:
 			if top_speed < 20:
 				top_speed = 20
 				
-			print((knockback-5)*2.5)
 			hit_cooldown = 1
 
 @rpc("any_peer", "call_local")
