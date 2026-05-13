@@ -49,6 +49,9 @@ func _physics_process(delta: float) -> void:
 	
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
+		if !multiplayer.is_server():
+			hide()
+			
 		if not body.is_multiplayer_authority():
 			return
 		
