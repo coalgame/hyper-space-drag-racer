@@ -64,3 +64,12 @@ func generate() -> void:
 		# Slight size variation makes the tunnel feel more natural.
 		var scale_mul := randf_range(random_scale.x, random_scale.y)
 		block.scale = Vector3.ONE * scale_mul
+
+
+func _process(delta: float) -> void:
+	var x = 4
+	var y = 4
+	DebugDraw3D.draw_line(Vector3(x,y, 0), Vector3(x,y, -1000))
+	DebugDraw3D.draw_line(Vector3(-x,y, 0), Vector3(-x,y, -1000))
+	DebugDraw3D.draw_line(Vector3(x,-y, 0), Vector3(x,-y, -1000))
+	DebugDraw3D.draw_line(Vector3(-x,-y, 0), Vector3(-x,-y, -1000))

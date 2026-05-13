@@ -1,17 +1,19 @@
 [gd_scene format=3 uid="uid://cwxnxadtjd7g0"]
 
 [ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://game.gd" id="1_e2o6t"]
+[ext_resource type="Texture2D" uid="uid://2ygc4p0drp6o" path="res://space.png" id="2_e2o6t"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_80nbo"]
-sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
-ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_feb5d"]
+panorama = ExtResource("2_e2o6t")
 
 [sub_resource type="Sky" id="Sky_e2o6t"]
-sky_material = SubResource("ProceduralSkyMaterial_80nbo")
+sky_material = SubResource("PanoramaSkyMaterial_feb5d")
 
 [sub_resource type="Environment" id="Environment_feb5d"]
 background_mode = 2
 sky = SubResource("Sky_e2o6t")
+ambient_light_source = 2
+ambient_light_color = Color(0.23031491, 0.23031494, 0.23031494, 1)
 tonemap_mode = 2
 
 [node name="Game" type="Node3D" unique_id=628509721]

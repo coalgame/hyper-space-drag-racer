@@ -1,7 +1,9 @@
 class_name Player extends CharacterBody3D
 
+var starting_speed := 20.
+
 var sideways_speed := 16.0
-var top_speed := 30.0
+var top_speed := starting_speed
 
 # Optional movement bounds so the ship stays inside the obstacle field.
 @export var x_limit := 5.0
@@ -12,8 +14,8 @@ var speed = 0
 var hit_cooldown = 0
 
 var move_velocity := Vector2.ZERO
-var acceleration := 65.0
-var deceleration := 60.0
+var acceleration := 100.0
+var deceleration := 90.0
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
@@ -60,7 +62,7 @@ func _physics_process(delta: float) -> void:
 	# Move forward constantly.
 
 	var target_roll := -input.x * 0.3
-	var target_pitch := input.y * 0.2
+	var target_pitch := input.y * 0.4
 
 	# rotate the whole ship
 	rotation.z = lerp(rotation.z, target_roll, delta * 16)
@@ -81,9 +83,18 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	
 	for i in get_slide_collision_count():
-		if is_zero_approx(hit_cooldown):
-			speed = -5
-			
+		if is_zero_approx(hit_cooldown):			
 			top_speed = max(top_speed - 5, 0) 
+			
+				# how fast we were moving into the hit
+			var impact_strength = abs(velocity.z)
+
+			# convert impact into backward push
+			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
+
+			speed = -knockback
+
+			# optional: also reduce max speed so it matters long-term
+			top_speed = max(top_speed - knockback * 0.2, starting_speed)
 			
 			hit_cooldown = 1
