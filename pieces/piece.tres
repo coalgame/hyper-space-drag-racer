@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://2f5hvt578sp1"]
+
+[ext_resource type="Shader" uid="uid://d3roa6t6re5qj" path="res://pieces/piece.gdshader" id="1_asi6m"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_asi6m")
+shader_parameter/curve_strength = Vector2(0.001, 0.001)
+shader_parameter/distance_offset = 0.0

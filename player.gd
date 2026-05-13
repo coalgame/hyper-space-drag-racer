@@ -23,8 +23,8 @@ var near_miss_hit_cooldown = 0
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
-	#if is_multiplayer_authority():
-		#Global.local_player=self
+	if is_multiplayer_authority():
+		Global.local_player=self
 		
 func _ready() -> void:
 	if !is_multiplayer_authority():
@@ -75,8 +75,8 @@ func _physics_process(delta: float) -> void:
 	sideways_speed = move_toward(sideways_speed, top_sideways_speed, delta*10 )
 	if sideways_speed < 0:
 		sideways_speed = 0
-	print(acceleration)
-	print(sideways_speed)
+	#print(acceleration)
+	#print(sideways_speed)
 	
 	$ScoreLabel.text = str(int(global_position.z))
 

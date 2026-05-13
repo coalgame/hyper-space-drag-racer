@@ -39,7 +39,7 @@ uniform vec3 uv2_offset;
 
 void vertex() {
 	UV = UV * uv1_scale.xy + uv1_offset.xy;
-		apply_world_bend(VERTEX, MODEL_MATRIX, MODELVIEW_MATRIX);
+	apply_world_bend(VERTEX, MODEL_MATRIX, MODELVIEW_MATRIX);
 
 }
 

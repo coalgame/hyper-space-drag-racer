@@ -41,8 +41,8 @@ _subresources={
 "materials": {
 "Material.001": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://new_shader_material.tres",
-"use_external/path": "uid://cujmuax7kp65a"
+"use_external/fallback_path": "res://pieces/piece.tres",
+"use_external/path": "uid://2f5hvt578sp1"
 }
 },
 "nodes": {
