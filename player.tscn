@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player.gd" id="1_4flbx"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
+radius = 0.345
+height = 1.6133204
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mwb40"]
 transparency = 1
@@ -28,7 +30,7 @@ x_limit = 4.0
 y_limit = 4.0
 
 [node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="." unique_id=1592202414]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -6.674096e-09, -0.0067625046)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -0.224588, 0.036225736)
 shape = SubResource("CapsuleShape3D_e2o6t")
 
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=2022402204]

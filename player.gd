@@ -42,7 +42,7 @@ func _physics_process(delta: float) -> void:
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
 	
 	top_speed += delta * 0.5
-	speed = move_toward(speed, top_speed, delta * 10)
+	speed = move_toward(speed, top_speed, delta * 20)
 	
 	$ScoreLabel.text = str(int(-global_position.z))
 
@@ -59,8 +59,8 @@ func _physics_process(delta: float) -> void:
 
 	# Move forward constantly.
 
-	var target_roll := -input.x * 0.6
-	var target_pitch := input.y * 0.4
+	var target_roll := -input.x * 0.3
+	var target_pitch := input.y * 0.2
 
 	# rotate the whole ship
 	rotation.z = lerp(rotation.z, target_roll, delta * 16)
@@ -82,7 +82,7 @@ func _physics_process(delta: float) -> void:
 	
 	for i in get_slide_collision_count():
 		if is_zero_approx(hit_cooldown):
-			speed = -10
+			speed = -5
 			
 			top_speed = max(top_speed - 5, 0) 
 			
