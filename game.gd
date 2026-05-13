@@ -3,6 +3,7 @@ class_name Game extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
+var track_length := 2000
 
 static var game : Game
 
@@ -45,16 +46,16 @@ func generate() -> void:
 	var z_spacing := 6
 	var random_scale := Vector2(1.3, 2)
 	
-	for i in 3000:
-		var block_scene = scenes.pick_random()
+	for i in track_length:
 		
-		var block = block_scene.instantiate()
-		add_child(block)
-
 		var x := randf_range(x_range.x, x_range.y)
 		var y := randf_range(y_range.x, y_range.y)
 		var z := 50 + (i * z_spacing)
+		if z > track_length: break
 
+		var block_scene = scenes.pick_random()
+		var block = block_scene.instantiate()
+		add_child(block)
 		block.position = Vector3(x, y, z)
 
 		# Random rotation helps break up obvious repetition.

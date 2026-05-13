@@ -35,10 +35,20 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority(): 
 		return
-		
+	
+	var s = ""
+	s += str(int((global_position.z / Game.game.track_length) * 100)) + "% \n"
+	for peer in multiplayer.get_peers():
+		var p = Game.game.get_node(str(peer)) as Player
+		if p:
+			s += "CHUD: " + str(int((p.global_position.z / Game.game.track_length) * 100)) + "% \n"
+			
+	$ScoreLabel.text = s
+	
 	DebugDraw2D.set_text("top_speed", snappedf(top_speed, 0.1))
 	DebugDraw2D.set_text("speed", snappedf(speed, 0.1))
 	DebugDraw2D.set_text("velocity", velocity)
+	
 	
 
 func _physics_process(delta: float) -> void:
@@ -78,7 +88,6 @@ func _physics_process(delta: float) -> void:
 	#print(acceleration)
 	#print(sideways_speed)
 	
-	$ScoreLabel.text = str(int(global_position.z))
 
 	# Using action strengths avoids weird diagonal speed differences.
 	var input := Vector2(
