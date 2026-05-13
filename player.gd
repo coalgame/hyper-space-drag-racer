@@ -150,7 +150,7 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		speed_boost(0.8 * boost_multiplier)
 		tracked_body = null # Stop tracking
 		
-		cam.fov_boost(1.05)
+		#cam.fov_boost(1.05)
 
 func _on_near_miss_area_3d_body_entered(body: Node3D) -> void:
 	if is_zero_approx(near_miss_hit_cooldown):
