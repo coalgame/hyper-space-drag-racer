@@ -2,7 +2,7 @@ class_name Gem extends CharacterBody3D
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
-var speed := 2.0
+var speed := 1.0
 
 func _ready() -> void:
 	if multiplayer.is_server():
@@ -17,19 +17,35 @@ func _physics_process(delta: float) -> void:
 	mesh.rotate_x(delta)
 	mesh.rotate_y(delta)
 	mesh.rotate_z(delta)
-	
+
 	if !multiplayer.is_server():
 		return
-		
-	
+
 	var collision := move_and_collide(velocity * delta)
 
 	if collision:
-		# bounce using reflection
-		velocity = velocity.bounce(collision.get_normal())
+		# reflect off physical colliders
+		velocity = velocity.bounce(collision.get_normal()).normalized() * speed
 
-		# keep constant speed so it doesn't slow down over time
-		velocity = velocity.normalized() * speed
+	# bounce off world bounds
+	if global_position.x < -Game.X_SIZE:
+		global_position.x = -Game.X_SIZE
+		velocity.x *= -1
+
+	elif global_position.x > Game.X_SIZE:
+		global_position.x = Game.X_SIZE
+		velocity.x *= -1
+
+	if global_position.y < -Game.Y_SIZE:
+		global_position.y = -Game.Y_SIZE
+		velocity.y *= -1
+
+	elif global_position.y > Game.Y_SIZE:
+		global_position.y = Game.Y_SIZE
+		velocity.y *= -1
+
+	# keep movement speed consistent after reflections
+	velocity = velocity.normalized() * speed
 	
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
