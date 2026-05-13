@@ -27,7 +27,6 @@ settings/addon_root_folder="res://addons/debug_draw_3d"
 settings/3d/add_bevel_to_volumetric_geometry=false
 settings/3d/volumetric_defaults/thickness=0.0
 
-
 [dotnet]
 
 project/assembly_name="Hyper Space Drag Racer"
