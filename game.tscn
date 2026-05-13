@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://cwxnxadtjd7g0"]
+
+[ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player.gd" id="1_80nbo"]
+[ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://game.gd" id="1_e2o6t"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_80nbo"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_e2o6t"]
+sky_material = SubResource("ProceduralSkyMaterial_80nbo")
+
+[sub_resource type="Environment" id="Environment_feb5d"]
+background_mode = 2
+sky = SubResource("Sky_e2o6t")
+tonemap_mode = 2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mwb40"]
+transparency = 1
+albedo_color = Color(1, 1, 0, 0.48235294)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_feb5d"]
+material = SubResource("StandardMaterial3D_mwb40")
+
+[node name="Game" type="Node3D" unique_id=628509721]
+script = ExtResource("1_e2o6t")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=443020558]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=537346513]
+environment = SubResource("Environment_feb5d")
+
+[node name="Player" type="Node3D" parent="." unique_id=96541691]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 41)
+script = ExtResource("1_80nbo")
+move_speed = 15.0
+forward_speed = 30.0
+x_limit = 4.0
+y_limit = 4.0
+
+[node name="Area3D" type="Area3D" parent="Player" unique_id=1287270775]
+
+[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="Player/Area3D" unique_id=948105952]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -6.674096e-09, -0.0067625046)
+shape = SubResource("CapsuleShape3D_e2o6t")
+
+[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=373016440]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_feb5d")
+
+[node name="Camera3D" type="Camera3D" parent="Player" unique_id=110940623]
+transform = Transform3D(1, 0, 0, 0, 0.97228837, 0.23378477, 0, -0.23378477, 0.97228837, 0, 1.349253, 2.4463093)
+
+[node name="ScoreLabel" type="Label" parent="Player" unique_id=104405322]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 32
+
+[connection signal="body_entered" from="Player/Area3D" to="Player" method="_on_area_3d_body_entered"]
