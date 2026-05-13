@@ -9,19 +9,40 @@ static var game : Game
 
 var server_random := RandomNumberGenerator.new()
 
+var ready_peers := []
+
 func _init() -> void:
 	game=self
 
 func _ready() -> void:
 	seed(Global.game_seed)
 	
+	# Tell the server this specific peer is ready
+	player_is_ready.rpc_id(1, multiplayer.get_unique_id())
+	
+
+@rpc("any_peer", "call_local")
+func player_is_ready(id: int):
+	if not multiplayer.is_server():
+		return
+
+	if not ready_peers.has(id):
+		ready_peers.append(id)
+	
+	# Check if everyone is here (including the host)
+	# Wait for all connected peers + the server itself
+	if ready_peers.size() == multiplayer.get_peers().size() + 1:
+		start_game.rpc()
+		
+@rpc("call_local")
+func start_game():
 	generate()
 	
-	if NetworkManager.is_host():
+	if multiplayer.is_server():
 		add_player(1)
 		for peer in multiplayer.get_peers():
 			add_player(peer)
-
+	
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
 func add_player(id):
 	assert(is_multiplayer_authority())
@@ -32,6 +53,7 @@ func add_player(id):
 	add_child.call_deferred(player)
 
 func generate() -> void:
+	printt(multiplayer.get_unique_id(), "is generating")
 	
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
