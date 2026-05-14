@@ -64,7 +64,7 @@ func generate() -> void:
 	var y_range := Vector2(-Y_SIZE-5, Y_SIZE+5)
 
 	
-	var z_spacing := 4
+	var z_spacing := 4.5
 	var random_scale := Vector2(1.3, 2)
 	
 	for i in track_length:
@@ -97,8 +97,8 @@ func generate() -> void:
 		edge_factor = pow(edge_factor, 2.0)
 
 		# Scale range
-		var min_scale := 1.6
-		var max_scale := 2.4
+		var min_scale := 1.5
+		var max_scale := 2.3
 
 		# Interpolate scale based on edge distance
 		var scale_mul := lerpf(min_scale, max_scale, edge_factor)
