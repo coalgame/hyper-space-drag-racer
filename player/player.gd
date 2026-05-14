@@ -188,6 +188,8 @@ func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape
 
 
 func _on_trail_spawn_timer_timeout() -> void:
+	if is_multiplayer_authority(): return
+	
 	var c = preload("res://player/player_trail.tscn").instantiate()
 	Game.game.add_child(c)
 	c.global_position = $TrailSpawnPos.global_position
