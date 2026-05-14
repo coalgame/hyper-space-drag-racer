@@ -1,14 +1,18 @@
 [gd_scene format=3 uid="uid://wwuqhng0xvum"]
 
-[node name="PlayerIndicatorLabel" type="Label" unique_id=2144819437]
-offset_left = -33.0
-offset_top = -19.0
-offset_right = 24.0
-offset_bottom = 15.0
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+[node name="PlayerIndicatorLabel" type="RichTextLabel" unique_id=2119532667]
+offset_left = -132.0
+offset_top = -60.0
+offset_right = 136.0
+offset_bottom = 51.0
+mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 27
-text = "chud"
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_constants/outline_size = 11
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "chud "
+scroll_active = false
+autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1

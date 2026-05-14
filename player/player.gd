@@ -46,7 +46,7 @@ func _process(delta: float) -> void:
 		# Convert world position to screen position
 		var screen_pos := cam.unproject_position(player.global_position)
 		
-		var label : Label = $IndicatorLabels.get_child(i)
+		var label : RichTextLabel = $IndicatorLabels.get_child(i)
 		i+=1
 		if cam.is_position_behind(player.global_position):
 			label.visible = true
@@ -59,7 +59,7 @@ func _process(delta: float) -> void:
 			# Force labels to bottom of screen
 			screen_pos.y = viewport_size.y - 80.0
 			
-			label.text = "CHUD (" + str(int(player.global_position.distance_to(global_position))) + ")"
+			label.text = "CHUD [font_size=60](" + str(int(player.global_position.distance_to(global_position))) + ")[/font_size]"
 			label.position = screen_pos
 		else:
 			label.visible = false
@@ -191,7 +191,7 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		# If dist is 2.0 (very close), boost is higher than if dist is 5.0
 		var boost_multiplier = clamp(10.0 / dist, 1.0, 5.0) 
 		
-		speed_boost(0.8 * boost_multiplier)
+		speed_boost(0.6 * boost_multiplier)
 		tracked_body = null # Stop tracking
 		
 		#cam.fov_boost(1.05)
