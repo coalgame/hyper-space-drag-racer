@@ -183,7 +183,7 @@ func speed_boost(amount):
 	#printt(str(multiplayer.get_unique_id()) , "speed_boost")
 
 	top_speed += amount
-	speed += amount
+	speed += amount +(top_speed*0.24)
 
 var min_distance: float = 9999.0
 var tracked_body: Node3D = null
