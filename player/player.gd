@@ -185,3 +185,10 @@ func _on_spark_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shap
 func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
 	await Global.wait(0.1)
 	$Sparks.emitting = false
+
+
+func _on_trail_spawn_timer_timeout() -> void:
+	var c = preload("res://player/player_trail.tscn").instantiate()
+	Game.game.add_child(c)
+	c.global_position = $TrailSpawnPos.global_position
+	c.dummy = !is_multiplayer_authority()

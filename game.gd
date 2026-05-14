@@ -47,7 +47,7 @@ func add_player(id):
 	assert(is_multiplayer_authority())
 	Notifications.notify(multiplayer.get_unique_id() , "add_player", id)
 	
-	var player = preload("res://player.tscn").instantiate()
+	var player = preload("res://player/player.tscn").instantiate()
 	player.name = str(id)
 	add_child.call_deferred(player)
 
@@ -64,7 +64,7 @@ func generate() -> void:
 	var y_range := Vector2(-Y_SIZE-5, Y_SIZE+5)
 
 	
-	var z_spacing := 5
+	var z_spacing := 4
 	var random_scale := Vector2(1.3, 2)
 	
 	for i in track_length:
@@ -86,8 +86,27 @@ func generate() -> void:
 			randf_range(0.0, TAU)
 		)
 	
-		# Slight size variation makes the tunnel feel more natural.
-		var scale_mul := randf_range(random_scale.x, random_scale.y)
+				# Position strength from center to edge
+		var edge_x = abs(x) / X_SIZE
+		var edge_y = abs(y) / Y_SIZE
+
+		# Use whichever axis is closer to the edge
+		var edge_factor = max(edge_x, edge_y)
+
+		# Smooth the growth so it ramps up nicer
+		edge_factor = pow(edge_factor, 2.0)
+
+		# Scale range
+		var min_scale := 1.6
+		var max_scale := 2.4
+
+		# Interpolate scale based on edge distance
+		var scale_mul := lerpf(min_scale, max_scale, edge_factor)
+
+		# Optional randomness so sizes are less uniform
+		scale_mul *= randf_range(0.85, 1.15)
+
+		block.scale = Vector3.ONE * scale_mul
 		block.scale = Vector3.ONE * scale_mul
 		
 		# spawn gem (independent roll)

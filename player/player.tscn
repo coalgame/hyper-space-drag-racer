@@ -1,15 +1,11 @@
 [gd_scene format=3 uid="uid://ccg8f1p4hr1pj"]
 
-[ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player.gd" id="1_4flbx"]
-[ext_resource type="Script" path="res://player_camera.gd" id="2_onrkg"]
+[ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player/player.gd" id="1_4flbx"]
+[ext_resource type="Script" uid="uid://hiace1p32qm4" path="res://player/player_camera.gd" id="2_onrkg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
 radius = 0.28460053
 height = 0.56920105
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_4flbx"]
-radius = 0.28
-height = 0.56
 
 [sub_resource type="Shader" id="Shader_onrkg"]
 code = "// NOTE: Shader automatically converted from Godot Engine 4.6.1.stable.mono's StandardMaterial3D.
@@ -63,7 +59,7 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_i3pqv"]
 render_priority = 0
 shader = SubResource("Shader_onrkg")
-shader_parameter/albedo = Color(1, 1, 0, 0.48235294)
+shader_parameter/albedo = Color(1, 1, 0, 1)
 shader_parameter/albedo_texture_size = Vector2i(0, 0)
 shader_parameter/point_size = 1.0
 shader_parameter/roughness = 1.0
@@ -133,10 +129,6 @@ script = ExtResource("1_4flbx")
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -0.14927657, 0.553434)
 shape = SubResource("CapsuleShape3D_e2o6t")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CSGBakedCollisionShape3D" unique_id=1243558083]
-visible = false
-mesh = SubResource("CapsuleMesh_4flbx")
-
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=2022402204]
 mesh = SubResource("PrismMesh_4flbx")
 
@@ -198,15 +190,12 @@ trail_lifetime = 2.97
 process_material = SubResource("ParticleProcessMaterial_onrkg")
 draw_pass_1 = SubResource("QuadMesh_hqtel")
 
-[node name="ChudLabel" type="Label3D" parent="." unique_id=1403263575]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.483119, 0)
-pixel_size = 0.002
-billboard = 1
-no_depth_test = true
-fixed_size = true
-text = "CHUD"
+[node name="TrailSpawnTimer" type="Timer" parent="." unique_id=335656530]
+wait_time = 0.1
+autostart = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=772976235]
+[node name="TrailSpawnPos" type="Marker3D" parent="." unique_id=436666744]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3049932, 1.2354006)
 
 [connection signal="body_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_entered"]
 [connection signal="body_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_exited"]
@@ -214,3 +203,4 @@ text = "CHUD"
 [connection signal="body_shape_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_shape_exited"]
 [connection signal="body_shape_entered" from="SparkArea3D" to="." method="_on_spark_area_3d_body_shape_entered"]
 [connection signal="body_shape_exited" from="SparkArea3D" to="." method="_on_spark_area_3d_body_shape_exited"]
+[connection signal="timeout" from="TrailSpawnTimer" to="." method="_on_trail_spawn_timer_timeout"]

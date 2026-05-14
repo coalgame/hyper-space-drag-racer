@@ -65,7 +65,7 @@ func request_pickup():
 	var id = multiplayer.get_remote_sender_id()
 	var player : Player = Game.game.get_node_or_null(str(id))
 	if player:
-		var first_place_player = Game.game.get_first_place().global_position.z
+		var first_place_player = Game.game.get_first_place()
 		if is_instance_valid(first_place_player):
 			var distance = abs(first_place_player.global_position.z - player.global_position.z)
 			var gemboost = (0.0005*distance) + 1
