@@ -197,8 +197,8 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		
 		speed_boost(0.6 * boost_multiplier)
 		if speed > 2:
-			speed+=(top_speed*0.03)+(boost_multiplier)+2
-			print((top_speed*0.03)+(boost_multiplier)+2)
+			speed+=(top_speed*0.04)+(boost_multiplier)+4
+			print((top_speed*0.04)+(boost_multiplier)+4)
 		tracked_body = null # Stop tracking
 		
 		#cam.fov_boost(1.05)
