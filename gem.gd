@@ -68,7 +68,7 @@ func request_pickup():
 		var first_place_player = Game.game.get_first_place()
 		if is_instance_valid(first_place_player):
 			var distance = abs(first_place_player.global_position.z - player.global_position.z)
-			var gemboost = (0.0005*distance) + 1
+			var gemboost = (0.001*distance) + 1
 			
 			player.speed_boost.rpc_id(id, 3 * gemboost)
 			
