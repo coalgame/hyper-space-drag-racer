@@ -192,6 +192,9 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		var boost_multiplier = clamp(10.0 / dist, 1.0, 5.0) 
 		
 		speed_boost(0.6 * boost_multiplier)
+		if speed > 4:
+			speed+=(top_speed*0.18)+(boost_multiplier)
+			print((top_speed*0.18)+(boost_multiplier))
 		tracked_body = null # Stop tracking
 		
 		#cam.fov_boost(1.05)
@@ -205,9 +208,10 @@ func _on_near_miss_area_3d_body_entered(body: Node3D) -> void:
 func _on_spark_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
 	var local_shape_owner = $SparkArea3D.shape_find_owner(local_shape_index)
 	var local_shape_node = $SparkArea3D.shape_owner_get_owner(local_shape_owner)
-	$Sparks.global_position =  local_shape_node.global_position
-	$Sparks.global_rotation =  local_shape_node.global_rotation
-	$Sparks.emitting = true
+	if speed > 4:
+		$Sparks.global_position =  local_shape_node.global_position
+		$Sparks.global_rotation =  local_shape_node.global_rotation
+		$Sparks.emitting = true
 
 func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
 	await Global.wait(0.1)
