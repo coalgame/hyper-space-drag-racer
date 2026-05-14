@@ -81,8 +81,22 @@ shader_parameter/uv2_offset = Vector3(0, 0, 0)
 material = SubResource("ShaderMaterial_qwnmc")
 size = Vector3(1, 0.765, 1)
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_g5lsc"]
+radius = 1.535
+
 [node name="PlayerTrail" type="MeshInstance3D" unique_id=1177150298]
 transparency = 0.64
 cast_shadow = 0
 mesh = SubResource("BoxMesh_i3pqv")
 script = ExtResource("1_g5lsc")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=1183574589]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1694755498]
+shape = SubResource("SphereShape3D_g5lsc")
+debug_color = Color(0.7580378, 0.4134143, 0.5074079, 0.41960785)
+debug_fill = false
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

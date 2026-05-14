@@ -32,10 +32,37 @@ func _ready() -> void:
 		#$Area3D.queue_free()
 		$ScoreLabel.queue_free()
 		
-		
+
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority(): 
 		return
+	
+	
+	var i = 0
+	for peer in multiplayer.get_peers():
+		var player = Game.game.get_node(str(peer)) as Player
+		if !is_instance_valid(player): continue
+		
+		# Convert world position to screen position
+		var screen_pos := cam.unproject_position(player.global_position)
+		
+		var label : Label = $IndicatorLabels.get_child(i)
+		i+=1
+		if cam.is_position_behind(player.global_position):
+			label.visible = true
+			
+			var viewport_size := get_viewport().get_visible_rect().size
+			
+			screen_pos.x = viewport_size.x - screen_pos.x
+			screen_pos.x = clamp(screen_pos.x, 50.0, viewport_size.x - 50.0)
+			
+			# Force labels to bottom of screen
+			screen_pos.y = viewport_size.y - 80.0
+			
+			label.text = "CHUD (" + str(int(player.global_position.distance_to(global_position))) + ")"
+			label.position = screen_pos
+		else:
+			label.visible = false
 	
 	var s = ""
 	s += str(int((global_position.z / Game.game.track_length) * 100)) + "% \n"
@@ -148,7 +175,7 @@ func _physics_process(delta: float) -> void:
 
 @rpc("any_peer", "call_local")
 func speed_boost(amount):
-	printt(str(multiplayer.get_unique_id()) , "speed_boost")
+	#printt(str(multiplayer.get_unique_id()) , "speed_boost")
 
 	top_speed += amount
 	speed += amount

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player/player.gd" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://hiace1p32qm4" path="res://player/player_camera.gd" id="2_onrkg"]
+[ext_resource type="PackedScene" uid="uid://wwuqhng0xvum" path="res://player/player_indicator_label.tscn" id="3_g1dw6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
 radius = 0.28460053
@@ -196,6 +197,32 @@ autostart = true
 
 [node name="TrailSpawnPos" type="Marker3D" parent="." unique_id=436666744]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3049932, 1.2354006)
+
+[node name="IndicatorLabels" type="Node" parent="." unique_id=561654899]
+
+[node name="PlayerIndicatorLabel" parent="IndicatorLabels" unique_id=2144819437 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel2" parent="IndicatorLabels" unique_id=1881339584 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel3" parent="IndicatorLabels" unique_id=681258728 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel4" parent="IndicatorLabels" unique_id=1299047197 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel5" parent="IndicatorLabels" unique_id=93712157 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel6" parent="IndicatorLabels" unique_id=896319391 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel7" parent="IndicatorLabels" unique_id=738021082 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel8" parent="IndicatorLabels" unique_id=1223295793 instance=ExtResource("3_g1dw6")]
+visible = false
 
 [connection signal="body_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_entered"]
 [connection signal="body_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_exited"]

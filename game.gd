@@ -36,11 +36,14 @@ func _on_everyone_loaded():
 func _on_everyone_finished_gen():
 	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
 	
+	
 	if multiplayer.is_server():
 		add_player(1)
 		for peer in multiplayer.get_peers():
 			add_player(peer)
 		
+func _on_everyone_spawned():
+	pass
 
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
 func add_player(id):
@@ -106,7 +109,6 @@ func generate() -> void:
 		# Optional randomness so sizes are less uniform
 		scale_mul *= randf_range(0.85, 1.15)
 
-		block.scale = Vector3.ONE * scale_mul
 		block.scale = Vector3.ONE * scale_mul
 		
 		# spawn gem (independent roll)
