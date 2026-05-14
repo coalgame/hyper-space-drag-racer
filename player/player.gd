@@ -153,6 +153,11 @@ func _physics_process(delta: float) -> void:
 		#near_miss_tracking.clear()
 		near_miss_hit_cooldown = 3
 		#print(1)
+	
+		var collision := get_slide_collision(i)
+		var collider = collision.get_collider()
+		if collider is Asteroid:
+			collider.hit()
 		
 		if is_zero_approx(hit_cooldown):
 				# how fast we were moving into the hit
