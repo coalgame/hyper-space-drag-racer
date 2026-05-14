@@ -67,7 +67,7 @@ func generate() -> void:
 	var y_range := Vector2(-Y_SIZE-6.5, Y_SIZE+6.5)
 
 	
-	var z_spacing := 4.21
+	var z_spacing := 4.15
 	var random_scale := Vector2(1.3, 2)
 	
 	for i in track_length:
