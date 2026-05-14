@@ -78,7 +78,7 @@ func generate() -> void:
 
 		var block_scene = scenes.pick_random()
 		var block = block_scene.instantiate()
-		#add_child(block)
+		add_child(block)
 		block.position = Vector3(x, y, z)
 
 		# Random rotation helps break up obvious repetition.
@@ -114,10 +114,10 @@ func generate() -> void:
 		if NetworkManager.is_host():
 			if server_random.randf() < 0.1:
 				var gem = preload("res://gem.tscn").instantiate()
-				#add_child.call_deferred(gem, true)
-
-				#gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-			if server_random.randf() < 0.25:
+				add_child.call_deferred(gem, true)
+				gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+			
+			if server_random.randf() < 0.05:
 				var asteroid = preload("res://asteroid.tscn").instantiate()
 				add_child.call_deferred(asteroid, true)
 
