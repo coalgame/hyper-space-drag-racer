@@ -59,8 +59,7 @@ func _physics_process(delta: float) -> void:
 		# Calculate current distance
 		# this code is kinda flawed cause its tracking the object origin, not the exact closest vertex or whatever
 		var current_dist = global_position.distance_to(tracked_body.global_position)
-		
-		# Keep the smallest value
+		## Keep the smallest value
 		if current_dist < min_distance:
 			min_distance = current_dist
 	
@@ -173,3 +172,15 @@ func _on_near_miss_area_3d_body_entered(body: Node3D) -> void:
 	if is_zero_approx(near_miss_hit_cooldown):
 		tracked_body = body
 		min_distance = 9999.0 # Reset for the new encounter
+
+
+func _on_spark_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
+	var local_shape_owner = $SparkArea3D.shape_find_owner(local_shape_index)
+	var local_shape_node = $SparkArea3D.shape_owner_get_owner(local_shape_owner)
+	$Sparks.global_position =  local_shape_node.global_position
+	$Sparks.global_rotation =  local_shape_node.global_rotation
+	$Sparks.emitting = true
+
+func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
+	await Global.wait(0.1)
+	$Sparks.emitting = false
