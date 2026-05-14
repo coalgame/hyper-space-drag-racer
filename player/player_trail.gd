@@ -49,5 +49,5 @@ func _process(delta: float) -> void:
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if body is Player:
 		if body.is_multiplayer_authority():
-			body.speed_boost(0.4)
+			body.speed_boost(0.45)
 			queue_free()
