@@ -1,84 +1,74 @@
 extends Control
 
-@onready var host_button: Button = $VBoxContainer/HostButton
-@onready var join_button: Button = $VBoxContainer/HBoxContainer/JoinButton
-@onready var address_input: LineEdit = $VBoxContainer/HBoxContainer/AddressInput
-@onready var label: Label = $VBoxContainer/Label
-@onready var singleplayer_button: Button = $VBoxContainer/SingleplayerButton
-
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	# Connect buttons
-	host_button.pressed.connect(_on_host_button_pressed)
-	join_button.pressed.connect(_on_join_button_pressed)
-	singleplayer_button.pressed.connect(_on_singleplayer_button_pressed)
-	
-	# Only connect these if they aren't already connected (prevents double-signal errors)
-	if not multiplayer.peer_connected.is_connected(_on_player_connected):
-		multiplayer.peer_connected.connect(_on_player_connected)
-		
-	if not multiplayer.connected_to_server.is_connected(_on_connection_succeeded):
-		multiplayer.connected_to_server.connect(_on_connection_succeeded)
-		
-	if not multiplayer.connection_failed.is_connected(_on_connection_failed):
-		multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.peer_connected.connect(_on_player_connected)
+	multiplayer.connected_to_server.connect(_on_connection_succeeded) #only emitted on clients
+	multiplayer.connection_failed.connect(_on_connection_failed) #only emitted on clients
 	
 	# CHECK: Are we returning to the lobby from a finished game?
-	if multiplayer.has_multiplayer_peer() and multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
-		_show_lobby_ui()
-	
-	#await get_tree().process_frame
-	#_switch_to_game()
-	#return
-	
+	if NetworkManager.has_connection():
+		show_screen("lobby")
+	else:
+		show_screen("main") # show main screen by default
+		_parse_args()
+
+
+func _parse_args():
 	var args = Array(OS.get_cmdline_args())
 	if args.has("-host"):
 		_on_host_button_pressed()
 	elif args.has("-client"):
 		_on_join_button_pressed()
+	
 
 func _on_host_button_pressed():
-	Notifications.notify( "Starting server...")
+	#Notifications.notify("Starting server...")
 	var result = NetworkManager.create_game()
-	
 	if result == OK:
-		Notifications.notify(  "Server started! Waiting for players")
-		join_button.visible=false
-		address_input.visible=false
-		host_button.visible=false
-		singleplayer_button.visible=false
-	else:
-		Notifications.notify(  "Failed to start server")
-	
+		show_screen("lobby")
+
+
 func _on_join_button_pressed():
-	var address = address_input.text.strip_edges()
+	var address = %AddressInput.text.strip_edges()
 	if address.is_empty():
 		address = "127.0.0.1"
 	
-	#Notifications.notify(  "Connecting to " + address + "...")
 	NetworkManager.join_game(address)
 
+
 func _on_connection_succeeded():
-	join_button.visible=false
-	address_input.visible=false
-	host_button.visible=false
-	singleplayer_button.visible=false
-	Notifications.notify("Success!!!!!!!!!!!!")
-	label.text = "waiting for host to start"
+	#Notifications.notify("Success!!!!!!!!!!!!")
+	# Transition clients to the lobby screen once connected
+	show_screen("lobby")
+
 
 func _on_connection_failed():
-	Notifications.notify(  "Connection failed. Try again.")
+	Notifications.notify("Connection failed. Try again.")
+
 
 func _on_player_connected(peer_id: int):
-	Notifications.notify(str(multiplayer.get_unique_id()) , "Player joined: " , str( peer_id ))
-	
-	if NetworkManager.is_host():
-		$VBoxContainer/StartGame.visible=true
+	Notifications.notify(str(multiplayer.get_unique_id()), "Player joined: ", str(peer_id))
 
 func _on_singleplayer_button_pressed():
 	Global.switch_to_game(randi())
 
+
 # host
 func _on_start_game_pressed() -> void:
 	Global.switch_to_game.rpc(randi())
+
+
+func _on_quit_lobby_pressed():
+	NetworkManager.disconnect_from_game()
+	show_screen("main")
+
+
+func show_screen(screen_name: String):
+	%MainScreen.visible = (screen_name == "main")
+	%LobbyScreen.visible = (screen_name == "lobby")
+	
+	# Ensure only the host can see the Start Game button when in the lobby
+	if screen_name == "lobby":
+		%LobbyScreen/StartGame.visible = NetworkManager.is_host()
