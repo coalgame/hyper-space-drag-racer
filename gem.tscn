@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://db6s3botc0m5n" path="res://gem.gd" id="1_whk3i"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_141ds"]
-radius = 1.535
+radius = 1.83
 
 [sub_resource type="Shader" id="Shader_whk3i"]
 code = "// NOTE: Shader automatically converted from Godot Engine 4.6.1.stable.mono's StandardMaterial3D.
@@ -86,6 +86,7 @@ shader_parameter/uv2_offset = Vector3(0, 0, 0)
 
 [sub_resource type="BoxMesh" id="BoxMesh_141ds"]
 material = SubResource("ShaderMaterial_edvqy")
+size = Vector3(1.27, 1.29, 1.27)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_whk3i"]
 properties/0/path = NodePath(".:position")
