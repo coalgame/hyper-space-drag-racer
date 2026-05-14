@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ccg8f1p4hr1pj"]
 
 [ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player.gd" id="1_4flbx"]
-[ext_resource type="Script" path="res://player_camera.gd" id="2_onrkg"]
+[ext_resource type="Script" uid="uid://hiace1p32qm4" path="res://player_camera.gd" id="2_onrkg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
 radius = 0.28460053
@@ -193,7 +193,7 @@ amount = 20
 speed_scale = 2.0
 randomness = 0.33
 fixed_fps = 60
-trail_lifetime = 2.9699999999999998
+trail_lifetime = 2.97
 process_material = SubResource("ParticleProcessMaterial_onrkg")
 draw_pass_1 = SubResource("QuadMesh_hqtel")
 

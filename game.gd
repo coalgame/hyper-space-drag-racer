@@ -3,7 +3,7 @@ class_name Game extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 2000
+var track_length := 5000
 
 static var game : Game
 
