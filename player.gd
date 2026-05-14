@@ -31,7 +31,9 @@ func _ready() -> void:
 		cam.queue_free()
 		#$Area3D.queue_free()
 		$ScoreLabel.queue_free()
-
+	else:
+		$ChudLabel.queue_free()
+		
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority(): 
 		return

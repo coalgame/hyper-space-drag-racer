@@ -31,6 +31,10 @@ settings/3d/volumetric_defaults/thickness=0.0
 
 project/assembly_name="Hyper Space Drag Racer"
 
+[global_group]
+
+player=""
+
 [input]
 
 move_right={

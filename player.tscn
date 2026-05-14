@@ -124,7 +124,7 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_i3pqv")
 size = Vector2(0.15, 0.1)
 
-[node name="Player" type="CharacterBody3D" unique_id=63911568]
+[node name="Player" type="CharacterBody3D" unique_id=63911568 groups=["player"]]
 collision_layer = 2
 motion_mode = 1
 script = ExtResource("1_4flbx")
@@ -188,6 +188,7 @@ shape = SubResource("BoxShape3D_i3pqv")
 
 [node name="Sparks" type="GPUParticles3D" parent="." unique_id=1784767685]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6277524, 0.0026957989, -0.029829025)
+visible = false
 cast_shadow = 0
 amount = 20
 speed_scale = 2.0
@@ -196,6 +197,14 @@ fixed_fps = 60
 trail_lifetime = 2.97
 process_material = SubResource("ParticleProcessMaterial_onrkg")
 draw_pass_1 = SubResource("QuadMesh_hqtel")
+
+[node name="ChudLabel" type="Label3D" parent="." unique_id=1403263575]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.483119, 0)
+pixel_size = 0.002
+billboard = 1
+no_depth_test = true
+fixed_size = true
+text = "CHUD"
 
 [connection signal="body_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_entered"]
 [connection signal="body_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_exited"]

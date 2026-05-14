@@ -49,14 +49,10 @@ func _physics_process(delta: float) -> void:
 	
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
-		if !multiplayer.is_server():
-			hide() # client side, show pick it up immediately
-			
-		if not body.is_multiplayer_authority():
-			return
-		
-		request_pickup.rpc_id(1)
-		
+		if body.is_multiplayer_authority():
+			hide() # show pick it up immediately
+			request_pickup.rpc_id(1)
+
 @rpc("any_peer", "call_local")
 func request_pickup():
 	if not multiplayer.is_server():
@@ -69,6 +65,12 @@ func request_pickup():
 	var id = multiplayer.get_remote_sender_id()
 	var player : Player = Game.game.get_node_or_null(str(id))
 	if player:
-		player.speed_boost.rpc_id(id, 3)
-		# deletes for everyone (multiplayerspawner)
-		queue_free()
+		var first_place_player = Game.game.get_first_place().global_position.z
+		if is_instance_valid(first_place_player):
+			var distance = abs(first_place_player.global_position.z - player.global_position.z)
+			var gemboost = (0.0005*distance) + 1
+			
+			player.speed_boost.rpc_id(id, 3 * gemboost)
+			
+			# deletes for everyone (multiplayerspawner)
+			queue_free()
