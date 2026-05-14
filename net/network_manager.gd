@@ -30,21 +30,18 @@ func join_game(address = ""):
 	
 	Notifications.notify(multiplayer.get_unique_id(),"Connecting to ", address, ":", PORT)
 
-func is_host():
-	return multiplayer.is_server()
-
 func disconnect_from_game():
 	if multiplayer_peer:
 		multiplayer_peer.close()
 	#players.clear()
 
 func _process(delta: float) -> void:
-	if not multiplayer_peer: return
+	if !multiplayer_peer or multiplayer.get_peers().is_empty(): return
 	
 	DebugDraw2D.begin_text_group("network", 10, Color.ANTIQUE_WHITE)
 	#if !is_host():
 	#	DebugDraw2D.set_text("ping", str(NetworkManager.multiplayer_peer.get_peer(1).get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME))+"ms")
-	DebugDraw2D.set_text("is host", is_host())
+	DebugDraw2D.set_text("is host", multiplayer.is_server())
 	DebugDraw2D.set_text("connected players", len(multiplayer.get_peers())+1)
 
 	DebugDraw2D.end_text_group()

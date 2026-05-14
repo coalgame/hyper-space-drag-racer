@@ -26,6 +26,19 @@ func _process(delta: float) -> void:
 		#DebugDraw2D.debug_enabled = !DebugDraw2D.debug_enabled
 
 
+@rpc("call_local")
+func switch_to_game(_seed):
+	Notifications.notify("Starting game...")
+	Global.game_seed = _seed
+	get_tree().change_scene_to_file("res://game.tscn")
+
+
+@rpc("any_peer", "call_local")
+func restart_game(_seed):
+	Notifications.notify("Restarting game...")
+	Global.game_seed = _seed
+	get_tree().change_scene_to_file("res://game.tscn")
+
 func play_sound(sound: AudioStream, volume=1.0) -> void:
 	var audio_player := AudioStreamPlayer.new()
 	Game.game.add_child(audio_player)

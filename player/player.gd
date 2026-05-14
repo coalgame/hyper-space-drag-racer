@@ -21,6 +21,8 @@ var top_acceleration = acceleration
 var near_miss_tracking = []
 var near_miss_hit_cooldown = 0
 
+var has_finished = false
+
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
 	if is_multiplayer_authority():
@@ -36,6 +38,9 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority(): 
 		return
+	
+	if !has_finished and global_position.z > Game.game.track_length:
+		complete_race()
 	
 	
 	var i = 0
@@ -229,3 +234,17 @@ func _on_trail_spawn_timer_timeout() -> void:
 	Game.game.add_child(c)
 	c.global_position = $TrailSpawnPos.global_position
 	c.dummy = !is_multiplayer_authority()
+
+func complete_race():
+	has_finished = true
+	# Call your UI manager
+	UIManager.show_finish_screen(get_standing())
+	
+func get_standing() -> int:
+	var all_players = get_tree().get_nodes_in_group("player")
+	all_players.sort_custom(func(a, b): 
+		return a.global_position.z > b.global_position.z
+	)
+	var index = all_players.find(self)
+	# 4. Convert 0-index to 1-based standing (0 becomes 1st)
+	return index + 1

@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Hyper Space Drag Racer"
 run/main_scene="uid://dcu50kf72okmx"
-config/features=PackedStringArray("4.6", "GL Compatibility")
+config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 Notifications="*uid://typcishnk0yg"
 NetworkManager="*uid://mqwg8crgkrgk"
 Global="*uid://ddqmq77yq25f7"
+UIManager="*uid://dqu6lse0viu4c"
 
 [debug_draw_3d]
 

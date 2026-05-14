@@ -14,9 +14,19 @@ func _ready():
 	join_button.pressed.connect(_on_join_button_pressed)
 	singleplayer_button.pressed.connect(_on_singleplayer_button_pressed)
 	
-	multiplayer.peer_connected.connect(_on_player_connected)
-	multiplayer.connected_to_server.connect(_on_connection_succeeded)
-	multiplayer.connection_failed.connect(_on_connection_failed)
+	# Only connect these if they aren't already connected (prevents double-signal errors)
+	if not multiplayer.peer_connected.is_connected(_on_player_connected):
+		multiplayer.peer_connected.connect(_on_player_connected)
+		
+	if not multiplayer.connected_to_server.is_connected(_on_connection_succeeded):
+		multiplayer.connected_to_server.connect(_on_connection_succeeded)
+		
+	if not multiplayer.connection_failed.is_connected(_on_connection_failed):
+		multiplayer.connection_failed.connect(_on_connection_failed)
+	
+	# CHECK: Are we returning to the lobby from a finished game?
+	if multiplayer.has_multiplayer_peer() and multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
+		_show_lobby_ui()
 	
 	#await get_tree().process_frame
 	#_switch_to_game()
@@ -67,14 +77,8 @@ func _on_player_connected(peer_id: int):
 		$VBoxContainer/StartGame.visible=true
 
 func _on_singleplayer_button_pressed():
-	_switch_to_game(randi())
-
-@rpc("authority", "call_local", "reliable")
-func _switch_to_game(_seed):
-	Global.game_seed = _seed
-	get_tree().change_scene_to_file("res://game.tscn")
-
+	Global.switch_to_game(randi())
 
 # host
 func _on_start_game_pressed() -> void:
-	_switch_to_game.rpc(randi())
+	Global.switch_to_game.rpc(randi())

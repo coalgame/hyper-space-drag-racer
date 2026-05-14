@@ -3,7 +3,7 @@ class_name Game extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 5000
+var track_length := 10
 
 static var game : Game
 
@@ -18,7 +18,6 @@ func _init() -> void:
 func _ready() -> void:
 	seed(Global.game_seed)
 	
-	# CRITICAL: Add them to the tree so they can send/receive RPCs
 	add_child(loading_gate)
 	add_child(post_gen_gate)
 	
@@ -48,7 +47,7 @@ func _on_everyone_spawned():
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
 func add_player(id):
 	assert(is_multiplayer_authority())
-	Notifications.notify(multiplayer.get_unique_id() , "add_player", id)
+	#Notifications.notify(multiplayer.get_unique_id() , "add_player", id)
 	
 	var player = preload("res://player/player.tscn").instantiate()
 	player.name = str(id)

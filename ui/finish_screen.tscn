@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://jcjmqylt1g0f"]
+
+[ext_resource type="Script" uid="uid://do1m4n0pnvkdm" path="res://ui/finish_screen.gd" id="1_iljvv"]
+
+[node name="FinishScreen" type="Panel" unique_id=1391553711]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_iljvv")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=558636867]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1419433143]
+layout_mode = 2
+
+[node name="StatsLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=358068950]
+unique_name_in_owner = true
+layout_mode = 2
+text = "..."
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="CenterContainer/VBoxContainer" unique_id=875933261]
+layout_mode = 2
+text = "Play Again"
+
+[node name="Button2" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1692612517]
+layout_mode = 2
+text = "Quit to Main Menu"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Button" to="." method="_on_restart_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Button2" to="." method="_on_quit_button_pressed"]
