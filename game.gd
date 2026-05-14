@@ -60,11 +60,11 @@ func generate() -> void:
 	]
 	
 	# Random spread around the center path.
-	var x_range := Vector2(-X_SIZE, X_SIZE)
-	var y_range := Vector2(-Y_SIZE, Y_SIZE)
+	var x_range := Vector2(-X_SIZE-5, X_SIZE+5)
+	var y_range := Vector2(-Y_SIZE-5, Y_SIZE+5)
 
 	
-	var z_spacing := 6
+	var z_spacing := 5
 	var random_scale := Vector2(1.3, 2)
 	
 	for i in track_length:
