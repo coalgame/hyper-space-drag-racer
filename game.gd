@@ -9,7 +9,8 @@ static var game : Game
 
 var server_random := RandomNumberGenerator.new()
 
-var ready_peers := []
+var loading_gate = NetworkGate.new("Loading")
+var post_gen_gate = NetworkGate.new("PostGeneration")
 
 func _init() -> void:
 	game=self
@@ -17,32 +18,30 @@ func _init() -> void:
 func _ready() -> void:
 	seed(Global.game_seed)
 	
-	# Tell the server this specific peer is ready
-	player_is_ready.rpc_id(1, multiplayer.get_unique_id())
+	# CRITICAL: Add them to the tree so they can send/receive RPCs
+	add_child(loading_gate)
+	add_child(post_gen_gate)
 	
-
-@rpc("any_peer", "call_local")
-func player_is_ready(id: int):
-	if not multiplayer.is_server():
-		return
-
-	if not ready_peers.has(id):
-		ready_peers.append(id)
+	loading_gate.all_players_ready.connect(_on_everyone_loaded)
+	# 2. Tell the gate you are ready
+	loading_gate.start_check()
 	
-	# Check if everyone is here (including the host)
-	# Wait for all connected peers + the server itself
-	if ready_peers.size() == multiplayer.get_peers().size() + 1:
-		start_game.rpc()
-		
-@rpc("call_local")
-func start_game():
+func _on_everyone_loaded():
 	generate()
+	
+	# 3. Now wait again for post-generation sync
+	post_gen_gate.all_players_ready.connect(_on_everyone_finished_gen)
+	post_gen_gate.start_check()
+
+func _on_everyone_finished_gen():
+	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
 	
 	if multiplayer.is_server():
 		add_player(1)
 		for peer in multiplayer.get_peers():
 			add_player(peer)
-	
+		
+
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
 func add_player(id):
 	assert(is_multiplayer_authority())
