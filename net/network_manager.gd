@@ -1,3 +1,4 @@
+#network_manager.gd (autoload)
 extends Node
 
 const PORT = 7000
@@ -10,8 +11,8 @@ const PRESET_COLORS = [
 	Color.ORANGE,
 	Color.YELLOW,
 	Color.GREEN,
-	Color.BLUE,
-	Color.PURPLE,
+	Color.DODGER_BLUE,
+	Color.MEDIUM_PURPLE,
 	Color.HOT_PINK,
 ]
 

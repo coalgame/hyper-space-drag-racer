@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://cj431telbiwlg" path="res://player/player_trail.gd" id="1_g5lsc"]
 
 [sub_resource type="Shader" id="Shader_dygnl"]
-code = "// NOTE: Shader automatically converted from Godot Engine 4.6.1.stable.mono's StandardMaterial3D.
+code = "
+// NOTE: Shader automatically converted from Godot Engine 4.6.1.stable.mono's StandardMaterial3D.
 
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx, unshaded;
@@ -63,6 +64,7 @@ void fragment() {
 "
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qwnmc"]
+resource_local_to_scene = true
 render_priority = 0
 shader = SubResource("Shader_dygnl")
 shader_parameter/albedo = Color(0.71141654, 1.8715144, 1.1983713, 1)

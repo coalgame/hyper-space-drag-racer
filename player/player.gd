@@ -23,6 +23,8 @@ var near_miss_hit_cooldown = 0
 
 var has_finished = false
 
+var player_color: Color
+
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
 	if is_multiplayer_authority():
@@ -31,6 +33,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	var my_id = name.to_int()
 	var info = NetworkManager.players[my_id]
+	player_color = info.color
 	
 	if !is_multiplayer_authority():
 		cam.queue_free()
@@ -241,10 +244,10 @@ func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape
 func _on_trail_spawn_timer_timeout() -> void:
 	if is_multiplayer_authority(): return
 	
-	var c = preload("res://player/player_trail.tscn").instantiate()
+	var c : PlayerTrail = preload("res://player/player_trail.tscn").instantiate()
 	Game.game.add_child(c)
 	c.global_position = $TrailSpawnPos.global_position
-	c.dummy = !is_multiplayer_authority()
+	c.color = player_color
 
 func complete_race():
 	has_finished = true
