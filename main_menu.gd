@@ -1,8 +1,6 @@
 extends Control
 
 func _ready():
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	
 	var color_names = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"]
 	%ColorOptionButton.clear()
 	for i in range(color_names.size()):
@@ -18,9 +16,9 @@ func _ready():
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connection_succeeded) # only emitted on clients
 	multiplayer.connection_failed.connect(_on_connection_failed) # only emitted on clients
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	NetworkManager.update_ui.connect(refresh_lobby)
 	
-	# CHECK: Are we returning to the lobby from a finished game?
 	if NetworkManager.has_connection():
 		show_screen("lobby")
 	else:
@@ -45,6 +43,7 @@ func _on_host_button_pressed():
 
 func refresh_lobby():
 	if !%LobbyScreen.visible: return
+	if !NetworkManager.has_connection(): return
 	
 	var my_id = multiplayer.get_unique_id()
 	if !NetworkManager.players.has(my_id): return
@@ -71,20 +70,30 @@ func _on_join_button_pressed():
 
 
 func _on_connection_succeeded():
-	#Notifications.notify("Success!!!!!!!!!!!!")
-	# Transition clients to the lobby screen once connected
+	# Now that we are actually connected, register our info locally and sync to server/others
+	var my_info = {"name": NetworkManager.get_random_name(), "color": NetworkManager.get_random_color()}
+	
+	# Use the RPC to register ourselves (call_local handles our local dict)
+	NetworkManager._register_player.rpc(my_info)
+	
 	show_screen("lobby")
 	refresh_lobby()
 
 
 func _on_connection_failed():
 	Notifications.notify("Connection failed. Try again.")
+	show_screen("main")
+
+func _on_server_disconnected():
+	Notifications.notify("Disconnected from server.")
+	show_screen("main")
 
 
 func _on_player_connected(peer_id: int):
 	Notifications.notify(str(multiplayer.get_unique_id()), "Player joined: ", str(peer_id))
 
 func _on_singleplayer_button_pressed():
+	UIManager.clear_all_screens()
 	Global.switch_to_game(randi())
 
 
@@ -99,6 +108,7 @@ func _on_color_option_button_item_selected(index: int) -> void:
 # host
 func _on_start_game_pressed() -> void:
 	NetworkManager.lock_lobby()
+	UIManager.clear_all_screens()
 	Global.switch_to_game.rpc(randi())
 
 

@@ -14,17 +14,12 @@ func _input(event):
 func toggle_pause():
 	visible = !visible
 	
-	# Singleplayer: Pause the engine if no network connection exists
-	# Multiplayer: Keep the engine running so network sync continues
-	if not NetworkManager.has_connection():
-		get_tree().paused = visible
-	
-	# Manage mouse visibility
 	if visible:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		UIManager.register_screen(self )
+		# Ensure pause menu is visually on top if opened last
+		move_to_front()
 	else:
-		# Revert to whatever mode your game uses during gameplay
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		UIManager.unregister_screen(self )
 
 func _on_resume_button_pressed():
 	toggle_pause()
@@ -33,10 +28,8 @@ func _on_quit_button_pressed():
 	# 1. Properly close network peers and clear the player list
 	NetworkManager.disconnect_from_game()
 	
-	# 2. Always unpause the tree before changing scenes
-	# Failing to do this can cause the Main Menu to be frozen on load
-	get_tree().paused = false
+	# 2. Reset UI State
+	UIManager.clear_all_screens()
 	
 	# 3. Return to the main menu scene
-	# Note: NetworkManager already handles redirecting clients if the host quits
 	get_tree().change_scene_to_file("res://main_menu.tscn")

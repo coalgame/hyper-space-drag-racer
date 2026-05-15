@@ -50,7 +50,6 @@ func _ready() -> void:
 		%NameLabel3D.queue_free()
 	
 
-
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return

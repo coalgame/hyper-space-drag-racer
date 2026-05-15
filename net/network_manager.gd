@@ -31,7 +31,7 @@ func create_game():
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(PORT, MAX_CLIENTS)
 	if error != OK:
-		Notifications.notify("Cannot host: ", error)
+		Notifications.notify("Cannot host: ", error_string(error), error)
 		return error
 	
 	multiplayer.multiplayer_peer = peer
@@ -53,16 +53,12 @@ func join_game(address = ""):
 	var error = peer.create_client(address, PORT)
 	if error == OK:
 		multiplayer.multiplayer_peer = peer
-		players[multiplayer.get_unique_id()] = {"name": get_random_name(), "color": get_random_color()}
-		update_ui.emit()
 	
 
 func disconnect_from_game():
 	if multiplayer.multiplayer_peer:
-		if multiplayer.is_server():
-			multiplayer.multiplayer_peer.refuse_new_connections = false
 		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new() # godot docs say this is to terminate networking
+		multiplayer.multiplayer_peer = null
 	players.clear()
 	update_ui.emit()
 
@@ -78,11 +74,15 @@ func is_host() -> bool:
 	return has_connection() and multiplayer.is_server()
 
 func lock_lobby():
-	if is_host() and multiplayer.multiplayer_peer:
-		multiplayer.multiplayer_peer.refuse_new_connections = true
-		Notifications.notify("Lobby locked. No new players can join.")
+	print("Lobby locked. New connections will be denied.")
 
 func _on_peer_connected(id):
+	# If we are the host and a race is already in progress, deny the connection.
+	if is_host() and is_instance_valid(Game.game):
+		print("Server: Denying late-joiner " + str(id))
+		multiplayer.multiplayer_peer.disconnect_peer(id)
+		return
+
 	# When we see a new peer, tell them our info
 	var my_id = multiplayer.get_unique_id()
 	if players.has(my_id):
