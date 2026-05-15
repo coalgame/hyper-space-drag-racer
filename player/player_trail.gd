@@ -14,7 +14,7 @@ func _ready() -> void:
 		transparency = 0.95
 	
 	
-	await Global.wait(1)
+	await Util.wait(1)
 	
 	if dummy:
 		var tween = create_tween()

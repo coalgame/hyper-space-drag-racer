@@ -3,9 +3,21 @@ extends Control
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
+	var color_names = ["Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple", "Pink", "White", "Lime"]
+	%ColorOptionButton.clear()
+	for i in range(color_names.size()):
+		var color_value = NetworkManager.PRESET_COLORS[i]
+		
+		# Generate a 16x16 solid color square
+		var img = Image.create(16, 16, false, Image.FORMAT_RGB8)
+		img.fill(color_value)
+		var tex = ImageTexture.create_from_image(img)
+		
+		%ColorOptionButton.add_icon_item(tex, color_names[i])
+	
 	multiplayer.peer_connected.connect(_on_player_connected)
-	multiplayer.connected_to_server.connect(_on_connection_succeeded) #only emitted on clients
-	multiplayer.connection_failed.connect(_on_connection_failed) #only emitted on clients
+	multiplayer.connected_to_server.connect(_on_connection_succeeded) # only emitted on clients
+	multiplayer.connection_failed.connect(_on_connection_failed) # only emitted on clients
 	
 	# CHECK: Are we returning to the lobby from a finished game?
 	if NetworkManager.has_connection():
@@ -28,6 +40,11 @@ func _on_host_button_pressed():
 	var result = NetworkManager.create_game()
 	if result == OK:
 		show_screen("lobby")
+		setup_lobby_ui()
+
+func setup_lobby_ui():
+	var my_color = NetworkManager.players[multiplayer.get_unique_id()].color
+	%ColorOptionButton.selected = NetworkManager.PRESET_COLORS.find(my_color)
 
 
 func _on_join_button_pressed():
@@ -42,6 +59,7 @@ func _on_connection_succeeded():
 	#Notifications.notify("Success!!!!!!!!!!!!")
 	# Transition clients to the lobby screen once connected
 	show_screen("lobby")
+	setup_lobby_ui()
 
 
 func _on_connection_failed():
@@ -53,6 +71,14 @@ func _on_player_connected(peer_id: int):
 
 func _on_singleplayer_button_pressed():
 	Global.switch_to_game(randi())
+
+
+func _on_color_option_button_item_selected(index: int) -> void:
+	var my_id = multiplayer.get_unique_id()
+	if NetworkManager.players.has(my_id):
+		var color = NetworkManager.PRESET_COLORS[index]
+		NetworkManager.players[my_id].color = color
+		NetworkManager._register_player.rpc(NetworkManager.players[my_id])
 
 
 # host

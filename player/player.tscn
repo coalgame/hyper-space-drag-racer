@@ -224,6 +224,17 @@ visible = false
 [node name="PlayerIndicatorLabel8" parent="IndicatorLabels" unique_id=1223295793 instance=ExtResource("3_g1dw6")]
 visible = false
 
+[node name="NameLabel3D" type="Label3D" parent="." unique_id=1960586128]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0039229, 0)
+visibility_range_end = 65.0
+visibility_range_end_margin = 5.0
+visibility_range_fade_mode = 1
+pixel_size = 0.0008
+billboard = 1
+fixed_size = true
+text = "Loading..."
+
 [connection signal="body_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_entered"]
 [connection signal="body_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_exited"]
 [connection signal="body_shape_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_shape_entered"]

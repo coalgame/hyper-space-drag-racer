@@ -21,6 +21,7 @@ Notifications="*uid://typcishnk0yg"
 NetworkManager="*uid://mqwg8crgkrgk"
 Global="*uid://ddqmq77yq25f7"
 UIManager="*uid://dqu6lse0viu4c"
+Util="*uid://capbpmagcv2ve"
 
 [debug_draw_3d]
 

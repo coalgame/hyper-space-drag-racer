@@ -82,6 +82,14 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="ColorLabel" type="Label" parent="LobbyScreen" unique_id=1668886686]
+layout_mode = 2
+text = "Your Color:"
+
+[node name="ColorOptionButton" type="OptionButton" parent="LobbyScreen" unique_id=7140241]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="StartGame" type="Button" parent="LobbyScreen" unique_id=1125704249]
 layout_mode = 2
 text = "Start game"
@@ -94,5 +102,6 @@ text = "Quit Lobby"
 [connection signal="pressed" from="MainScreen/SingleplayerButton" to="." method="_on_singleplayer_button_pressed"]
 [connection signal="pressed" from="MainScreen/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="MainScreen/HBoxContainer/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="item_selected" from="LobbyScreen/ColorOptionButton" to="." method="_on_color_option_button_item_selected"]
 [connection signal="pressed" from="LobbyScreen/StartGame" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="LobbyScreen/QuitLobbyButton" to="." method="_on_quit_lobby_pressed"]
