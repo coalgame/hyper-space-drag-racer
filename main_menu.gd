@@ -29,12 +29,15 @@ func _ready():
 func _parse_args():
 	var args = Array(OS.get_cmdline_args())
 	if args.has("-host"):
+		print("autohost")
 		_on_host_button_pressed()
 	elif args.has("-client"):
+		print("autoclient")
 		_on_join_button_pressed()
 	
 
 func _on_host_button_pressed():
+	print("host button pressed")
 	#Notifications.notify("Starting server...")
 	var result = NetworkManager.create_game()
 	if result == OK:
@@ -61,6 +64,7 @@ func refresh_lobby():
 		lbl.modulate = p_info.color
 		%PlayerList.add_child(lbl)
 
+
 func _on_join_button_pressed():
 	var address = %AddressInput.text.strip_edges()
 	if address.is_empty():
@@ -70,6 +74,7 @@ func _on_join_button_pressed():
 
 
 func _on_connection_succeeded():
+	NetworkManager._log("Connection to server succeeded.")
 	# Now that we are actually connected, register our info locally and sync to server/others
 	var my_info = {"name": NetworkManager.get_random_name(), "color": NetworkManager.get_random_color()}
 	
@@ -81,8 +86,10 @@ func _on_connection_succeeded():
 
 
 func _on_connection_failed():
-	Notifications.notify("Connection failed. Try again.")
+	NetworkManager._log("Connection to server failed.")
+	Notifications.notify("Connection failed.")
 	show_screen("main")
+
 
 func _on_server_disconnected():
 	Notifications.notify("Disconnected from server.")
@@ -91,6 +98,7 @@ func _on_server_disconnected():
 
 func _on_player_connected(peer_id: int):
 	Notifications.notify(str(multiplayer.get_unique_id()), "Player joined: ", str(peer_id))
+
 
 func _on_singleplayer_button_pressed():
 	UIManager.clear_all_screens()

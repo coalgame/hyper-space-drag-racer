@@ -18,8 +18,13 @@ const PRESET_COLORS = [
 
 var players = {} # Store info like { peer_id: { "name": "Random Name" } }
 
+func _log(message: String, sender_id: int = -1):
+	var time = Time.get_time_string_from_system()
+	var local_id = multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 0
+	var sender_str = " [Sender:%d]" % sender_id if sender_id != -1 else ""
+	print("[%s] [LocalID:%d]%s %s" % [time, local_id, sender_str, message])
+
 func _ready():
-	randomize()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
@@ -31,15 +36,16 @@ func create_game():
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(PORT, MAX_CLIENTS)
 	if error != OK:
-		Notifications.notify("Cannot host: ", error_string(error), error)
+		Notifications.notify("Cannot host: ", error_string(error), error) # todo real error window thingy
+		_log("Failed to create server: " + error_string(error))
 		return error
 	
 	multiplayer.multiplayer_peer = peer
 	players[1] = {"name": get_random_name(), "color": get_random_color()}
 	update_ui.emit()
 	
-	Notifications.notify(multiplayer.get_unique_id(), "Server started on port ", PORT)
-	
+	_log("Server started successfully on port %d" % PORT)
+	Notifications.notify(1, "Server started on port ", PORT)
 	return OK
 
 func join_game(address = ""):
@@ -49,11 +55,16 @@ func join_game(address = ""):
 	# Ensure any previous peer is properly closed and nulled before creating a new one.
 	disconnect_from_game()
 	
+	_log("Attempting to join server at: " + address)
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_client(address, PORT)
 	if error == OK:
 		multiplayer.multiplayer_peer = peer
-	
+		_log("Connection attempt started to: " + address)
+	else:
+		Notifications.notify("Failed to join: " + error_string(error))
+		_log("Failed to create client: " + error_string(error))
+		return error
 
 func disconnect_from_game():
 	if multiplayer.multiplayer_peer:
@@ -77,12 +88,7 @@ func lock_lobby():
 	print("Lobby locked. New connections will be denied.")
 
 func _on_peer_connected(id):
-	# If we are the host and a race is already in progress, deny the connection.
-	if is_host() and is_instance_valid(Game.game):
-		print("Server: Denying late-joiner " + str(id))
-		multiplayer.multiplayer_peer.disconnect_peer(id)
-		return
-
+	_log("Peer connected.", id)
 	# When we see a new peer, tell them our info
 	var my_id = multiplayer.get_unique_id()
 	if players.has(my_id):
@@ -90,6 +96,7 @@ func _on_peer_connected(id):
 
 
 func _on_peer_disconnected(id):
+	_log("Peer disconnected.", id)
 	players.erase(id)
 	
 	# If a race is in progress, find and remove the disconnected player's ship
@@ -102,16 +109,19 @@ func _on_peer_disconnected(id):
 	update_ui.emit()
 
 func _on_server_disconnected():
-	Notifications.notify("Lost connection to host.")
 	disconnect_from_game()
+	Notifications.notify("Lost connection to host.")
+	_log("Disconnected from server (Host closed connection).")
 	get_tree().change_scene_to_file("res://main_menu.tscn")
 
 @rpc("any_peer", "call_local", "reliable")
 func _register_player(info):
-	var id = multiplayer.get_remote_sender_id()
-	if id == 0: # Handle local execution when calling via .rpc()
-		id = multiplayer.get_unique_id()
-	players[id] = info
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id == 0: # Handle local execution when calling via .rpc()
+		sender_id = multiplayer.get_unique_id()
+	
+	_log("Received player registration: " + str(info), sender_id)
+	players[sender_id] = info
 	update_ui.emit()
 
 
