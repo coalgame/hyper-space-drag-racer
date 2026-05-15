@@ -73,6 +73,7 @@ func has_connection() -> bool:
 		return false
 	return peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
+# returns true only if connected with other players
 func is_host() -> bool:
 	return has_connection() and multiplayer.is_server()
 

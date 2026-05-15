@@ -3,7 +3,7 @@ class_name Game extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 6610
+var track_length := 20
 
 static var game : Game
 
@@ -110,7 +110,7 @@ func generate() -> void:
 		block.scale = Vector3.ONE * scale_mul
 		
 		# spawn gem (independent roll)
-		if NetworkManager.is_host():
+		if multiplayer.is_server():
 			if server_random.randf() < 0.1:
 				var gem = preload("res://gem.tscn").instantiate()
 				add_child.call_deferred(gem, true)

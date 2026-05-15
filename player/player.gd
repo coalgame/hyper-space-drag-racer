@@ -31,25 +31,25 @@ func _enter_tree() -> void:
 		Global.local_player = self
 		
 func _ready() -> void:
-	var my_id = name.to_int()
-	var info = NetworkManager.players[my_id]
-	player_color = info.color
-	
+	var info = NetworkManager.players.get(name.to_int())
+	if info:
+		player_color = info.color
+		var mat = $Mesh.mesh.material as ShaderMaterial
+		if mat:
+			$Mesh.set_surface_override_material(0, mat.duplicate())
+			$Mesh.get_surface_override_material(0).set_shader_parameter("albedo", info.color)
+		
+		%NameLabel3D.text = info.name
+		%NameLabel3D.modulate = info.color
+		
 	if !is_multiplayer_authority():
 		cam.queue_free()
 		$ScoreLabel.queue_free()
-
-		%NameLabel3D.text = info.name
-		%NameLabel3D.modulate = info.color
 	else:
 		# the local player shouldn't have a name label
 		%NameLabel3D.queue_free()
 	
-	var mat = $Mesh.mesh.material as ShaderMaterial
-	if mat:
-		$Mesh.set_surface_override_material(0, mat.duplicate())
-		$Mesh.get_surface_override_material(0).set_shader_parameter("albedo", info.color)
-	
+
 
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority():
