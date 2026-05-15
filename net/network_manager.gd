@@ -48,7 +48,6 @@ func join_game(address = ""):
 
 	# Ensure any previous peer is properly closed and nulled before creating a new one.
 	disconnect_from_game()
-	Notifications.notify(multiplayer.get_unique_id(), "Connecting to ", address, ":", PORT)
 	
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_client(address, PORT)
@@ -60,14 +59,12 @@ func join_game(address = ""):
 
 func disconnect_from_game():
 	if multiplayer.multiplayer_peer:
-		# Reset the refusal flag if we were hosting
 		if multiplayer.is_server():
 			multiplayer.multiplayer_peer.refuse_new_connections = false
-			
-	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new() # godot docs say this is to terminate networking
 	players.clear()
+	update_ui.emit()
 
 func has_connection() -> bool:
 	var peer = multiplayer.multiplayer_peer

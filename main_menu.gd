@@ -49,17 +49,9 @@ func refresh_lobby():
 	var my_id = multiplayer.get_unique_id()
 	if !NetworkManager.players.has(my_id): return
 	
-	# 1. Update our color selection
 	var my_color = NetworkManager.players[my_id].color
 	%ColorOptionButton.selected = NetworkManager.PRESET_COLORS.find(my_color)
 
-	# 2. Prevent duplicate colors: Disable items already taken by others
-	var taken_colors = []
-	for id in NetworkManager.players:
-		if id != my_id:
-			taken_colors.append(NetworkManager.players[id].color)
-	
-	# 3. Refresh Player List UI
 	for child in %PlayerList.get_children():
 		child.queue_free()
 		
