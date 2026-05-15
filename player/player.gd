@@ -59,6 +59,10 @@ func _process(delta: float) -> void:
 		complete_race()
 	
 	
+	# Hide all indicators initially so they don't get "stuck" if a peer leaves
+	for label in $IndicatorLabels.get_children():
+		label.visible = false
+
 	var i = 0
 	for peer in multiplayer.get_peers():
 		var player = Game.game.get_node(str(peer)) as Player
@@ -82,8 +86,6 @@ func _process(delta: float) -> void:
 			
 			label.text = "CHUD [font_size=60](" + str(int(player.global_position.distance_to(global_position))) + ")[/font_size]"
 			label.position = screen_pos
-		else:
-			label.visible = false
 	
 	var s = ""
 	s += str(int((global_position.z / Game.game.track_length) * 100)) + "% \n"
@@ -242,9 +244,9 @@ func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape
 
 
 func _on_trail_spawn_timer_timeout() -> void:
-	if is_multiplayer_authority(): return
+	if is_multiplayer_authority(): return # Only spawn trails on the remote player
 	
-	var c : PlayerTrail = preload("res://player/player_trail.tscn").instantiate()
+	var c: PlayerTrail = preload("res://player/player_trail.tscn").instantiate()
 	Game.game.add_child(c)
 	c.global_position = $TrailSpawnPos.global_position
 	c.color = player_color

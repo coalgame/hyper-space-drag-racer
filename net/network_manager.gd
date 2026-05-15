@@ -22,6 +22,7 @@ func _ready():
 	randomize()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 func create_game():
 	# Ensure any previous peer is properly closed and nulled before creating a new one.
@@ -59,6 +60,11 @@ func join_game(address = ""):
 
 func disconnect_from_game():
 	if multiplayer.multiplayer_peer:
+		# Reset the refusal flag if we were hosting
+		if multiplayer.is_server():
+			multiplayer.multiplayer_peer.refuse_new_connections = false
+			
+	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	players.clear()
@@ -73,6 +79,11 @@ func has_connection() -> bool:
 func is_host() -> bool:
 	return has_connection() and multiplayer.is_server()
 
+func lock_lobby():
+	if is_host() and multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.refuse_new_connections = true
+		Notifications.notify("Lobby locked. No new players can join.")
+
 func _on_peer_connected(id):
 	# When we see a new peer, tell them our info
 	var my_id = multiplayer.get_unique_id()
@@ -82,8 +93,20 @@ func _on_peer_connected(id):
 
 func _on_peer_disconnected(id):
 	players.erase(id)
+	
+	# If a race is in progress, find and remove the disconnected player's ship
+	if is_instance_valid(Game.game):
+		var player_node = Game.game.get_node_or_null(str(id))
+		if player_node:
+			player_node.queue_free()
+			Notifications.notify("Player " + str(id) + " disconnected.")
+
 	update_ui.emit()
 
+func _on_server_disconnected():
+	Notifications.notify("Lost connection to host.")
+	disconnect_from_game()
+	get_tree().change_scene_to_file("res://main_menu.tscn")
 
 @rpc("any_peer", "call_local", "reliable")
 func _register_player(info):

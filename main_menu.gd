@@ -106,6 +106,7 @@ func _on_color_option_button_item_selected(index: int) -> void:
 
 # host
 func _on_start_game_pressed() -> void:
+	NetworkManager.lock_lobby()
 	Global.switch_to_game.rpc(randi())
 
 
