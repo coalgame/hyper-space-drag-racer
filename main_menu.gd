@@ -3,7 +3,7 @@ extends Control
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	var color_names = ["Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple", "Pink", "White", "Lime"]
+	var color_names = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"]
 	%ColorOptionButton.clear()
 	for i in range(color_names.size()):
 		var color_value = NetworkManager.PRESET_COLORS[i]
@@ -18,6 +18,7 @@ func _ready():
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connection_succeeded) # only emitted on clients
 	multiplayer.connection_failed.connect(_on_connection_failed) # only emitted on clients
+	NetworkManager.update_ui.connect(refresh_lobby)
 	
 	# CHECK: Are we returning to the lobby from a finished game?
 	if NetworkManager.has_connection():
@@ -40,12 +41,34 @@ func _on_host_button_pressed():
 	var result = NetworkManager.create_game()
 	if result == OK:
 		show_screen("lobby")
-		setup_lobby_ui()
+		refresh_lobby()
 
-func setup_lobby_ui():
-	var my_color = NetworkManager.players[multiplayer.get_unique_id()].color
+func refresh_lobby():
+	if !%LobbyScreen.visible: return
+	
+	var my_id = multiplayer.get_unique_id()
+	if !NetworkManager.players.has(my_id): return
+	
+	# 1. Update our color selection
+	var my_color = NetworkManager.players[my_id].color
 	%ColorOptionButton.selected = NetworkManager.PRESET_COLORS.find(my_color)
 
+	# 2. Prevent duplicate colors: Disable items already taken by others
+	var taken_colors = []
+	for id in NetworkManager.players:
+		if id != my_id:
+			taken_colors.append(NetworkManager.players[id].color)
+	
+	# 3. Refresh Player List UI
+	for child in %PlayerList.get_children():
+		child.queue_free()
+		
+	for id in NetworkManager.players:
+		var p_info = NetworkManager.players[id]
+		var lbl = Label.new()
+		lbl.text = p_info.name + (" (You)" if id == my_id else "")
+		lbl.modulate = p_info.color
+		%PlayerList.add_child(lbl)
 
 func _on_join_button_pressed():
 	var address = %AddressInput.text.strip_edges()
@@ -59,7 +82,7 @@ func _on_connection_succeeded():
 	#Notifications.notify("Success!!!!!!!!!!!!")
 	# Transition clients to the lobby screen once connected
 	show_screen("lobby")
-	setup_lobby_ui()
+	refresh_lobby()
 
 
 func _on_connection_failed():

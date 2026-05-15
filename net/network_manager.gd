@@ -3,17 +3,16 @@ extends Node
 const PORT = 7000
 const MAX_CLIENTS = 8
 
+signal update_ui
+
 const PRESET_COLORS = [
 	Color.RED,
 	Color.ORANGE,
 	Color.YELLOW,
 	Color.GREEN,
-	Color.CYAN,
 	Color.BLUE,
 	Color.PURPLE,
-	Color.MAGENTA,
-	Color.WHITE,
-	Color.LIME_GREEN
+	Color.HOT_PINK,
 ]
 
 var players = {} # Store info like { peer_id: { "name": "Random Name" } }
@@ -35,6 +34,7 @@ func create_game():
 	
 	multiplayer.multiplayer_peer = peer
 	players[1] = {"name": get_random_name(), "color": get_random_color()}
+	update_ui.emit()
 	
 	Notifications.notify(multiplayer.get_unique_id(), "Server started on port ", PORT)
 	
@@ -53,6 +53,7 @@ func join_game(address = ""):
 	if error == OK:
 		multiplayer.multiplayer_peer = peer
 		players[multiplayer.get_unique_id()] = {"name": get_random_name(), "color": get_random_color()}
+		update_ui.emit()
 	
 
 func disconnect_from_game():
@@ -80,12 +81,16 @@ func _on_peer_connected(id):
 
 func _on_peer_disconnected(id):
 	players.erase(id)
+	update_ui.emit()
 
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func _register_player(info):
 	var id = multiplayer.get_remote_sender_id()
+	if id == 0: # Handle local execution when calling via .rpc()
+		id = multiplayer.get_unique_id()
 	players[id] = info
+	update_ui.emit()
 
 
 func _process(delta: float) -> void:

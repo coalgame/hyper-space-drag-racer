@@ -82,6 +82,14 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Label" type="Label" parent="LobbyScreen" unique_id=146441015]
+layout_mode = 2
+text = "Players in Lobby:"
+
+[node name="PlayerList" type="VBoxContainer" parent="LobbyScreen" unique_id=1161553053]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="ColorLabel" type="Label" parent="LobbyScreen" unique_id=1668886686]
 layout_mode = 2
 text = "Your Color:"
