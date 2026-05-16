@@ -13,6 +13,7 @@ script = ExtResource("1_06t4h")
 
 [node name="MainScreen" type="VBoxContainer" parent="." unique_id=909887119]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -68,7 +69,6 @@ text = "Join Lobby"
 
 [node name="LobbyScreen" type="VBoxContainer" parent="." unique_id=1938846588]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -98,6 +98,15 @@ text = "Your Color:"
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="NameLabel" type="Label" parent="LobbyScreen" unique_id=1861250516]
+layout_mode = 2
+text = "Your Name:"
+
+[node name="NameLineEdit" type="LineEdit" parent="LobbyScreen" unique_id=1204971629]
+unique_name_in_owner = true
+layout_mode = 2
+max_length = 5
+
 [node name="StartGame" type="Button" parent="LobbyScreen" unique_id=1125704249]
 layout_mode = 2
 text = "Start game"
@@ -111,5 +120,6 @@ text = "Quit Lobby"
 [connection signal="pressed" from="MainScreen/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="MainScreen/HBoxContainer/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="item_selected" from="LobbyScreen/ColorOptionButton" to="." method="_on_color_option_button_item_selected"]
+[connection signal="text_changed" from="LobbyScreen/NameLineEdit" to="." method="_on_name_line_edit_text_changed"]
 [connection signal="pressed" from="LobbyScreen/StartGame" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="LobbyScreen/QuitLobbyButton" to="." method="_on_quit_lobby_pressed"]

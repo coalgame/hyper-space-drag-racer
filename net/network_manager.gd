@@ -4,6 +4,7 @@ extends Node
 const PORT = 7000
 const MAX_CLIENTS = 8
 
+const SAVE_PATH = "user://player_profile.cfg"
 signal update_ui
 
 const PRESET_COLORS = [
@@ -17,6 +18,7 @@ const PRESET_COLORS = [
 ]
 
 var players = {} # Store info like { peer_id: { "name": "Random Name" } }
+var local_player_data = {"name": "", "color": Color.WHITE}
 
 func _log(message: String, sender_id: int = -1):
 	var time = Time.get_time_string_from_system()
@@ -28,6 +30,43 @@ func _ready():
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	load_settings()
+
+func load_settings():
+	var config = ConfigFile.new()
+	var err = config.load(SAVE_PATH)
+	
+	var default_color =  PRESET_COLORS.pick_random()
+	var default_name = "chud"+str(randi_range(0,9))
+	if err == OK:
+		local_player_data.name = config.get_value("profile", "name", default_name)
+		local_player_data.color = config.get_value("profile", "color", default_color)
+	else:
+		# First time setup
+		local_player_data.name = default_name
+		local_player_data.color = default_color
+		save_settings()
+
+func save_settings():
+	var config = ConfigFile.new()
+	config.set_value("profile", "name", local_player_data.name)
+	config.set_value("profile", "color", local_player_data.color)
+	config.save(SAVE_PATH)
+
+func set_player_name(new_name: String):
+	local_player_data.name = new_name
+	save_settings()
+	
+	# If we are currently in a lobby/game, sync the name change
+	if has_connection():
+		_register_player.rpc(local_player_data)
+
+func set_player_color(new_color: Color):
+	local_player_data.color = new_color
+	save_settings()
+	
+	if has_connection():
+		_register_player.rpc(local_player_data)
 
 func create_game():
 	# Ensure any previous peer is properly closed and nulled before creating a new one.
@@ -41,7 +80,7 @@ func create_game():
 		return error
 	
 	multiplayer.multiplayer_peer = peer
-	players[1] = {"name": get_random_name(), "color": get_random_color()}
+	players[1] = local_player_data
 	update_ui.emit()
 	
 	_log("Server started successfully on port %d" % PORT)
@@ -90,9 +129,8 @@ func lock_lobby():
 func _on_peer_connected(id):
 	_log("Peer connected.", id)
 	# When we see a new peer, tell them our info
-	var my_id = multiplayer.get_unique_id()
-	if players.has(my_id):
-		_register_player.rpc_id(id, players[my_id])
+	# We use the local_player_data which is always kept up to date
+	_register_player.rpc_id(id, local_player_data)
 
 
 func _on_peer_disconnected(id):
@@ -136,10 +174,3 @@ func _process(delta: float) -> void:
 #	DebugDraw2D.set_text("players", players)
 
 	DebugDraw2D.end_text_group()
-
-func get_random_name():
-	var name_combo = ["Epic", "Ugly", "Weird", "Jerkin", "Stupid", "Fat", "Turbo", "Wacky"]
-	return str(name_combo.pick_random() + "Chud")
-
-func get_random_color():
-	return PRESET_COLORS.pick_random()
