@@ -23,7 +23,8 @@ func _ready():
 	NetworkManager.update_ui.connect(refresh_lobby)
 	
 	if NetworkManager.has_connection():
-		show_screen("lobby")
+		show_screen("lobby") # we are connected to someone, so open the lobby instead
+		refresh_lobby()
 	else:
 		show_screen("main") # show main screen by default
 		_parse_args()

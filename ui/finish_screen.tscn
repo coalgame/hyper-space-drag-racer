@@ -27,13 +27,8 @@ layout_mode = 2
 text = "..."
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="CenterContainer/VBoxContainer" unique_id=875933261]
+[node name="ContinueButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1692612517]
 layout_mode = 2
-text = "Play Again"
+text = "Continue"
 
-[node name="Button2" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1692612517]
-layout_mode = 2
-text = "Quit to Main Menu"
-
-[connection signal="pressed" from="CenterContainer/VBoxContainer/Button" to="." method="_on_restart_button_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/Button2" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_pressed"]

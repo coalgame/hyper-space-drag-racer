@@ -3,7 +3,7 @@ class_name Game extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 5555
+var track_length := 50
 
 static var game : Game
 
@@ -147,3 +147,6 @@ func get_first_place() -> Player:
 				lead_player = player
 				
 	return lead_player
+
+func get_player(id:int) -> Player:
+	return get_node_or_null(str(id))

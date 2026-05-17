@@ -1,14 +1,13 @@
 extends Node
 
 var game_seed = 0
-var local_player : Player
+var local_player: Player
 
 func _ready() -> void:
 	if OS.get_cmdline_args().has("-capfps"):
 		Util.maxfps("60")
 	
 	DebugDraw2D.debug_enabled = true
-
 
 
 func _process(delta: float) -> void:
@@ -33,8 +32,7 @@ func switch_to_game(_seed):
 	get_tree().change_scene_to_file("res://game.tscn")
 
 
-@rpc("any_peer", "call_local")
-func restart_game(_seed):
-	Notifications.notify("Restarting game...")
-	Global.game_seed = _seed
-	get_tree().change_scene_to_file("res://game.tscn")
+@rpc("call_local")
+func return_to_lobby():
+	Notifications.notify("Returning to lobby...")
+	get_tree().change_scene_to_file("res://main_menu.tscn")

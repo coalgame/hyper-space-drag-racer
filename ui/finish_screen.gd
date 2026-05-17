@@ -10,13 +10,8 @@ func set_result(standing: int):
 	var msg = "You finished %d%s!" % [standing, suffix]
 	%StatsLabel.text = msg
 
-func _on_restart_button_pressed() -> void:
-	# Since it's multiplayer, you'll likely want the host to trigger this
+func _on_continue_pressed() -> void:
 	if multiplayer.is_server():
-		Global.restart_game(randi())
+		Global.return_to_lobby.rpc()
 	else:
-		Notifications.notify("Waiting for host to restart...")
-
-func _on_quit_button_pressed() -> void:
-	queue_free()
-	get_tree().change_scene_to_file("res://main_menu.tscn")
+		Notifications.notify("Only the host can continue")

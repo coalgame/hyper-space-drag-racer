@@ -14,6 +14,10 @@ func _input(event):
 func toggle_pause():
 	visible = !visible
 	
+	# singleplayer pausing
+	if !NetworkManager.has_connection():
+		get_tree().paused = visible
+	
 	if visible:
 		UIManager.register_screen(self )
 		# Ensure pause menu is visually on top if opened last
@@ -25,6 +29,8 @@ func _on_resume_button_pressed():
 	toggle_pause()
 
 func _on_quit_button_pressed():
+	toggle_pause()
+	
 	# 1. Properly close network peers and clear the player list
 	NetworkManager.disconnect_from_game()
 	

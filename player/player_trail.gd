@@ -11,12 +11,12 @@ var color: Color:
 		mesh.material.set_shader_parameter("albedo", value)
 
 func _ready() -> void:
-	scale=Vector3.ZERO
+	scale=Util.VEC3ZERO
 	
 	await Util.wait(1)
 	
 	var tween = create_tween()
-	tween.parallel().tween_property(self, "scale", Vector3.ZERO, 3)
+	tween.parallel().tween_property(self, "scale", Util.VEC3ZERO, 3)
 	tween.parallel().tween_property(self, "transparency", 1, 3)
 	
 	tween.tween_callback(queue_free)

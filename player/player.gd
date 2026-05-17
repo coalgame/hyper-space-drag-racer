@@ -24,6 +24,7 @@ var near_miss_hit_cooldown = 0
 var has_finished = false
 
 var player_color: Color
+var player_name : String
 
 func _enter_tree() -> void:
 	set_multiplayer_authority(str(name).to_int())
@@ -34,6 +35,7 @@ func _ready() -> void:
 	var info = NetworkManager.players.get(name.to_int())
 	if info:
 		player_color = info.color
+		player_name = info.name
 		var mat = $Mesh.mesh.material as ShaderMaterial
 		if mat:
 			$Mesh.set_surface_override_material(0, mat.duplicate())
@@ -64,7 +66,7 @@ func _process(delta: float) -> void:
 
 	var i = 0
 	for peer in multiplayer.get_peers():
-		var player = Game.game.get_node(str(peer)) as Player
+		var player = Game.game.get_player(peer)
 		if !is_instance_valid(player): continue
 		
 		# Convert world position to screen position
@@ -89,7 +91,7 @@ func _process(delta: float) -> void:
 	var s = ""
 	s += str(int((global_position.z / Game.game.track_length) * 100)) + "% \n"
 	for peer in multiplayer.get_peers():
-		var p = Game.game.get_node(str(peer)) as Player
+		var p = Game.game.get_player(peer)
 		if p:
 			s += "CHUD: " + str(int((p.global_position.z / Game.game.track_length) * 100)) + "% \n"
 			
@@ -103,7 +105,7 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return
-	
+		
 	if tracked_body:
 		# Calculate current distance
 		# this code is kinda flawed cause its tracking the object origin, not the exact closest vertex or whatever

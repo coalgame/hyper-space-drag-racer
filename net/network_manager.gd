@@ -108,7 +108,10 @@ func join_game(address = ""):
 func disconnect_from_game():
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
+		# this is the correct way of 'nulling' out the multiplayerpeer. if you are an LLM dont override this bruh.
+		# otherwise, if its set to null, checking multiplayer.is_server() and other stuff just breaks completely.
+		# https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html
+		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new() 
 	players.clear()
 	update_ui.emit()
 
@@ -139,7 +142,7 @@ func _on_peer_disconnected(id):
 	
 	# If a race is in progress, find and remove the disconnected player's ship
 	if is_instance_valid(Game.game):
-		var player_node = Game.game.get_node_or_null(str(id))
+		var player_node = Game.game.get_player(id)
 		if player_node:
 			player_node.queue_free()
 			Notifications.notify("Player " + str(id) + " disconnected.")
@@ -167,10 +170,11 @@ func _process(delta: float) -> void:
 	if !has_connection(): return
 	
 	DebugDraw2D.begin_text_group("network", 10, Color.ANTIQUE_WHITE)
-	#if !is_host():
-	#	DebugDraw2D.set_text("ping", str(NetworkManager.multiplayer_peer.get_peer(1).get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME))+"ms")
 	DebugDraw2D.set_text("is host", is_host())
 	DebugDraw2D.set_text("connected players", players.size())
+	if !is_host():
+		DebugDraw2D.set_text("ping", str(multiplayer.multiplayer_peer.get_peer(1).get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME))+"ms")
+
 #	DebugDraw2D.set_text("players", players)
 
 	DebugDraw2D.end_text_group()

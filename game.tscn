@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://game.gd" id="1_e2o6t"]
 [ext_resource type="Texture2D" uid="uid://2ygc4p0drp6o" path="res://space.png" id="2_e2o6t"]
 [ext_resource type="PackedScene" uid="uid://c830q5yix4hev" path="res://ui/pause_menu.tscn" id="3_feb5d"]
+[ext_resource type="PackedScene" uid="uid://jcjmqylt1g0f" path="res://ui/finish_screen.tscn" id="4_fc0e3"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_feb5d"]
 panorama = ExtResource("2_e2o6t")
@@ -40,5 +41,8 @@ environment = SubResource("Environment_feb5d")
 _spawnable_scenes = PackedStringArray("uid://ccg8f1p4hr1pj", "uid://cyaijmcchcr48", "uid://cn0cgqin8kyk0")
 spawn_path = NodePath("..")
 
-[node name="PauseMenu" parent="." unique_id=652956662 instance=ExtResource("3_feb5d")]
+[node name="PauseMenu" parent="." unique_id=477721276 instance=ExtResource("3_feb5d")]
+visible = false
+
+[node name="FinishScreen" parent="." unique_id=1391553711 instance=ExtResource("4_fc0e3")]
 visible = false

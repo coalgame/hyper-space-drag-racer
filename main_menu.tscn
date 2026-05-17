@@ -13,7 +13,6 @@ script = ExtResource("1_06t4h")
 
 [node name="MainScreen" type="VBoxContainer" parent="." unique_id=909887119]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -69,6 +68,7 @@ text = "Join Lobby"
 
 [node name="LobbyScreen" type="VBoxContainer" parent="." unique_id=1938846588]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
