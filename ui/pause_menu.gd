@@ -30,7 +30,4 @@ func _on_resume_button_pressed():
 
 func _on_quit_button_pressed():
 	toggle_pause()
-	if multiplayer.is_server():
-		Main.instance.exit_world.rpc() #if host quits, disconnect every1
-	else:
-		Main.instance.exit_world()
+	Main.instance.exit_world()

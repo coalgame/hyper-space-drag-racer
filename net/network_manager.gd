@@ -126,9 +126,6 @@ func has_connection() -> bool:
 func is_host() -> bool:
 	return has_connection() and multiplayer.is_server()
 
-func lock_lobby():
-	print("Lobby locked. New connections will be denied.")
-
 func _on_peer_connected(id):
 	_log("Peer connected.", id)
 	# When we see a new peer, tell them our info
@@ -152,8 +149,7 @@ func _on_peer_disconnected(id):
 # NOTE: client only
 func _on_server_disconnected():
 	Notifications.notify("Lost connection to host.")
-	_log("Disconnected from server (Host closed connection).")
-	disconnect_from_game()
+	print("Disconnected from server (Host closed connection).")
 	Main.instance.exit_world()
 
 @rpc("any_peer", "call_local", "reliable")

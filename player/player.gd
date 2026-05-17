@@ -119,7 +119,7 @@ func _physics_process(delta: float) -> void:
 	
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
 	near_miss_hit_cooldown = move_toward(near_miss_hit_cooldown, 0, delta)
-	
+
 
 	var speed_damp_strength = -0.008
 	var speed_damp = ((speed_damp_strength * top_speed) + 1) - (20 * speed_damp_strength)
