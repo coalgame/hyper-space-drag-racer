@@ -47,6 +47,8 @@ func _cleanup_world() -> void:
 	if world:
 		# Disable processing to prevent race conditions (e.g. physics running on freed nodes)
 		world.process_mode = Node.PROCESS_MODE_DISABLED
+		# we get some dumb error because of the players getting freed, doesnt seem to harm the game tho
+		# https://github.com/godotengine/godot/issues/101847
 		world.queue_free.call_deferred()
 		world = null
 
