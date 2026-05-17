@@ -3,7 +3,7 @@ class_name World extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 50
+var track_length := 5000
 
 var server_random := RandomNumberGenerator.new()
 
@@ -16,20 +16,20 @@ func _ready() -> void:
 	add_child(loading_gate)
 	add_child(post_gen_gate)
 	
-	loading_gate.all_players_ready.connect(_on_everyone_loaded)
-	# 2. Tell the gate you are ready
+	# TODO when some1 tries to join, host gets this error E 0:00:04:732 world.gd:27 @ _on_everyone_loaded(): Signal 'all_players_ready' is already connected to given callable
+	# CONNECT_ONE_SHOT fixes but idk why
+	
+	loading_gate.all_players_ready.connect(_on_everyone_loaded,CONNECT_ONE_SHOT)
 	loading_gate.start_check()
 	
 func _on_everyone_loaded():
 	generate()
 	
-	# 3. Now wait again for post-generation sync
-	post_gen_gate.all_players_ready.connect(_on_everyone_finished_gen)
+	post_gen_gate.all_players_ready.connect(_on_everyone_finished_gen,CONNECT_ONE_SHOT)
 	post_gen_gate.start_check()
 
 func _on_everyone_finished_gen():
 	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
-	
 	
 	if multiplayer.is_server():
 		add_player(1)
