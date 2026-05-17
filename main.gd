@@ -21,48 +21,34 @@ func start_world(game_seed: int = randi()):
 	
 	$MainMenu.hide()
 	
-	if multiplayer.is_server():
-		if world:
-			world.queue_free()
-		
-		world = load("res://world/world.tscn").instantiate()
-		add_child.call_deferred(world)
+	if not multiplayer.is_server():
+		return
+
+	_cleanup_world()
+	world = load("res://world/world.tscn").instantiate()
+	add_child.call_deferred(world)
 
 
 func exit_world():
 	print("exiting world...")
-
 	UIManager.clear_all_screens()
-	
 	NetworkManager.disconnect_from_game()
-	
-	if world:
-		# Stop all processing immediately. This prevents race conditions where 
-		# nodes (like the Player) try to run physics code while being deleted.
-		world.process_mode = Node.PROCESS_MODE_DISABLED
-		# The multiplayerspawner's opinions don't matter here, if we're the client, we are disconnected from the server and won't receive any despawn signals, so we have to free the world ourselves. 
-		world.queue_free.call_deferred()
-	
+	_cleanup_world()
 	$MainMenu.open()
-	
 
 @rpc("call_local", "reliable")
 func back_to_lobby():
 	NetworkManager._log("returning to lobby...")
-
 	UIManager.clear_all_screens()
-	
-	if world:
-		# Stop all processing immediately to prevent race conditions during deletion.
-		world.process_mode = Node.PROCESS_MODE_DISABLED
-		if multiplayer.is_server():
-			# The MultiplayerSpawner will automatically trigger despawn signals on clients.
-			# we get some dumb error because of the players getting freed, doesnt seem to harm the game tho
-			# https://github.com/godotengine/godot/issues/101847
-			world.queue_free.call_deferred()
-			world = null
-	
+	_cleanup_world()
 	$MainMenu.open()
+
+func _cleanup_world() -> void:
+	if world:
+		# Disable processing to prevent race conditions (e.g. physics running on freed nodes)
+		world.process_mode = Node.PROCESS_MODE_DISABLED
+		world.queue_free.call_deferred()
+		world = null
 
 @rpc("authority", "reliable")
 func _reject_joiner():
