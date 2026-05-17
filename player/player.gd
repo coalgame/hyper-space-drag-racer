@@ -246,11 +246,16 @@ func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape
 
 func _on_trail_spawn_timer_timeout() -> void:
 	if is_multiplayer_authority(): return # Only spawn trails on the remote player
+	# (this also stops us from eating our own trails lol)
 	
 	var c: PlayerTrail = preload("res://player/player_trail.tscn").instantiate()
 	Main.world.add_child(c)
 	c.global_position = $TrailSpawnPos.global_position
-	c.color = player_color
+	# HACK find a better way of doing this. instance uniforms are a solution but may hit the limit too fast with multiple players
+	var mat = c.mesh.material as ShaderMaterial
+	if mat:
+		c.set_surface_override_material(0, mat.duplicate())
+		c.get_surface_override_material(0).set_shader_parameter("albedo", player_color)
 
 func complete_race():
 	has_finished = true

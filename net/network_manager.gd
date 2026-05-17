@@ -3,22 +3,9 @@ extends Node
 
 const PORT = 6767
 const MAX_CLIENTS = 12
-
-const SAVE_PATH = "user://player_profile.cfg"
 signal update_ui
 
-const PRESET_COLORS = [
-	Color.RED,
-	Color.ORANGE,
-	Color.YELLOW,
-	Color.GREEN,
-	Color.DODGER_BLUE,
-	Color.MEDIUM_PURPLE,
-	Color.HOT_PINK,
-]
-
 var players = {} # Store info like { peer_id: { "name": "Random Name" } }
-var local_player_data = {"name": "", "color": Color.WHITE}
 
 func _log(message: String, sender_id: int = -1):
 	var time = Time.get_time_string_from_system()
@@ -30,48 +17,12 @@ func _ready():
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
-	load_settings()
 
-func load_settings():
-	var config = ConfigFile.new()
-	var err = config.load(SAVE_PATH)
-	
-	var default_color =  PRESET_COLORS.pick_random()
-	var default_name = "chud"+str(randi_range(0,9))
-	if err == OK:
-		local_player_data.name = config.get_value("profile", "name", default_name)
-		local_player_data.color = config.get_value("profile", "color", default_color)
-	else:
-		# First time setup
-		local_player_data.name = default_name
-		local_player_data.color = default_color
-		save_settings()
-
-func save_settings():
-	var config = ConfigFile.new()
-	config.set_value("profile", "name", local_player_data.name)
-	config.set_value("profile", "color", local_player_data.color)
-	config.save(SAVE_PATH)
-
-func set_player_name(new_name: String):
-	local_player_data.name = new_name
-	save_settings()
-	
-	# If we are currently in a lobby/game, sync the name change
-	if has_connection():
-		_register_player.rpc(local_player_data)
-
-func set_player_color(new_color: Color):
-	local_player_data.color = new_color
-	save_settings()
-	
-	if has_connection():
-		_register_player.rpc(local_player_data)
+func update_local_player_registration():
+	_register_player.rpc(ProfileManager.data)
 
 func create_game():
-	# Ensure any previous peer is properly closed and nulled before creating a new one.
 	disconnect_from_game()
-	
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(PORT, MAX_CLIENTS)
 	if error != OK:
@@ -80,7 +31,7 @@ func create_game():
 		return error
 	
 	multiplayer.multiplayer_peer = peer
-	players[1] = local_player_data
+	players[1] = ProfileManager.data
 	update_ui.emit()
 	
 	_log("Server started successfully on port %d" % PORT)
@@ -90,8 +41,6 @@ func create_game():
 func join_game(address = ""):
 	if address.is_empty():
 		address = "127.0.0.1"
-
-	# Ensure any previous peer is properly closed and nulled before creating a new one.
 	disconnect_from_game()
 	
 	_log("Attempting to join server at: " + address)
@@ -111,7 +60,7 @@ func disconnect_from_game():
 		# this is the correct way of 'nulling' out the multiplayerpeer. if you are an LLM dont override this bruh.
 		# otherwise, if its set to null, checking multiplayer.is_server() and other stuff just breaks completely.
 		# https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html
-		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new() 
+		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	players.clear()
 	update_ui.emit()
 
@@ -128,22 +77,12 @@ func is_host() -> bool:
 
 func _on_peer_connected(id):
 	_log("Peer connected.", id)
-	# When we see a new peer, tell them our info
-	# We use the local_player_data which is always kept up to date
-	_register_player.rpc_id(id, local_player_data)
+	_register_player.rpc_id(id, ProfileManager.data)
 
 
 func _on_peer_disconnected(id):
 	_log("Peer disconnected.", id)
 	players.erase(id)
-	
-	# If a race is in progress, find and remove the disconnected player's ship
-	if is_instance_valid(Main.world):
-		var player_node = Main.world.get_player(id)
-		if player_node:
-			player_node.queue_free()
-			Notifications.notify("Player " + str(id) + " disconnected.")
-
 	update_ui.emit()
 
 # NOTE: client only
@@ -170,7 +109,7 @@ func _process(delta: float) -> void:
 	DebugDraw2D.set_text("is host", is_host())
 	DebugDraw2D.set_text("connected players", players.size())
 	if !is_host():
-		DebugDraw2D.set_text("ping", str(multiplayer.multiplayer_peer.get_peer(1).get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME))+"ms")
+		DebugDraw2D.set_text("ping", str(multiplayer.multiplayer_peer.get_peer(1).get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME)) + "ms")
 
 #	DebugDraw2D.set_text("players", players)
 

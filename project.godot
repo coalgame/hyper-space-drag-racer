@@ -22,6 +22,7 @@ NetworkManager="*uid://mqwg8crgkrgk"
 Global="*uid://ddqmq77yq25f7"
 UIManager="*uid://dqu6lse0viu4c"
 Util="*uid://capbpmagcv2ve"
+ProfileManager="*uid://ct2cp344gr0hv"
 
 [debug_draw_3d]
 

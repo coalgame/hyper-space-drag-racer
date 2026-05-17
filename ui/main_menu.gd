@@ -3,7 +3,7 @@ extends Control
 func _ready():
 	var color_names = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"]
 	for i in range(color_names.size()):
-		var color_value = NetworkManager.PRESET_COLORS[i]
+		var color_value = ProfileManager.PRESET_COLORS[i]
 		
 		# Generate a 16x16 solid color square
 		var img = Image.create(16, 16, false, Image.FORMAT_RGB8)
@@ -12,7 +12,7 @@ func _ready():
 		
 		%ColorOptionButton.add_icon_item(tex, color_names[i])
 	
-	%NameLineEdit.text = NetworkManager.local_player_data.name
+	%NameLineEdit.text = ProfileManager.data.name
 	
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connection_succeeded)
@@ -59,7 +59,7 @@ func refresh_lobby():
 	if !NetworkManager.players.has(my_id): return
 	
 	var my_color = NetworkManager.players[my_id].color
-	%ColorOptionButton.selected = NetworkManager.PRESET_COLORS.find(my_color)
+	%ColorOptionButton.selected = ProfileManager.PRESET_COLORS.find(my_color)
 
 	for child in %PlayerList.get_children():
 		child.queue_free()
@@ -84,7 +84,7 @@ func _on_connection_succeeded():
 	NetworkManager._log("Connection to server succeeded.")
 	
 	# Use our loaded local data instead of generating random info
-	NetworkManager._register_player.rpc(NetworkManager.local_player_data)
+	NetworkManager.update_local_player_registration()
 	
 	show_screen("lobby")
 	refresh_lobby()
@@ -110,8 +110,8 @@ func _on_singleplayer_button_pressed():
 
 
 func _on_color_option_button_item_selected(index: int) -> void:
-	var color = NetworkManager.PRESET_COLORS[index]
-	NetworkManager.set_player_color(color)
+	var color = ProfileManager.PRESET_COLORS[index]
+	ProfileManager.set_color(color)
 
 
 # host
@@ -135,4 +135,4 @@ func show_screen(screen_name: String):
 
 func _on_name_line_edit_text_changed(new_text: String) -> void:
 	if new_text.strip_edges() != "":
-		NetworkManager.set_player_name(new_text)
+		ProfileManager.set_username(new_text)

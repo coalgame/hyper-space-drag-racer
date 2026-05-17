@@ -64,7 +64,6 @@ void fragment() {
 "
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qwnmc"]
-resource_local_to_scene = true
 render_priority = 0
 shader = SubResource("Shader_dygnl")
 shader_parameter/albedo = Color(0.71141654, 1.8715144, 1.1983713, 1)
@@ -84,7 +83,7 @@ material = SubResource("ShaderMaterial_qwnmc")
 size = Vector3(1, 0.765, 1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_g5lsc"]
-radius = 1.535
+radius = 2.5
 
 [node name="PlayerTrail" type="MeshInstance3D" unique_id=1177150298]
 transparency = 0.64

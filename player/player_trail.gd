@@ -4,12 +4,6 @@ var scale_multiplier := 0.01
 var min_scale := 0.6
 var max_scale := 2.0
 
-# In player_trail.gd
-var color: Color:
-	set(value):
-		color = value
-		mesh.material.set_shader_parameter("albedo", value)
-
 func _ready() -> void:
 	scale=Util.VEC3ZERO
 	

@@ -8,11 +8,20 @@ func _init() -> void:
 
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
 func _on_peer_connected(id: int):
 	# If a world exists on the server, a race is already in progress.
 	if multiplayer.is_server() and world != null:
 		_reject_joiner.rpc_id(id)
+
+func _on_peer_disconnected(id: int):
+	# If a race is in progress, find and remove the disconnected player's ship
+	if is_instance_valid(world):
+		var player_node = world.get_player(id)
+		if player_node:
+			player_node.queue_free()
+			Notifications.notify("Player " + str(id) + " disconnected.")
 
 @rpc("call_local")
 func start_world(game_seed: int = randi()):
