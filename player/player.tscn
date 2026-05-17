@@ -12,7 +12,7 @@ height = 0.56920105
 code = "// NOTE: Shader automatically converted from Godot Engine 4.6.1.stable.mono's StandardMaterial3D.
 
 shader_type spatial;
-#include \"res://world_bend.gdshaderinc\"
+#include \"res://world/world_bend.gdshaderinc\"
 
 render_mode blend_premul_alpha, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cyaijmcchcr48"]
 
-[ext_resource type="Script" uid="uid://db6s3botc0m5n" path="res://gem.gd" id="1_whk3i"]
+[ext_resource type="Script" uid="uid://db6s3botc0m5n" path="res://world/gem.gd" id="1_whk3i"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_141ds"]
 radius = 1.83
@@ -10,7 +10,7 @@ code = "// NOTE: Shader automatically converted from Godot Engine 4.6.1.stable.m
 
 shader_type spatial;
 
-#include \"res://world_bend.gdshaderinc\"
+#include \"res://world/world_bend.gdshaderinc\"
 
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 

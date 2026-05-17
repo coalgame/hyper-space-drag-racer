@@ -19,9 +19,9 @@ func unregister_screen(screen: Control):
 	_active_screens.erase(screen)
 
 func show_finish_screen(placing: int):
-	if !is_instance_valid(Game.game): return
+	if !is_instance_valid(Main.world): return
 	
-	var screen = Game.game.get_node("FinishScreen")
+	var screen = Main.world.get_node("FinishScreen")
 	screen.set_result(placing)
 	register_screen(screen)
 

@@ -2,7 +2,6 @@ extends Control
 
 func _ready():
 	var color_names = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"]
-	%ColorOptionButton.clear()
 	for i in range(color_names.size()):
 		var color_value = NetworkManager.PRESET_COLORS[i]
 		
@@ -13,22 +12,26 @@ func _ready():
 		
 		%ColorOptionButton.add_icon_item(tex, color_names[i])
 	
-	# Load the persistent name into the UI
 	%NameLineEdit.text = NetworkManager.local_player_data.name
 	
 	multiplayer.peer_connected.connect(_on_player_connected)
-	multiplayer.connected_to_server.connect(_on_connection_succeeded) # only emitted on clients
-	multiplayer.connection_failed.connect(_on_connection_failed) # only emitted on clients
+	multiplayer.connected_to_server.connect(_on_connection_succeeded)
+	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	
 	NetworkManager.update_ui.connect(refresh_lobby)
 	
-	if NetworkManager.has_connection():
-		show_screen("lobby") # we are connected to someone, so open the lobby instead
+	open()
+	_parse_args()
+
+func open():
+	show()
+	if NetworkManager.has_connection(): # we are connected to someone, so open the lobby instead
+		show_screen("lobby")
 		refresh_lobby()
 	else:
-		show_screen("main") # show main screen by default
-		_parse_args()
-
+		# i guess we quit or something else, show main menu
+		show_screen("main")
 
 func _parse_args():
 	var args = Array(OS.get_cmdline_args())
@@ -103,8 +106,7 @@ func _on_player_connected(peer_id: int):
 
 
 func _on_singleplayer_button_pressed():
-	UIManager.clear_all_screens()
-	Global.switch_to_game(randi())
+	Main.instance.start_world()
 
 
 func _on_color_option_button_item_selected(index: int) -> void:
@@ -115,8 +117,7 @@ func _on_color_option_button_item_selected(index: int) -> void:
 # host
 func _on_start_game_pressed() -> void:
 	NetworkManager.lock_lobby()
-	UIManager.clear_all_screens()
-	Global.switch_to_game.rpc(randi())
+	Main.instance.start_world.rpc()
 
 
 func _on_quit_lobby_pressed():

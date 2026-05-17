@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return
 	
-	if !has_finished and global_position.z > Game.game.track_length:
+	if !has_finished and global_position.z > Main.world.track_length:
 		complete_race()
 	
 	
@@ -66,7 +66,7 @@ func _process(delta: float) -> void:
 
 	var i = 0
 	for peer in multiplayer.get_peers():
-		var player = Game.game.get_player(peer)
+		var player = Main.world.get_player(peer)
 		if !is_instance_valid(player): continue
 		
 		# Convert world position to screen position
@@ -89,11 +89,11 @@ func _process(delta: float) -> void:
 			label.position = screen_pos
 	
 	var s = ""
-	s += str(int((global_position.z / Game.game.track_length) * 100)) + "% \n"
+	s += str(int((global_position.z /Main.world.track_length) * 100)) + "% \n"
 	for peer in multiplayer.get_peers():
-		var p = Game.game.get_player(peer)
+		var p = Main.world.get_player(peer)
 		if p:
-			s += "CHUD: " + str(int((p.global_position.z / Game.game.track_length) * 100)) + "% \n"
+			s += "CHUD: " + str(int((p.global_position.z / Main.world.track_length) * 100)) + "% \n"
 			
 	$ScoreLabel.text = s
 	
@@ -167,8 +167,8 @@ func _physics_process(delta: float) -> void:
 	velocity.y = move_velocity.y
 	velocity.z = speed # still force forward travel direction
 		
-	global_position.x = clamp(global_position.x, -Game.X_SIZE, Game.X_SIZE)
-	global_position.y = clamp(global_position.y, -Game.Y_SIZE, Game.Y_SIZE)
+	global_position.x = clamp(global_position.x, -World.X_SIZE, World.X_SIZE)
+	global_position.y = clamp(global_position.y, -World.Y_SIZE, World.Y_SIZE)
 	
 	move_and_slide()
 	
@@ -248,7 +248,7 @@ func _on_trail_spawn_timer_timeout() -> void:
 	if is_multiplayer_authority(): return # Only spawn trails on the remote player
 	
 	var c: PlayerTrail = preload("res://player/player_trail.tscn").instantiate()
-	Game.game.add_child(c)
+	Main.world.add_child(c)
 	c.global_position = $TrailSpawnPos.global_position
 	c.color = player_color
 

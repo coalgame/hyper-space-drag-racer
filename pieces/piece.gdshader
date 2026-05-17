@@ -1,5 +1,5 @@
 shader_type spatial;
-#include "res://world_bend.gdshaderinc"
+#include "res://world/world_bend.gdshaderinc"
 
 void vertex() {
 	apply_world_bend(VERTEX, MODEL_MATRIX, MODELVIEW_MATRIX);

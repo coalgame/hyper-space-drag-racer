@@ -30,12 +30,7 @@ func _on_resume_button_pressed():
 
 func _on_quit_button_pressed():
 	toggle_pause()
-	
-	# 1. Properly close network peers and clear the player list
-	NetworkManager.disconnect_from_game()
-	
-	# 2. Reset UI State
-	UIManager.clear_all_screens()
-	
-	# 3. Return to the main menu scene
-	get_tree().change_scene_to_file("res://main_menu.tscn")
+	if multiplayer.is_server():
+		Main.instance.exit_world.rpc() #if host quits, disconnect every1
+	else:
+		Main.instance.exit_world()

@@ -1,19 +1,14 @@
-class_name Game extends Node3D
+class_name World extends Node3D
 
 const X_SIZE = 8
 const Y_SIZE = 8
 
 var track_length := 50
 
-static var game : Game
-
 var server_random := RandomNumberGenerator.new()
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
-
-func _init() -> void:
-	game=self
 
 func _ready() -> void:
 	seed(Global.game_seed)
@@ -112,12 +107,12 @@ func generate() -> void:
 		# spawn gem (independent roll)
 		if multiplayer.is_server():
 			if server_random.randf() < 0.1:
-				var gem = preload("res://gem.tscn").instantiate()
+				var gem = preload("res://world/gem.tscn").instantiate()
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
 			
 			if server_random.randf() < 0.05:
-				var asteroid = preload("res://asteroid.tscn").instantiate()
+				var asteroid = preload("res://world/asteroid.tscn").instantiate()
 				add_child.call_deferred(asteroid, true)
 
 				asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)

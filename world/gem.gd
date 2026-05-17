@@ -28,20 +28,20 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.bounce(collision.get_normal()).normalized() * speed
 
 	# bounce off world bounds
-	if global_position.x < -Game.X_SIZE:
-		global_position.x = -Game.X_SIZE
+	if global_position.x < -World.X_SIZE:
+		global_position.x = -World.X_SIZE
 		velocity.x *= -1
 
-	elif global_position.x > Game.X_SIZE:
-		global_position.x = Game.X_SIZE
+	elif global_position.x > World.X_SIZE:
+		global_position.x = World.X_SIZE
 		velocity.x *= -1
 
-	if global_position.y < -Game.Y_SIZE:
-		global_position.y = -Game.Y_SIZE
+	if global_position.y < -World.Y_SIZE:
+		global_position.y = -World.Y_SIZE
 		velocity.y *= -1
 
-	elif global_position.y > Game.Y_SIZE:
-		global_position.y = Game.Y_SIZE
+	elif global_position.y > World.Y_SIZE:
+		global_position.y = World.Y_SIZE
 		velocity.y *= -1
 
 	# keep movement speed consistent after reflections
@@ -63,9 +63,9 @@ func request_pickup():
 		return
 		
 	var id = multiplayer.get_remote_sender_id()
-	var player : Player = Game.game.get_node_or_null(str(id))
+	var player : Player = Main.world.get_player(id)
 	if player:
-		var first_place_player = Game.game.get_first_place()
+		var first_place_player = Main.world.get_first_place()
 		if is_instance_valid(first_place_player):
 			var distance = abs(first_place_player.global_position.z - player.global_position.z)
 			var gemboost = (0.002*distance) + 1

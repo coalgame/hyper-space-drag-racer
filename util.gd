@@ -1,11 +1,11 @@
-## Util.gd -- Collection of utility functions
+## util.gd (autoload) -- Collection of utility functions and useful constants...
 extends Node
 
 const VEC3ZERO = Vector3.ONE * 0.001 # functionally zero for physics / rendering etc purposes
 
 func play_sound(sound: AudioStream, volume=1.0) -> void:
 	var audio_player := AudioStreamPlayer.new()
-	Game.game.add_child(audio_player)
+	Main.instance.add_child(audio_player)
 	audio_player.stream = sound
 	audio_player.play()
 	audio_player.bus = "sfx"

@@ -12,6 +12,6 @@ func set_result(standing: int):
 
 func _on_continue_pressed() -> void:
 	if multiplayer.is_server():
-		Global.return_to_lobby.rpc()
+		Main.instance.exit_world.rpc()
 	else:
 		Notifications.notify("Only the host can continue")

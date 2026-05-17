@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Hyper Space Drag Racer"
-run/main_scene="uid://dcu50kf72okmx"
+run/main_scene="uid://bffrgggrrdgnc"
 config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -32,6 +32,12 @@ settings/3d/volumetric_defaults/thickness=0.0
 [dotnet]
 
 project/assembly_name="Hyper Space Drag Racer"
+
+[file_customization]
+
+folder_colors={
+"res://addons/": "gray"
+}
 
 [global_group]
 
@@ -70,6 +76,11 @@ brake={
 3d_physics/layer_1="world"
 3d_physics/layer_2="player"
 3d_physics/layer_3="interactable"
+
+[network]
+
+limits/tcp/connect_timeout_seconds=10
+limits/unix/connect_timeout_seconds=10
 
 [physics]
 

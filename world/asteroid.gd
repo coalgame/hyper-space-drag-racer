@@ -29,20 +29,20 @@ func _physics_process(delta: float) -> void:
 		
 
 	# bounce off world bounds
-	if global_position.x < -Game.X_SIZE:
-		global_position.x = -Game.X_SIZE
+	if global_position.x < -World.X_SIZE:
+		global_position.x = -World.X_SIZE
 		velocity.x *= -1
 
-	elif global_position.x > Game.X_SIZE:
-		global_position.x = Game.X_SIZE
+	elif global_position.x > World.X_SIZE:
+		global_position.x = World.X_SIZE
 		velocity.x *= -1
 
-	if global_position.y < -Game.Y_SIZE:
-		global_position.y = -Game.Y_SIZE
+	if global_position.y < -World.Y_SIZE:
+		global_position.y = -World.Y_SIZE
 		velocity.y *= -1
 
-	elif global_position.y > Game.Y_SIZE:
-		global_position.y = Game.Y_SIZE
+	elif global_position.y > World.Y_SIZE:
+		global_position.y = World.Y_SIZE
 		velocity.y *= -1
 
 	# keep movement speed consistent after reflections

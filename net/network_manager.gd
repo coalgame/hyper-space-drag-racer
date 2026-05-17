@@ -1,8 +1,8 @@
 #network_manager.gd (autoload)
 extends Node
 
-const PORT = 7000
-const MAX_CLIENTS = 8
+const PORT = 6767
+const MAX_CLIENTS = 12
 
 const SAVE_PATH = "user://player_profile.cfg"
 signal update_ui
@@ -141,19 +141,20 @@ func _on_peer_disconnected(id):
 	players.erase(id)
 	
 	# If a race is in progress, find and remove the disconnected player's ship
-	if is_instance_valid(Game.game):
-		var player_node = Game.game.get_player(id)
+	if is_instance_valid(Main.world):
+		var player_node = Main.world.get_player(id)
 		if player_node:
 			player_node.queue_free()
 			Notifications.notify("Player " + str(id) + " disconnected.")
 
 	update_ui.emit()
 
+# NOTE: client only
 func _on_server_disconnected():
 	disconnect_from_game()
 	Notifications.notify("Lost connection to host.")
 	_log("Disconnected from server (Host closed connection).")
-	get_tree().change_scene_to_file("res://main_menu.tscn")
+	Main.instance.exit_world()
 
 @rpc("any_peer", "call_local", "reliable")
 func _register_player(info):

@@ -1,3 +1,4 @@
+#global.gd (autoload)
 extends Node
 
 var game_seed = 0
@@ -23,16 +24,3 @@ func _process(delta: float) -> void:
 	#
 	#if Input.is_action_just_pressed("debug_toggle"):
 		#DebugDraw2D.debug_enabled = !DebugDraw2D.debug_enabled
-
-
-@rpc("call_local")
-func switch_to_game(_seed):
-	Notifications.notify("Starting game...")
-	Global.game_seed = _seed
-	get_tree().change_scene_to_file("res://game.tscn")
-
-
-@rpc("call_local")
-func return_to_lobby():
-	Notifications.notify("Returning to lobby...")
-	get_tree().change_scene_to_file("res://main_menu.tscn")
