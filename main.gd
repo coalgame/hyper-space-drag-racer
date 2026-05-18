@@ -6,6 +6,8 @@ static var world: World
 func _init() -> void:
 	instance = self
 
+var _freecam_node: Camera3D = null
+
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
@@ -22,6 +24,28 @@ func _on_peer_disconnected(id: int):
 		if player_node:
 			player_node.queue_free()
 			Notifications.notify("Player " + str(id) + " disconnected.")
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F1:
+		_toggle_freecam()
+
+func _toggle_freecam():
+	if _freecam_node:
+		_freecam_node.queue_free()
+		_freecam_node = null
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		Notifications.notify("Freecam Disabled")
+	else:
+		_freecam_node = Camera3D.new()
+		_freecam_node.set_script(load("res://player/free_cam.gd"))
+		add_child(_freecam_node)
+		
+		# Try to start at the lead player's position
+		if world and world.get_first_place():
+			_freecam_node.global_position = world.get_first_place().global_position + Vector3(0, 2, 5)
+			
+		_freecam_node.make_current()
+		Notifications.notify("Freecam Enabled (WASD/QE to fly, F1 to exit)")
 
 @rpc("call_local")
 func start_world(game_seed: int = randi()):
@@ -69,10 +93,11 @@ func _reject_joiner():
 	exit_world()
 
 
-# client: cache world reference
 func _on_world_spawner_spawned(node: Node) -> void:
-	world = node # TODO when does this get called exactly? could we crash if something else tries to access world before its spawned? is that even possible?
+	# This is called immediately after the node is added to the scene tree and synced.
+	# It's safe to cache here. Using 'as World' provides type-safety.
+	world = node as World
 
-# client: delete cached referenece (worldspawner handles queuefree)
 func _on_world_spawner_despawned(_node: Node) -> void:
+	# Clear the reference so systems checking 'if Main.world' know it's gone.
 	world = null

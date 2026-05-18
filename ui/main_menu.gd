@@ -106,7 +106,7 @@ func _on_player_connected(peer_id: int):
 
 
 func _on_singleplayer_button_pressed():
-	Main.instance.start_world()
+	Main.instance.start_world(0)
 
 
 func _on_color_option_button_item_selected(index: int) -> void:

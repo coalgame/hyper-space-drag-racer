@@ -3,9 +3,12 @@ class_name World extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 50
+var track_length := 2500
+const VOXEL_SIZE = 2
 
 var server_random := RandomNumberGenerator.new()
+
+var voxel_grid: Dictionary = {} # Vector3i -> bool
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
@@ -19,25 +22,35 @@ func _ready() -> void:
 	# TODO when some1 tries to join, host gets this error E 0:00:04:732 world.gd:27 @ _on_everyone_loaded(): Signal 'all_players_ready' is already connected to given callable
 	# CONNECT_ONE_SHOT fixes but idk why
 	
-	loading_gate.all_players_ready.connect(_on_everyone_loaded,CONNECT_ONE_SHOT)
+	loading_gate.all_players_ready.connect(_on_everyone_loaded, CONNECT_ONE_SHOT)
 	loading_gate.start_check()
 	
 func _on_everyone_loaded():
 	generate()
+	bake_voxels()
 	
-	post_gen_gate.all_players_ready.connect(_on_everyone_finished_gen,CONNECT_ONE_SHOT)
+	post_gen_gate.all_players_ready.connect(_on_everyone_finished_gen, CONNECT_ONE_SHOT)
 	post_gen_gate.start_check()
 
 func _on_everyone_finished_gen():
 	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
 	
 	if multiplayer.is_server():
-		add_player(1)
+		#add_player(1)
 		for peer in multiplayer.get_peers():
 			add_player(peer)
 		
+		# Spawn a few AI bots for testing
+		for i in range(1):
+			add_bot("Bot_" + str(i))
+		
 func _on_everyone_spawned():
 	pass
+
+func add_bot(bot_name: String):
+	var bot = preload("res://player/bot_player.tscn").instantiate()
+	bot.name = bot_name
+	add_child.call_deferred(bot)
 
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
 func add_player(id):
@@ -48,6 +61,40 @@ func add_player(id):
 	player.name = str(id)
 	add_child.call_deferred(player)
 
+func bake_voxels():
+	printt(multiplayer.get_unique_id(), "Baking voxel grid...")
+	voxel_grid.clear()
+	await get_tree().physics_frame
+	var space_state = get_world_3d().direct_space_state
+
+	var box_shape = BoxShape3D.new()
+	box_shape.size = Vector3.ONE * VOXEL_SIZE
+
+
+	var query = PhysicsShapeQueryParameters3D.new()
+	query.shape = box_shape
+	query.collision_mask = 1
+	
+	# Global volume loop with VOXEL_SIZE steps
+	for z in range(0, track_length + 50, VOXEL_SIZE):
+		for x in range(-X_SIZE, X_SIZE + 1, VOXEL_SIZE):
+			for y in range(-Y_SIZE, Y_SIZE + 1, VOXEL_SIZE):
+				var v_world_pos = Vector3(x, y, z)
+				var v_key = Vector3i(x / VOXEL_SIZE, y / VOXEL_SIZE, z / VOXEL_SIZE)
+				
+				query.transform = Transform3D(Basis(), v_world_pos)
+				var hits = space_state.collide_shape(query, 1)
+				if not hits.is_empty():
+					voxel_grid[v_key] = true
+
+func is_voxel_occupied(v: Vector3i) -> bool:
+	# 1. Check world bounds (Tunnel walls)
+	if abs(v.x * VOXEL_SIZE) > X_SIZE or abs(v.y * VOXEL_SIZE) > Y_SIZE:
+		return true
+	
+	# 2. Check baked obstacles
+	return voxel_grid.has(v)
+
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
 	
@@ -57,14 +104,13 @@ func generate() -> void:
 	]
 	
 	# Random spread around the center path.
-	var x_range := Vector2(-X_SIZE-6.5, X_SIZE+6.5)
-	var y_range := Vector2(-Y_SIZE-6.5, Y_SIZE+6.5)
+	var x_range := Vector2(-X_SIZE - 6.5, X_SIZE + 6.5)
+	var y_range := Vector2(-Y_SIZE - 6.5, Y_SIZE + 6.5)
 
 	
 	var z_spacing := 4.15
 	
 	for i in track_length:
-		
 		var x := randf_range(x_range.x, x_range.y)
 		var y := randf_range(y_range.x, y_range.y)
 		var z := 50 + (i * z_spacing)
@@ -73,6 +119,7 @@ func generate() -> void:
 		var block_scene = scenes.pick_random()
 		var block = block_scene.instantiate()
 		add_child(block)
+		block.name = "cube_" + str(i) # Ensure we can identify them for baking
 		block.position = Vector3(x, y, z)
 
 		# Random rotation helps break up obvious repetition.
@@ -104,34 +151,49 @@ func generate() -> void:
 
 		block.scale = Vector3.ONE * scale_mul
 		
-		# spawn gem (independent roll)
-		if multiplayer.is_server():
-			if server_random.randf() < 0.1:
-				var gem = preload("res://world/gem.tscn").instantiate()
-				add_child.call_deferred(gem, true)
-				gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-			
-			if server_random.randf() < 0.05:
-				var asteroid = preload("res://world/asteroid.tscn").instantiate()
-				add_child.call_deferred(asteroid, true)
-
-				asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-	
+		## spawn gem (independent roll)
+		#if multiplayer.is_server():
+			#if server_random.randf() < 0.1:
+				#var gem = preload("res://world/gem.tscn").instantiate()
+				#add_child.call_deferred(gem, true)
+				#gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+			#
+			#if server_random.randf() < 0.05:
+				#var asteroid = preload("res://world/asteroid.tscn").instantiate()
+				#add_child.call_deferred(asteroid, true)
+#
+				#asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+	#
 
 func _process(delta: float) -> void:
-
 	var x = X_SIZE
 	var y = Y_SIZE
 	var z = 99999
 	var c = Color(3.746, 3.746, 3.266, 1.0)
-	DebugDraw3D.draw_line(Vector3(x,y, 0), Vector3(x,y, z), c)
-	DebugDraw3D.draw_line(Vector3(-x,y, 0), Vector3(-x,y, z), c)
-	DebugDraw3D.draw_line(Vector3(x,-y, 0), Vector3(x,-y, z), c)
-	DebugDraw3D.draw_line(Vector3(-x,-y, 0), Vector3(-x,-y, z), c)
+	DebugDraw3D.draw_line(Vector3(x, y, 0), Vector3(x, y, z), c)
+	DebugDraw3D.draw_line(Vector3(-x, y, 0), Vector3(-x, y, z), c)
+	DebugDraw3D.draw_line(Vector3(x, -y, 0), Vector3(x, -y, z), c)
+	DebugDraw3D.draw_line(Vector3(-x, -y, 0), Vector3(-x, -y, z), c)
 	
+	_draw_voxel_debug()
+
+func _draw_voxel_debug():
+	# To keep FPS high, only draw voxels near the camera or lead player
+	var lead = get_first_place()
+	var cam = get_viewport().get_camera_3d()
+	var reference_pos = cam.global_position if cam else (lead.global_position if lead else Vector3.ZERO)
+	
+	var view_distance = 100.0 
+	
+	for v in voxel_grid:
+		var world_pos = Vector3(v) * VOXEL_SIZE
+		if world_pos.distance_to(reference_pos) < view_distance:
+			# We use the VOXEL_SIZE for both position and box scale
+			DebugDraw3D.draw_box(world_pos, Quaternion.IDENTITY, Vector3.ONE * VOXEL_SIZE, Color(1, 0, 0, 0.15), true)
+
 func get_first_place() -> Player:
 	var lead_player: Player = null
-	var max_z: float = -INF # Start at negative infinity
+	var max_z: float = - INF # Start at negative infinity
 	
 	# We use get_tree().get_nodes_in_group() or loop through children 
 	# to make sure we include the Host and the Clients.
@@ -143,5 +205,5 @@ func get_first_place() -> Player:
 				
 	return lead_player
 
-func get_player(id:int) -> Player:
+func get_player(id: int) -> Player:
 	return get_node_or_null(str(id))
