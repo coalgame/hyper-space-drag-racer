@@ -47,7 +47,10 @@ _subresources={
 },
 "nodes": {
 "PATH:Cube": {
-"generate/physics": true
+"generate/physics": true,
+"physics/shape_type": 3,
+"primitive/position": Vector3(0, 1, 0),
+"primitive/size": Vector3(2, 4, 2)
 }
 }
 }

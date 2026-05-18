@@ -4,8 +4,8 @@ class_name Player extends CharacterBody3D
 
 var is_ai := false
 var bot_radius := 0.5
-var cone_angle_degrees := 100.0
-var cone_resolution := 0.3
+var cone_angle_degrees := 80.0
+var cone_resolution := 0.15
 var num_rays := 0
 var ray_directions: Array[Vector3] = []
 
@@ -32,6 +32,11 @@ var has_finished = false
 
 var player_color: Color
 var player_name: String
+
+const ai_testing_mode := true
+var ai_start_time := 0.0
+var ai_collision_count := 0
+
 
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.
@@ -60,6 +65,8 @@ func _ready() -> void:
 		_generate_ray_directions(rng)
 		player_color = ProfileManager.PRESET_COLORS[rng.randi() % ProfileManager.PRESET_COLORS.size()]
 		player_name = name
+		if ai_testing_mode:
+			ai_start_time = Time.get_ticks_msec()
 	
 	var info = NetworkManager.players.get(name.to_int())
 	if info:
@@ -76,7 +83,8 @@ func _ready() -> void:
 		%NameLabel3D.modulate = player_color
 		
 	if !is_multiplayer_authority() or is_ai:
-		cam.queue_free()
+		if !ai_testing_mode:
+			cam.queue_free()
 		$ScoreLabel.queue_free()
 	else:
 		# the local player shouldn't have a name label
@@ -87,7 +95,7 @@ func _generate_ray_directions(rng: RandomNumberGenerator = null) -> void:
 	var cone_angle_rad = deg_to_rad(cone_angle_degrees)
 	var current_angle_x = - cone_angle_rad / 2.0
 	var jitter := 0.1 # Max angle offset for individual rays
-	
+	#rng=null
 	while current_angle_x <= cone_angle_rad / 2.0:
 		var current_angle_y = - cone_angle_rad / 2.0
 		while current_angle_y <= cone_angle_rad / 2.0:
@@ -102,12 +110,19 @@ func _generate_ray_directions(rng: RandomNumberGenerator = null) -> void:
 	num_rays = ray_directions.size()
 
 func _process(delta: float) -> void:
-	if !is_multiplayer_authority() or is_ai:
+	#if Input.is_action_just_pressed("ui_home"):
+		#Engine.time_scale = 8
+	#if Input.is_action_just_pressed("ui_end"):
+		#Engine.time_scale = 1
+		#
+	if !is_multiplayer_authority():
 		return
 	
 	if !has_finished and global_position.z > Main.world.track_length:
 		complete_race()
 	
+	if is_ai:
+		return
 	
 	# Hide all indicators initially so they don't get "stuck" if a peer leaves
 	for label in $IndicatorLabels.get_children():
@@ -213,6 +228,24 @@ func _get_ai_input() -> Vector2:
 		chosen_dir += (steering_basis * ray_directions[i]) * (interests[i] * pow(1.0 - dangers[i], 2.0))
 	
 	var local_dir = chosen_dir.normalized()
+
+	if ai_testing_mode:
+		# Visualize the intended goal (Gem or forward)
+		DebugDraw3D.draw_ray(global_position, world_goal_direction, 5.0, Color.AQUA)
+		if closest_gem:
+			DebugDraw3D.draw_line(global_position, closest_gem.global_position, Color.AQUA)
+		
+		# Visualize individual sensing rays
+		for i in range(num_rays):
+			var weight = interests[i] * pow(1.0 - dangers[i], 2.0)
+			# Only draw rays that have significant influence or are detecting danger to avoid clutter
+			if weight > 0.1 or dangers[i] > 0.7:
+				var ray_color = Color.GREEN.lerp(Color.RED, dangers[i])
+				DebugDraw3D.draw_ray(global_position, steering_basis * ray_directions[i], 3.0, ray_color)
+		
+		# Visualize final calculated steering vector
+		DebugDraw3D.draw_arrow(global_position, global_position + local_dir * 5.0, Color.YELLOW, 0.5)
+
 	return Vector2(local_dir.x, local_dir.y)
 
 func _physics_process(delta: float) -> void:
@@ -238,7 +271,8 @@ func _physics_process(delta: float) -> void:
 			min_distance = current_dist
 	
 	var camoffset = Vector3(0, 1.06, -2.2)
-	if !is_ai:
+
+	if !is_ai or ai_testing_mode:
 		cam.global_position = cam.global_position.lerp((global_position + camoffset), delta * 12)
 	
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
@@ -331,6 +365,9 @@ func _physics_process(delta: float) -> void:
 			var impact_strength = abs(velocity.z)
 
 			# convert impact into backward push
+			if is_ai:
+				ai_collision_count += 1
+
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
 			
 			if is_ai:
@@ -360,7 +397,7 @@ var tracked_body: Node3D = null
 func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 	if body == tracked_body:
 		var dist = min_distance
-		print("Near miss distance: ", dist)
+		#print("Near miss distance: ", dist)
 		# Example: Dynamic boost based on closeness
 		# If dist is 2.0 (very close), boost is higher than if dist is 5.0
 		var boost_multiplier = clamp(10.0 / dist, 1.0, 5.0)
@@ -368,7 +405,7 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		speed_boost(0.6 * boost_multiplier)
 		if speed > 2:
 			speed += (top_speed * 0.04) + (boost_multiplier) + 4
-			print((top_speed * 0.04) + (boost_multiplier) + 4)
+			#print((top_speed * 0.04) + (boost_multiplier) + 4)
 		tracked_body = null # Stop tracking
 		
 		#cam.fov_boost(1.05)
@@ -407,6 +444,18 @@ func _on_trail_spawn_timer_timeout() -> void:
 
 func complete_race():
 	has_finished = true
+	
+	if is_ai and ai_testing_mode:
+		var duration = (Time.get_ticks_msec() - ai_start_time) / 1000.0
+		print("--- AI TEST RESULTS [%s] ---" % player_name)
+		print("Time: %.3fs" % duration)
+		print("Collisions: %d" % ai_collision_count)
+		print("Map length: %d" % Main.world.track_length)
+		print("Cone res: " , cone_resolution)
+		print("Cone angle: " , cone_angle_degrees)
+		
+		print("---------------------------")
+
 	# Call your UI manager
 	UIManager.show_finish_screen(get_standing())
 	

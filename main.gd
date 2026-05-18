@@ -50,7 +50,8 @@ func _toggle_freecam():
 @rpc("call_local")
 func start_world(game_seed: int = randi()):
 	Notifications.notify("Starting world...")
-	Global.game_seed = game_seed
+	#Global.game_seed = game_seed
+	Global.game_seed = 67
 	
 	$MainMenu.hide()
 	

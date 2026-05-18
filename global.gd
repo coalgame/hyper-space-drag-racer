@@ -8,7 +8,7 @@ func _ready() -> void:
 	if OS.get_cmdline_args().has("-capfps"):
 		Util.maxfps("60")
 	
-	DebugDraw2D.debug_enabled = true
+	DebugDraw3D.debug_enabled = false
 
 
 func _process(delta: float) -> void:
@@ -24,5 +24,6 @@ func _process(delta: float) -> void:
 			#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	#
 	if Input.is_action_just_pressed("debug_toggle"):
-		DebugDraw2D.debug_enabled = !DebugDraw2D.debug_enabled
 		DebugDraw3D.debug_enabled = !DebugDraw3D.debug_enabled
+	if Input.is_action_just_pressed("debug_toggle_2d"):
+		DebugDraw2D.debug_enabled = !DebugDraw2D.debug_enabled

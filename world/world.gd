@@ -3,9 +3,9 @@ class_name World extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 3500
+var track_length := 5000
 
-var server_random := RandomNumberGenerator.new()
+var server_random : RandomNumberGenerator
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
@@ -45,8 +45,8 @@ func _on_everyone_finished_gen():
 		var current_idx = 0
 		
 		# Spawn Host
-		add_player(1, Vector3(start_x + (current_idx * spacing), 0, 0))
-		current_idx += 1
+		#add_player(1, Vector3(start_x + (current_idx * spacing), 0, 0))
+		#current_idx += 1
 		
 		# Spawn Peers
 		for peer in peers:
@@ -57,6 +57,7 @@ func _on_everyone_finished_gen():
 		for i in range(bot_count):
 			add_bot("BOT-" + str(i), Vector3(start_x + (current_idx * spacing), 0, 0))
 			current_idx += 1
+			
 		
 func _on_everyone_spawned():
 	pass
@@ -80,6 +81,10 @@ func add_player(id, start_pos: Vector3):
 	
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
+	
+	if multiplayer.is_server():
+		server_random = RandomNumberGenerator.new()
+		server_random.seed = Global.game_seed
 	
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
