@@ -93,7 +93,7 @@ properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[node name="Gem" type="CharacterBody3D" unique_id=1086933115]
+[node name="Gem" type="CharacterBody3D" unique_id=1086933115 groups=["gem"]]
 collision_layer = 0
 collision_mask = 2
 motion_mode = 1

@@ -35,29 +35,46 @@ func _on_everyone_finished_gen():
 	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
 	
 	if multiplayer.is_server():
-		add_player(1)
-		for peer in multiplayer.get_peers():
-			add_player(peer)
+		var peers = multiplayer.get_peers()
+		var bot_count = 5
+		var total_count = 1 + peers.size() + bot_count
+		var spacing = 5.0
+		# Calculate start_x so the row is centered at X = 0
+		var start_x = - ((total_count - 1) * spacing) / 2.0
 		
-		# Spawn a few AI bots for testing
-		for i in range(1):
-			add_bot("Bot_" + str(i))
+		var current_idx = 0
+		
+		# Spawn Host
+		add_player(1, Vector3(start_x + (current_idx * spacing), 0, 0))
+		current_idx += 1
+		
+		# Spawn Peers
+		for peer in peers:
+			add_player(peer, Vector3(start_x + (current_idx * spacing), 0, 0))
+			current_idx += 1
+			
+		# Spawn Bots
+		for i in range(bot_count):
+			add_bot("Bot_" + str(i), Vector3(start_x + (current_idx * spacing), 0, 0))
+			current_idx += 1
 		
 func _on_everyone_spawned():
 	pass
 
-func add_bot(bot_name: String):
-	var bot = preload("res://player/bot_player.tscn").instantiate()
+func add_bot(bot_name: String, start_pos: Vector3):
+	var bot = preload("res://player/player.tscn").instantiate()
 	bot.name = bot_name
+	bot.position = start_pos
 	add_child.call_deferred(bot)
 
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
-func add_player(id):
+func add_player(id, start_pos: Vector3):
 	assert(is_multiplayer_authority())
 	#Notifications.notify(multiplayer.get_unique_id() , "add_player", id)
 	
 	var player = preload("res://player/player.tscn").instantiate()
 	player.name = str(id)
+	player.position = start_pos
 	add_child.call_deferred(player)
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
@@ -116,19 +133,18 @@ func generate() -> void:
 		block.scale = Vector3.ONE * scale_mul
 		
 		## spawn gem (independent roll)
-		#if multiplayer.is_server():
-			#if server_random.randf() < 0.1:
-				#var gem = preload("res://world/gem.tscn").instantiate()
-				#add_child.call_deferred(gem, true)
-				#gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-			#
-			#if server_random.randf() < 0.05:
-				#var asteroid = preload("res://world/asteroid.tscn").instantiate()
-				#add_child.call_deferred(asteroid, true)
-#
-				#asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-	#
+		if multiplayer.is_server():
+			if server_random.randf() < 0.1:
+				var gem = preload("res://world/gem.tscn").instantiate()
+				add_child.call_deferred(gem, true)
+				gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+			
+			if server_random.randf() < 0.05:
+				var asteroid = preload("res://world/asteroid.tscn").instantiate()
+				add_child.call_deferred(asteroid, true)
 
+				asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+	
 
 func _process(delta: float) -> void:
 	var x = X_SIZE

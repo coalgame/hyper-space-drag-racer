@@ -3,6 +3,7 @@ class_name PlayerTrail extends MeshInstance3D
 var scale_multiplier := 0.01
 var min_scale := 0.6
 var max_scale := 2.0
+var source : Player
 
 func _ready() -> void:
 	scale=Util.VEC3ZERO
@@ -15,7 +16,7 @@ func _ready() -> void:
 	
 	tween.tween_callback(queue_free)
 
-		
+
 func _process(delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	
@@ -37,6 +38,7 @@ func _process(delta: float) -> void:
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if body is Player:
+		if body == source: return # cant eat their own trail!
 		if body.is_multiplayer_authority():
 			body.speed_boost(0.45)
 			# client side only, other players can eat the same trail 
