@@ -9,12 +9,15 @@ size = Vector3(0.525, 0.35, 0.55)
 radius = 0.3
 
 [node name="BotPlayer" type="CharacterBody3D" unique_id=284403314]
+collision_layer = 0
 script = ExtResource("1_i55ub")
+bot_radius = 0.3
+cone_angle_degrees = 90.0
+cone_resolution = 0.3
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1071980127]
 transform = Transform3D(-1, -1.862669e-08, 8.541539e-08, 0, 0.97703815, 0.21306449, -8.742278e-08, 0.21306449, -0.97703815, 0, 0.5653455, -1.7521296)
 visible = false
-current = true
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1300877697]
 mesh = SubResource("BoxMesh_3nfy1")
