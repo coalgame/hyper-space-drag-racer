@@ -36,9 +36,9 @@ func _on_everyone_finished_gen():
 	
 	if multiplayer.is_server():
 		var peers = multiplayer.get_peers()
-		var bot_count = 5
+		var bot_count = max(0, (NetworkManager.MAX_CLIENTS - 1) - peers.size())
 		var total_count = 1 + peers.size() + bot_count
-		var spacing = 5.0
+		var spacing = 6.0
 		# Calculate start_x so the row is centered at X = 0
 		var start_x = - ((total_count - 1) * spacing) / 2.0
 		
@@ -55,16 +55,17 @@ func _on_everyone_finished_gen():
 			
 		# Spawn Bots
 		for i in range(bot_count):
-			add_bot("Bot_" + str(i), Vector3(start_x + (current_idx * spacing), 0, 0))
+			add_bot("BOT-" + str(i), Vector3(start_x + (current_idx * spacing), 0, 0))
 			current_idx += 1
 		
 func _on_everyone_spawned():
 	pass
 
 func add_bot(bot_name: String, start_pos: Vector3):
-	var bot = preload("res://player/player.tscn").instantiate()
+	var bot: Player = preload("res://player/player.tscn").instantiate()
 	bot.name = bot_name
 	bot.position = start_pos
+	bot.is_ai = true
 	add_child.call_deferred(bot)
 
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree
@@ -76,6 +77,7 @@ func add_player(id, start_pos: Vector3):
 	player.name = str(id)
 	player.position = start_pos
 	add_child.call_deferred(player)
+	
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
 	
@@ -138,13 +140,13 @@ func generate() -> void:
 				var gem = preload("res://world/gem.tscn").instantiate()
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-			
-			if server_random.randf() < 0.05:
-				var asteroid = preload("res://world/asteroid.tscn").instantiate()
-				add_child.call_deferred(asteroid, true)
-
-				asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-	
+			#
+			#if server_random.randf() < 0.05:
+				#var asteroid = preload("res://world/asteroid.tscn").instantiate()
+				#add_child.call_deferred(asteroid, true)
+#
+				#asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+	#
 
 func _process(delta: float) -> void:
 	var x = X_SIZE

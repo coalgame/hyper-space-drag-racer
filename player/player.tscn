@@ -224,13 +224,25 @@ visible = false
 [node name="PlayerIndicatorLabel8" parent="IndicatorLabels" unique_id=1223295793 instance=ExtResource("3_g1dw6")]
 visible = false
 
+[node name="PlayerIndicatorLabel9" parent="IndicatorLabels" unique_id=2119532667 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel10" parent="IndicatorLabels" unique_id=1090545189 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel11" parent="IndicatorLabels" unique_id=1846972958 instance=ExtResource("3_g1dw6")]
+visible = false
+
+[node name="PlayerIndicatorLabel12" parent="IndicatorLabels" unique_id=1208252037 instance=ExtResource("3_g1dw6")]
+visible = false
+
 [node name="NameLabel3D" type="Label3D" parent="." unique_id=1960586128]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0039229, 0)
-visibility_range_end = 65.0
+visibility_range_end = 50.0
 visibility_range_end_margin = 5.0
 visibility_range_fade_mode = 1
-pixel_size = 0.0008
+pixel_size = 0.0006
 billboard = 1
 fixed_size = true
 text = "Loading..."

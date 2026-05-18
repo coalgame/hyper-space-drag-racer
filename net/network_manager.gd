@@ -2,7 +2,7 @@
 extends Node
 
 const PORT = 6767
-const MAX_CLIENTS = 12
+const MAX_CLIENTS = 8
 signal update_ui
 
 var players = {} # Store info like { peer_id: { "name": "Random Name" } }

@@ -34,9 +34,12 @@ var player_color: Color
 var player_name: String
 
 func _enter_tree() -> void:
-	# If it's a bot (names like "Bot_0"), authority belongs to the Server (ID 1)
-	if name.get_slice("_", 0) == "Bot":
+	# The MultiplayerSpawner syncs the node name before adding it to the tree.
+	# We use this to identify bots on the client side immediately.
+	if name.begins_with("BOT-"):
 		is_ai = true
+
+	if is_ai:
 		set_multiplayer_authority(1)
 	else:
 		set_multiplayer_authority(str(name).to_int())
@@ -215,10 +218,16 @@ func _get_ai_input() -> Vector2:
 func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return
-		
-	# If bot is behind the local human player, disable collision to prevent off-screen pileups
-	if is_ai and is_instance_valid(Global.local_player):
-		$CSGBakedCollisionShape3D.disabled = global_position.z < Global.local_player.global_position.z
+	
+	# If bot is behind ALL human players, disable collision to cheese back into the race
+	#if is_ai:
+		#var min_human_z := INF
+		#for p in get_tree().get_nodes_in_group("player"):
+			#if not p.is_ai:
+				#min_human_z = min(min_human_z, p.global_position.z)
+		#
+		#if min_human_z != INF:
+			#$CSGBakedCollisionShape3D.disabled = global_position.z < min_human_z
 
 	if tracked_body:
 		# Calculate current distance
@@ -235,9 +244,19 @@ func _physics_process(delta: float) -> void:
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
 	near_miss_hit_cooldown = move_toward(near_miss_hit_cooldown, 0, delta)
 	
-	var ai_speed_multiplier = 1
+	var ai_speed_multiplier = 1.0
 	if is_ai:
-		ai_speed_multiplier = 2.1
+		ai_speed_multiplier = 2.4
+		if is_instance_valid(Main.world):
+			var leader = Main.world.get_first_place()
+			if is_instance_valid(leader):
+				if leader != self:
+					var dist_behind = leader.global_position.z - global_position.z
+					# Increase speed multiplier by up to 1.0 if 250m behind
+					ai_speed_multiplier += clamp(dist_behind / 250.0, 0.0, 1.0)
+				else:
+					# If leading, slow down slightly to keep the race tight
+					ai_speed_multiplier *= 0.85
 
 	var speed_damp_strength = -0.008
 	var speed_damp = ((speed_damp_strength * top_speed) + 1) - (20 * speed_damp_strength)
@@ -313,6 +332,10 @@ func _physics_process(delta: float) -> void:
 
 			# convert impact into backward push
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
+			
+			if is_ai:
+				# Bots are minimally affected by crashing
+				knockback *= 0.52 # Reduce knockback for AI
 
 			speed = - knockback * 1.6
 			acceleration -= knockback * 5
