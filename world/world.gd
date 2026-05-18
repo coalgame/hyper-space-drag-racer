@@ -3,13 +3,13 @@ class_name World extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 500
-const VOXEL_SIZE = 1
+var track_length := 3500
+const VOXEL_SIZE = 2
 
 var server_random := RandomNumberGenerator.new()
 
-var voxel_grid: Dictionary = {} # Vector3i -> bool
-var safe_path: Array[Vector3] = [] # Pre-calculated safe points
+var voxel_grid: Dictionary = {} # Vector3i -> bool (Now stores REACHABLE voxels)
+var safe_path = []
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
@@ -43,7 +43,7 @@ func _on_everyone_finished_gen():
 	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
 	
 	if multiplayer.is_server():
-		#add_player(1)
+	#	add_player(1)
 		for peer in multiplayer.get_peers():
 			add_player(peer)
 		
@@ -71,135 +71,58 @@ func add_player(id):
 func bake_voxels():
 	printt(multiplayer.get_unique_id(), "Baking voxel grid...")
 	voxel_grid.clear()
-	
+
 	# Ensure physics is synced before querying
 	var space_state = get_world_3d().direct_space_state
 
 	var box_shape = BoxShape3D.new()
-	# Use full size to ensure no gaps in detection
-	box_shape.size = Vector3.ONE * VOXEL_SIZE
+	box_shape.size = Vector3.ONE * (VOXEL_SIZE * 0.95)
 
 	var query = PhysicsShapeQueryParameters3D.new()
 	query.shape = box_shape
 	query.collision_mask = 1
-	query.margin = 0.0 # Remove margin for exact volume checking
-	
-	# Offset the loop so probes are centered in the grid cells
-	var offset = VOXEL_SIZE / 2.0
-	for z in range(0, track_length + 50, VOXEL_SIZE):
-		for x in range(-X_SIZE, X_SIZE, VOXEL_SIZE):
-			for y in range(-Y_SIZE, Y_SIZE, VOXEL_SIZE):
-				var v_world_pos = Vector3(x + offset, y + offset, z + offset)
-				var v_key = Vector3i(
-					floori(v_world_pos.x / VOXEL_SIZE),
-					floori(v_world_pos.y / VOXEL_SIZE),
-					floori(v_world_pos.z / VOXEL_SIZE)
-				)
-				
-				query.transform = Transform3D(Basis(), v_world_pos)
-				var hits = space_state.intersect_shape(query, 1)
-				if not hits.is_empty():
-					voxel_grid[v_key] = true
+	query.margin = 0.0
 
-func find_safe_path():
-	printt(multiplayer.get_unique_id(), "Calculating safe backbone path...")
-	safe_path.clear()
-	var last_pos = Vector2.ZERO
-	
-	# 1. Generate the raw greedy path
-	for z in range(0, track_length + 50, VOXEL_SIZE):
-		var best_xy = last_pos
-		var max_score = - INF
-		
-		for x in range(-X_SIZE, X_SIZE + 1, VOXEL_SIZE):
-			for y in range(-Y_SIZE, Y_SIZE + 1, VOXEL_SIZE):
-				var v = Vector3i(x / VOXEL_SIZE, y / VOXEL_SIZE, z / VOXEL_SIZE)
-				
-				if not is_voxel_occupied(v):
-					var clearance = 0
-					for ox in range(-1, 2):
-						for oy in range(-1, 2):
-							if not is_voxel_occupied(v + Vector3i(ox, oy, 0)):
-								clearance += 1
-					
-					var dist_from_prev = last_pos.distance_to(Vector2(x, y))
-					var dist_from_center = Vector2(x, y).length()
-					
-					# NEW SCORING: 
-					# - High penalty for jumping far from the previous point (Continuity)
-					# - Slight penalty for being far from center (stays in middle of tunnel)
-					# - Clearance is important, but not enough to justify a huge jump
-					var score = (clearance * 20.0)
-					score -= (dist_from_prev * 60.0) # Heavy penalty for twitchy X/Y jumps
-					score -= (dist_from_center * 1.5)
-					
-					if score > max_score:
-						max_score = score
-						best_xy = Vector2(x, y)
-		
-		safe_path.append(Vector3(best_xy.x, best_xy.y, z))
-		last_pos = best_xy
+	# Flood Fill (BFS) starting from 0,0,0
+	var start_v = Vector3i(0, 0, 0)
+	var queue: Array[Vector3i] = [start_v]
+	voxel_grid[start_v] = true # Mark as reachable
 
-	# 2. Smoothing Pass (Box Filter)
-	var raw_path = safe_path.duplicate()
-	var smoothing_window = 5 # Larger window for a more "flowing" racing line
-	var smoothed_path: Array[Vector3] = []
-	
-	for i in range(raw_path.size()):
-		var sum = Vector3.ZERO
-		var count = 0
-		for j in range(max(0, i - smoothing_window), min(raw_path.size(), i + smoothing_window + 1)):
-			sum += raw_path[j]
-			count += 1
-		
-		var avg = sum / count
+	var head = 0
+	while head < queue.size():
+		var current = queue[head]
+		head += 1
 
-		# 3. Iterative Constraint Satisfaction
-		# Instead of snapping back to raw, lerp toward it until the 3x3 buffer is clear.
-		var raw_safe_pos = raw_path[i]
-		var final_pos = avg
-		
-		# Attempt to find the smoothest point that is also safe
-		for step in range(11): # Try 10 increments of "safety"
-			var weight = step / 10.0
-			var test_pos = avg.lerp(raw_safe_pos, weight)
+		# Check 6 neighbors (Up, Down, Left, Right, Forward, Back)
+		for dir in [Vector3i.FORWARD, Vector3i.BACK, Vector3i.LEFT, Vector3i.RIGHT, Vector3i.UP, Vector3i.DOWN]:
+			var next = current + dir
 			
-			if _is_area_safe(test_pos, raw_path[i].z):
-				final_pos = test_pos
-				break
+			# 1. Stay within tunnel bounds and track length
+			if abs(next.x * VOXEL_SIZE) > X_SIZE or abs(next.y * VOXEL_SIZE) > Y_SIZE:
+				continue
+			if next.z < 0 or next.z * VOXEL_SIZE > track_length + 50:
+				continue
 				
-		# Maintain the original Z to ensure the bot doesn't slow down or speed up
-		smoothed_path.append(Vector3(final_pos.x, final_pos.y, raw_path[i].z))
-		
-	safe_path = smoothed_path
+			# 2. Skip if already visited
+			if voxel_grid.has(next):
+				continue
 
-func _is_area_safe(pos: Vector3, z_world: float) -> bool:
-	for ox in range(-1, 2):
-		for oy in range(-1, 2):
-			var v = Vector3i(
-				round(pos.x / VOXEL_SIZE) + ox,
-				round(pos.y / VOXEL_SIZE) + oy,
-				round(z_world / VOXEL_SIZE)
-			)
-			if is_voxel_occupied(v):
-				return false
-	return true
+			# 3. Physics check: Is this specific neighbor blocked?
+			query.transform = Transform3D(Basis(), Vector3(next) * VOXEL_SIZE)
+			var hits = space_state.intersect_shape(query, 1)
+			
+			if hits.is_empty():
+				voxel_grid[next] = true
+				queue.push_back(next)
 
-func get_safe_path_point(z_pos: float) -> Vector3:
-	if safe_path.is_empty():
-		return Vector3(0, 0, z_pos)
-	
-	# Map Z world position to path index
-	var index = clampi(int(z_pos / VOXEL_SIZE), 0, safe_path.size() - 1)
-	return safe_path[index]
+	printt("Bake complete. Reachable voxels:", voxel_grid.size())
 
 func is_voxel_occupied(v: Vector3i) -> bool:
-	# 1. Check world bounds (Tunnel walls)
-	if abs(v.x * VOXEL_SIZE) > X_SIZE or abs(v.y * VOXEL_SIZE) > Y_SIZE:
+	# If it's in the grid, it was reached by the flood fill, meaning it's NOT occupied.
+	# If it's NOT in the grid, it's either outside the tunnel or inside an object.
+	if not voxel_grid.has(v):
 		return true
-	
-	# 2. Check baked obstacles
-	return voxel_grid.has(v)
+	return false
 
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
@@ -271,6 +194,44 @@ func generate() -> void:
 				#asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
 	#
 
+
+func find_safe_path() -> void:
+	safe_path.clear()
+	var z_max = floori(track_length / float(VOXEL_SIZE))
+	
+	for vz in range(0, z_max, 3):  # every 3 voxels is fine
+		var best: Vector3i
+		var best_dist = INF
+		
+		for vx in range(-X_SIZE, X_SIZE + 1):
+			for vy in range(-Y_SIZE, Y_SIZE + 1):
+				var v = Vector3i(vx, vy, vz)
+				if voxel_grid.has(v):
+					var dist = Vector2(vx, vy).length()
+					if dist < best_dist:
+						best_dist = dist
+						best = v
+		
+		if best_dist < INF:
+			safe_path.append(Vector3(best) * VOXEL_SIZE)
+			
+	safe_path=smooth_path(safe_path)
+func smooth_path(path: Array, iterations: int = 3) -> Array:
+	var result = path.duplicate()
+	for _i in iterations:
+		var smoothed = [result[0]]
+		for j in range(1, result.size() - 1):
+			var candidate = (result[j-1] + result[j] + result[j+1]) / 3.0
+			var voxel = Vector3i(candidate / VOXEL_SIZE)
+			# only accept the smoothed point if it's free
+			if voxel_grid.has(voxel):
+				smoothed.append(candidate)
+			else:
+				smoothed.append(result[j])  # keep original if smoothed is blocked
+		smoothed.append(result[-1])
+		result = smoothed
+	return result
+	
 func _process(delta: float) -> void:
 	var x = X_SIZE
 	var y = Y_SIZE
@@ -291,18 +252,34 @@ func _process(delta: float) -> void:
 		DebugDraw3D.draw_line_path(safe_path, Color.CYAN)
 
 func _draw_voxel_debug():
+	return
 	# To keep FPS high, only draw voxels near the camera or lead player
 	var lead = get_first_place()
 	var cam = get_viewport().get_camera_3d()
 	var reference_pos = cam.global_position if cam else (lead.global_position if lead else Vector3.ZERO)
 	
-	var view_distance = 100.0
+	var view_distance = 30.0
 	
-	for v in voxel_grid:
-		var world_pos = Vector3(v) * VOXEL_SIZE
-		if world_pos.distance_to(reference_pos) < view_distance:
-			# We use the VOXEL_SIZE for both position and box scale
-			DebugDraw3D.draw_box(world_pos, Quaternion.IDENTITY, Vector3.ONE * VOXEL_SIZE, Color(1, 0, 0, 0.15), true)
+	# Define the iteration range for voxel keys (v.x, v.y, v.z)
+	var vx_min = floori(-X_SIZE / float(VOXEL_SIZE))
+	var vx_max = floori(X_SIZE / float(VOXEL_SIZE))
+	var vy_min = floori(-Y_SIZE / float(VOXEL_SIZE))
+	var vy_max = floori(Y_SIZE / float(VOXEL_SIZE))
+	var vz_min = 0
+	var vz_max = floori((track_length + 50) / float(VOXEL_SIZE))
+
+	for vx in range(vx_min, vx_max + 1):
+		for vy in range(vy_min, vy_max + 1):
+			for vz in range(vz_min, vz_max + 1):
+				var v_key = Vector3i(vx, vy, vz)
+				var world_pos = Vector3(v_key) * VOXEL_SIZE
+				
+				# Apply view_distance optimization
+				if world_pos.distance_to(reference_pos) < view_distance:
+					# Draw only if the voxel is considered occupied
+					if is_voxel_occupied(v_key):
+						DebugDraw3D.draw_box(world_pos, Quaternion.IDENTITY, Vector3.ONE * VOXEL_SIZE, Color(1, 0, 0, 0.15), true)
+						DebugDraw3D.draw_sphere(world_pos, 0.1)
 
 func get_first_place() -> Player:
 	var lead_player: Player = null

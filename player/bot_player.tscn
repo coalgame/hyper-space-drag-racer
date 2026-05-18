@@ -10,7 +10,6 @@ radius = 0.3
 
 [node name="BotPlayer" type="CharacterBody3D" unique_id=284403314]
 script = ExtResource("1_i55ub")
-speed = 10.0
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1071980127]
 transform = Transform3D(-1, -1.862669e-08, 8.541539e-08, 0, 0.97703815, 0.21306449, -8.742278e-08, 0.21306449, -0.97703815, 0, 0.5653455, -1.7521296)
