@@ -3,11 +3,7 @@ class_name Player extends CharacterBody3D
 @onready var cam: Camera3D = $PlayerCamera
 
 var is_ai := false
-var bot_radius := 0.5
-var cone_angle_degrees := 80.0
-var cone_resolution := 0.15
-var num_rays := 0
-var ray_directions: Array[Vector3] = []
+var ai_brain: PlayerAI = null
 
 var starting_speed := 20.
 
@@ -33,10 +29,9 @@ var has_finished = false
 var player_color: Color
 var player_name: String
 
-const ai_testing_mode := true
-var ai_start_time := 0.0
-var ai_collision_count := 0
-
+func _init():
+	# Ensure PlayerAI is available for bots
+	pass
 
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.
@@ -54,19 +49,9 @@ func _enter_tree() -> void:
 		
 func _ready() -> void:
 	if is_ai:
-		# Use a local RNG seeded by name so each bot has a unique, persistent personality
-		var rng = RandomNumberGenerator.new()
-		rng.seed = name.hash()
-		
-		# Randomize the base cone stats
-		cone_angle_degrees += rng.randf_range(-25.0, 25.0)
-		cone_resolution = clamp(cone_resolution + rng.randf_range(-0.1, 0.1), 0.15, 0.5)
-		
-		_generate_ray_directions(rng)
-		player_color = ProfileManager.PRESET_COLORS[rng.randi() % ProfileManager.PRESET_COLORS.size()]
-		player_name = name
-		if ai_testing_mode:
-			ai_start_time = Time.get_ticks_msec()
+		ai_brain = PlayerAI.new()
+		add_child(ai_brain)
+		# Personality setup is now handled inside PlayerAI's _ready
 	
 	var info = NetworkManager.players.get(name.to_int())
 	if info:
@@ -83,31 +68,12 @@ func _ready() -> void:
 		%NameLabel3D.modulate = player_color
 		
 	if !is_multiplayer_authority() or is_ai:
-		if !ai_testing_mode:
+		if !ai_brain or !ai_brain.testing_mode:
 			cam.queue_free()
 		$ScoreLabel.queue_free()
 	else:
 		# the local player shouldn't have a name label
 		%NameLabel3D.queue_free()
-
-func _generate_ray_directions(rng: RandomNumberGenerator = null) -> void:
-	ray_directions.clear()
-	var cone_angle_rad = deg_to_rad(cone_angle_degrees)
-	var current_angle_x = - cone_angle_rad / 2.0
-	var jitter := 0.1 # Max angle offset for individual rays
-	#rng=null
-	while current_angle_x <= cone_angle_rad / 2.0:
-		var current_angle_y = - cone_angle_rad / 2.0
-		while current_angle_y <= cone_angle_rad / 2.0:
-			# Add random jitter to each ray to create a non-uniform sensing pattern
-			var j_x = current_angle_x + (rng.randf_range(-jitter, jitter) if rng else 0.0)
-			var j_y = current_angle_y + (rng.randf_range(-jitter, jitter) if rng else 0.0)
-			
-			var dir = Vector3(sin(j_x), sin(j_y), cos(j_x) * cos(j_y)).normalized()
-			ray_directions.append(dir)
-			current_angle_y += cone_resolution
-		current_angle_x += cone_resolution
-	num_rays = ray_directions.size()
 
 func _process(delta: float) -> void:
 	#if Input.is_action_just_pressed("ui_home"):
@@ -164,90 +130,6 @@ func _process(delta: float) -> void:
 	DebugDraw2D.set_text("velocity", velocity)
 	
 
-func _get_ai_input() -> Vector2:
-	var world_goal_direction = Vector3(0, 0, 1)
-	var space_state = get_world_3d().direct_space_state
-	
-	# Gem Targeting: Find the closest gem ahead within a 30m detection radius
-	var closest_gem: Node3D = null
-	var min_gem_dist := 20.0
-	for gem in get_tree().get_nodes_in_group("gem"):
-		var dist = global_position.distance_to(gem.global_position)
-		# Ensure gem is within range and ahead of us on the Z axis
-		if dist < min_gem_dist and gem.global_position.z > global_position.z:
-			# Raycast to check for line-of-sight (obstacles in collision mask 1)
-			var ray_params = PhysicsRayQueryParameters3D.create(global_position, gem.global_position)
-			ray_params.collision_mask = 1
-			ray_params.exclude = [get_rid()]
-			
-			var result = space_state.intersect_ray(ray_params)
-			
-			# If the path is clear (no hits), the bot "sees" the gem
-			if result.is_empty():
-				min_gem_dist = dist
-				closest_gem = gem
-	
-	if closest_gem:
-		world_goal_direction = (closest_gem.global_position - global_position).normalized()
-
-	if abs(global_position.x) > World.X_SIZE * 0.7:
-		world_goal_direction.x = - sign(global_position.x) * 0.5
-	if abs(global_position.y) > World.Y_SIZE * 0.7:
-		world_goal_direction.y = - sign(global_position.y) * 0.5
-	
-	var interests = []
-	var dangers = []
-	interests.resize(num_rays)
-	dangers.resize(num_rays)
-	
-	var sensor_dist = max(bot_radius * 6.0, speed * 1.5)
-	var steering_basis = global_transform.basis # Align rays with current ship rotation
-	
-	for i in range(num_rays):
-		var world_ray_dir = steering_basis * ray_directions[i]
-		interests[i] = max(0.0, world_ray_dir.dot(world_goal_direction))
-		
-		var params = PhysicsShapeQueryParameters3D.new()
-		params.shape = SphereShape3D.new()
-		params.shape.radius = bot_radius
-		params.collision_mask = 1
-		params.exclude = [get_rid()]
-		params.transform = Transform3D(Basis(), global_position)
-		params.motion = world_ray_dir * sensor_dist
-		
-		var motion_result = space_state.cast_motion(params)
-		if motion_result.is_empty(): dangers[i] = 1.0
-		elif motion_result[0] < 1.0: dangers[i] = 1.0 - motion_result[0]
-		else:
-			var ray_end = global_position + world_ray_dir * sensor_dist
-			if abs(ray_end.x) > World.X_SIZE or abs(ray_end.y) > World.Y_SIZE: dangers[i] = 0.9
-			else: dangers[i] = 0.0
-
-	var chosen_dir = Vector3.ZERO
-	for i in range(num_rays):
-		chosen_dir += (steering_basis * ray_directions[i]) * (interests[i] * pow(1.0 - dangers[i], 2.0))
-	
-	var local_dir = chosen_dir.normalized()
-
-	if ai_testing_mode:
-		# Visualize the intended goal (Gem or forward)
-		DebugDraw3D.draw_ray(global_position, world_goal_direction, 5.0, Color.AQUA)
-		if closest_gem:
-			DebugDraw3D.draw_line(global_position, closest_gem.global_position, Color.AQUA)
-		
-		# Visualize individual sensing rays
-		for i in range(num_rays):
-			var weight = interests[i] * pow(1.0 - dangers[i], 2.0)
-			# Only draw rays that have significant influence or are detecting danger to avoid clutter
-			if weight > 0.1 or dangers[i] > 0.7:
-				var ray_color = Color.GREEN.lerp(Color.RED, dangers[i])
-				DebugDraw3D.draw_ray(global_position, steering_basis * ray_directions[i], 3.0, ray_color)
-		
-		# Visualize final calculated steering vector
-		DebugDraw3D.draw_arrow(global_position, global_position + local_dir * 5.0, Color.YELLOW, 0.5)
-
-	return Vector2(local_dir.x, local_dir.y)
-
 func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return
@@ -272,25 +154,15 @@ func _physics_process(delta: float) -> void:
 	
 	var camoffset = Vector3(0, 1.06, -2.2)
 
-	if !is_ai or ai_testing_mode:
+	if !is_ai or ai_brain.testing_mode:
 		cam.global_position = cam.global_position.lerp((global_position + camoffset), delta * 12)
 	
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
 	near_miss_hit_cooldown = move_toward(near_miss_hit_cooldown, 0, delta)
 	
 	var ai_speed_multiplier = 1.0
-	if is_ai:
-		ai_speed_multiplier = 2.4
-		if is_instance_valid(Main.world):
-			var leader = Main.world.get_first_place()
-			if is_instance_valid(leader):
-				if leader != self:
-					var dist_behind = leader.global_position.z - global_position.z
-					# Increase speed multiplier by up to 1.0 if 250m behind
-					ai_speed_multiplier += clamp(dist_behind / 250.0, 0.0, 1.0)
-				else:
-					# If leading, slow down slightly to keep the race tight
-					ai_speed_multiplier *= 0.85
+	if ai_brain:
+		ai_speed_multiplier = ai_brain.get_speed_multiplier()
 
 	var speed_damp_strength = -0.008
 	var speed_damp = ((speed_damp_strength * top_speed) + 1) - (20 * speed_damp_strength)
@@ -312,10 +184,9 @@ func _physics_process(delta: float) -> void:
 	#print(acceleration)
 	#print(sideways_speed)
 	
-	
 	var input := Vector2.ZERO
-	if is_ai:
-		input = _get_ai_input()
+	if ai_brain:
+		input = ai_brain.get_input()
 	else:
 		input = Vector2(
 			Input.get_action_strength("move_left") - Input.get_action_strength("move_right"),
@@ -364,15 +235,13 @@ func _physics_process(delta: float) -> void:
 				# how fast we were moving into the hit
 			var impact_strength = abs(velocity.z)
 
-			# convert impact into backward push
-			if is_ai:
-				ai_collision_count += 1
+			if ai_brain:
+				ai_brain.collision_count += 1
 
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
-			
-			if is_ai:
-				# Bots are minimally affected by crashing
-				knockback *= 0.52 # Reduce knockback for AI
+
+			if ai_brain:
+				knockback *= ai_brain.get_crash_knockback_multiplier()
 
 			speed = - knockback * 1.6
 			acceleration -= knockback * 5
@@ -445,19 +314,11 @@ func _on_trail_spawn_timer_timeout() -> void:
 func complete_race():
 	has_finished = true
 	
-	if is_ai and ai_testing_mode:
-		var duration = (Time.get_ticks_msec() - ai_start_time) / 1000.0
-		print("--- AI TEST RESULTS [%s] ---" % player_name)
-		print("Time: %.3fs" % duration)
-		print("Collisions: %d" % ai_collision_count)
-		print("Map length: %d" % Main.world.track_length)
-		print("Cone res: " , cone_resolution)
-		print("Cone angle: " , cone_angle_degrees)
-		
-		print("---------------------------")
+	if ai_brain and ai_brain.testing_mode:
+		ai_brain.log_results()
 
-	# Call your UI manager
-	UIManager.show_finish_screen(get_standing())
+	if !ai_brain:
+		UIManager.show_finish_screen(get_standing())
 	
 func get_standing() -> int:
 	var all_players = get_tree().get_nodes_in_group("player")

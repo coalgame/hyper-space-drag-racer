@@ -3,7 +3,7 @@ class_name World extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 5000
+var track_length := 2500
 
 var server_random : RandomNumberGenerator
 
