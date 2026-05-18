@@ -40,9 +40,9 @@ func _toggle_freecam():
 		_freecam_node.set_script(load("res://player/free_cam.gd"))
 		add_child(_freecam_node)
 		
-		# Try to start at the lead player's position
-		if world and world.get_first_place():
-			_freecam_node.global_position = world.get_first_place().global_position + Vector3(0, 2, 5)
+		var currentcam = get_viewport().get_camera_3d()
+		if currentcam:
+			_freecam_node.global_position = currentcam.global_position + Vector3(0, 2, 5)
 			
 		_freecam_node.make_current()
 		Notifications.notify("Freecam Enabled (WASD/QE to fly, F1 to exit)")

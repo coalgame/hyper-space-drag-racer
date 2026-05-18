@@ -1,6 +1,6 @@
 extends Camera3D
 
-@export var speed := 30.0
+@export var speed := 20.0
 @export var sensitivity := 0.25
 
 var _rotation := Vector3.ZERO
@@ -35,6 +35,8 @@ func _process(delta: float) -> void:
 	var move_speed = speed
 	if Input.is_key_pressed(KEY_SHIFT):
 		move_speed *= 4.0
-			
+	elif Input.is_key_pressed(KEY_CTRL):
+		move_speed *= .25	
+		
 	var motion = (global_transform.basis * input_dir).normalized() * move_speed * delta
 	global_position += motion
