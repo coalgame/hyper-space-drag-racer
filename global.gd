@@ -9,7 +9,7 @@ func _ready() -> void:
 	if OS.get_cmdline_args().has("-capfps"):
 		Util.maxfps("60")
 	
-	DebugDraw3D.debug_enabled = false
+	DebugDraw3D.debug_enabled = true
 
 
 func _process(delta: float) -> void:

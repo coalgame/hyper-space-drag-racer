@@ -156,7 +156,7 @@ func generate() -> void:
 func _process(delta: float) -> void:
 	var x = X_SIZE
 	var y = Y_SIZE
-	var z = 99999
+	var z = 9999
 	var c = Color(3.746, 3.746, 3.266, 1.0)
 	DebugDraw3D.draw_line(Vector3(x, y, 0), Vector3(x, y, z), c)
 	DebugDraw3D.draw_line(Vector3(-x, y, 0), Vector3(-x, y, z), c)
