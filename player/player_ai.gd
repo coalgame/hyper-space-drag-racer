@@ -1,8 +1,8 @@
 class_name PlayerAI extends Node
 
-var testing_mode := true
+var testing_mode := false
 
-var difficulty := 1.0 # 0 to 10
+var difficulty := 8.0 # 0 to 10
 var knockback_multiplier := 1.0
 var speed_multiplier := 1.0
 
@@ -11,10 +11,6 @@ var cone_angle_degrees := 80.0
 var cone_resolution := 0.15
 var num_rays := 0
 var ray_directions: Array[Vector3] = []
-
-var start_time := 0.0
-var collision_count := 0
-
 
 static var all_test_results: Array = []
 
@@ -25,8 +21,8 @@ func _ready() -> void:
 	var rng = RandomNumberGenerator.new()
 	rng.seed = player.name.hash()
 	
-	knockback_multiplier = (-0.12*difficulty) + 1.2
-	speed_multiplier = (0.42*difficulty) + 0.8
+	knockback_multiplier = (-0.12 * difficulty) + 1.2
+	speed_multiplier = (0.42 * difficulty) + 0.8
 	#printt(knockback_multiplier, speed_multiplier)
 	# Adjust personality based on difficulty
 #	cone_angle_degrees += rng.randf_range(-25.0, 25.0) * (1.0 / max(0.1, difficulty)) # Harder AI has less random cone angle
@@ -37,9 +33,6 @@ func _ready() -> void:
 	# Initialize bot identity and visuals
 	player.player_color = ProfileManager.PRESET_COLORS[rng.randi() % ProfileManager.PRESET_COLORS.size()]
 	player.player_name = player.name
-	
-	if testing_mode:
-		start_time = Time.get_ticks_msec()
 
 func _generate_ray_directions(rng: RandomNumberGenerator = null) -> void:
 	ray_directions.clear()
@@ -131,7 +124,7 @@ func get_input() -> Vector2:
 
 func get_speed_multiplier() -> float:
 	# Base speed multiplier, adjusted by difficulty
-	var mult = speed_multiplier #* (1.0 + (difficulty - 1.0) * 0.2) # +20% speed for each +1 difficulty
+	var mult = speed_multiplier # * (1.0 + (difficulty - 1.0) * 0.2) # +20% speed for each +1 difficulty
 	#mult = clamp(mult, 0.5, 5.0) # Clamp to reasonable range
 
 	#if is_instance_valid(Main.world):
@@ -144,21 +137,20 @@ func get_speed_multiplier() -> float:
 	return mult
 
 func log_results() -> void:
-	var duration = (Time.get_ticks_msec() - start_time) / 1000.0
+	var duration = (Time.get_ticks_msec() - player.start_time) / 1000.0
 	
 	# Also log difficulty for analysis
 	all_test_results.append({
 		"duration": duration,
-		"collisions": collision_count,
+		"collisions": player.collision_count,
 		"difficulty": difficulty
 	})
-
 	print("--- AI TEST RESULTS [%s] ---" % player.player_name)
 	print("Map length: ", Main.world.track_length)
 	print("Seed: ", Global.game_seed)
 
 	print("Time: %.3fs" % duration)
-	print("Collisions: %d" % collision_count)
+	print("Collisions: %d" % player.collision_count)
 	print("Difficulty: %.1f" % difficulty)
 	
 	print("Cone res: ", cone_resolution)
@@ -167,7 +159,7 @@ func log_results() -> void:
 
 	# Check if all participating bots have finished to print the average
 	var testing_bots = get_tree().get_nodes_in_group("player").filter(
-		func(p): return p.is_ai and p.ai_brain and p.ai_brain.testing_mode
+		func(p): return p.is_ai and p.ai_brain #and p.ai_brain.testing_mode
 	)
 	
 	if all_test_results.size() >= testing_bots.size():

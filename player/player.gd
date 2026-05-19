@@ -29,6 +29,9 @@ var has_finished = false
 var player_color: Color
 var player_name: String
 
+var start_time := 0.0
+var collision_count := 0
+
 func _init():
 	# Ensure PlayerAI is available for bots
 	pass
@@ -48,6 +51,8 @@ func _enter_tree() -> void:
 		Global.local_player = self
 		
 func _ready() -> void:
+	start_time = Time.get_ticks_msec()
+
 	if is_ai:
 		ai_brain = PlayerAI.new()
 		add_child(ai_brain)
@@ -234,13 +239,13 @@ func _physics_process(delta: float) -> void:
 		var hit_chance = 1
 		#if ai_brain:
 		#	hit_chance = ai_brain.get_hit_chance()
+
 			
 		if is_zero_approx(hit_cooldown):
 				# how fast we were moving into the hit
 			var impact_strength = abs(velocity.z)
 
-			if ai_brain:
-				ai_brain.collision_count += 1
+			collision_count += 1
 
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
 
@@ -318,8 +323,15 @@ func _on_trail_spawn_timer_timeout() -> void:
 func complete_race():
 	has_finished = true
 	
-	if ai_brain and ai_brain.testing_mode:
+	if ai_brain:
+		#if ai_brain.testing_mode:
 		ai_brain.log_results()
+	else:
+		var duration = (Time.get_ticks_msec() - start_time) / 1000.0
+		print("--- PLAYER RESULTS [%s] ---" % player_name)
+		print("Time: %.3fs" % duration)
+		print("Collisions: %d" % collision_count)
+		print("---------------------------")
 
 	if !ai_brain:
 		UIManager.show_finish_screen(get_standing())
