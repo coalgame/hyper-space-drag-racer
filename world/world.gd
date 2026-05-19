@@ -5,7 +5,7 @@ const Y_SIZE = 8
 
 var track_length := 5000
 
-var server_random : RandomNumberGenerator
+var server_random: RandomNumberGenerator
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
@@ -34,31 +34,52 @@ func _on_everyone_loaded():
 func _on_everyone_finished_gen():
 	printt(multiplayer.get_unique_id(), "Everyone has geometry! Spawning players now...")
 	
-	if multiplayer.is_server():
-		var peers = multiplayer.get_peers()
-		var bot_count = max(0, (NetworkManager.MAX_CLIENTS - 1) - peers.size())
-		var total_count = 1 + peers.size() + bot_count
-		var spacing = 6.0
-		# Calculate start_x so the row is centered at X = 0
-		var start_x = - ((total_count - 1) * spacing) / 2.0
+	if not multiplayer.is_server():
+		return
+
+	var p_ids = NetworkManager.players.keys()
+	p_ids.sort()
+	var bot_count = max(0, NetworkManager.MAX_CLIENTS - p_ids.size())
+	
+	# Spawn human players (Host and Peers)
+	for id in p_ids:
+		add_player(id, get_spawn_position(str(id)))
 		
-		var current_idx = 0
+	# Spawn Bots
+	for i in range(bot_count):
+		add_bot("BOT-" + str(i), get_spawn_position("BOT-" + str(i)))
+
+# Humans: Occupy the first slots (0, 1, 2...) based on their Network ID.
+# Bots: Occupy the remaining slots ($N, N+1...$) based on their name (BOT-0, BOT-1).
+func get_spawn_position(node_name: String) -> Vector3:
+	var p_ids = NetworkManager.players.keys()
+	p_ids.sort() # the client can ask, "My name is '12345', what is my slot?" and calculate the exact same position the server did.
+	
+	var bot_count = max(0, NetworkManager.MAX_CLIENTS - p_ids.size())
+	var total_count = p_ids.size() + bot_count
+	
+	# Calculate dynamic spacing to fit the track width (16m total)
+	# We leave a margin from the walls (X_SIZE=8) to avoid instant collisions.
+	var available_width = (X_SIZE * 2.0) - 4.0
+	var spacing = 4.0 # Default max spacing for small groups
+	if total_count > 1:
+		spacing = min(4.0, available_width / float(total_count - 1))
 		
-		# Spawn Host
-		add_player(1, Vector3(start_x + (current_idx * spacing), 0, 0))
-		current_idx += 1
+	var start_x = - ((total_count - 1) * spacing) / 2.0
+	
+	var idx = -1
+	if node_name.begins_with("BOT-"):
+		# Bots are placed AFTER all human players
+		idx = p_ids.size() + node_name.replace("BOT-", "").to_int()
+	else:
+		var id_int = node_name.to_int()
+		idx = p_ids.find(id_int)
+	
+	if idx == -1:
+		return Vector3.ZERO
 		
-		# Spawn Peers
-		for peer in peers:
-			add_player(peer, Vector3(start_x + (current_idx * spacing), 0, 0))
-			current_idx += 1
-			
-		# Spawn Bots
-		#bot_count=7
-		for i in range(bot_count):
-			add_bot("BOT-" + str(i), Vector3(start_x + (current_idx * spacing), 0, 0))
-			current_idx += 1
-			
+	return Vector3(start_x + (float(idx) * spacing), 0, 0)
+
 		
 func _on_everyone_spawned():
 	pass

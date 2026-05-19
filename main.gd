@@ -48,11 +48,10 @@ func _toggle_freecam():
 		Notifications.notify("Freecam Enabled (WASD/QE to fly, F1 to exit)")
 
 @rpc("call_local")
-func start_world(game_seed: int = randi(), difficulty: float = 1.0):
+func start_world(game_seed: int = randi()):
 	Notifications.notify("Starting world...")
 	Global.game_seed = game_seed
 	#Global.game_seed = 67
-	Global.difficulty = difficulty
 	
 	$MainMenu.hide()
 	

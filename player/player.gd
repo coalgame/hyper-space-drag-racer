@@ -53,10 +53,12 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	start_time = Time.get_ticks_msec()
 
-	if is_ai:
-		ai_brain = PlayerAI.new()
-		add_child(ai_brain)
-		# Personality setup is now handled inside PlayerAI's _ready
+	# If we are the authority and starting at the origin, snap to the calculated row position.
+	# This ensures authority-controlled peers don't sync (0,0,0) back to the host.
+	if is_multiplayer_authority() and global_position == Vector3.ZERO:
+		if Main.world:
+			global_position = Main.world.get_spawn_position(name)
+
 	
 	var info = NetworkManager.players.get(name.to_int())
 	if info:
@@ -64,6 +66,8 @@ func _ready() -> void:
 		player_name = info.name
 	
 	if is_ai:
+		ai_brain = PlayerAI.new()
+		add_child(ai_brain)
 		player_color = Color.SLATE_GRAY
 	
 	if player_color:
@@ -84,11 +88,6 @@ func _ready() -> void:
 		%NameLabel3D.queue_free()
 
 func _process(delta: float) -> void:
-	#if Input.is_action_just_pressed("ui_home"):
-		#Engine.time_scale = 8
-	#if Input.is_action_just_pressed("ui_end"):
-		#Engine.time_scale = 1
-		#
 	if !is_multiplayer_authority():
 		return
 	
