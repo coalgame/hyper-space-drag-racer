@@ -1,6 +1,6 @@
 class_name World extends Node3D
 
-var track_length := 5000
+var track_length := 500
 
 var server_random: RandomNumberGenerator
 var track_noise: FastNoiseLite
@@ -84,8 +84,8 @@ func get_track_dimensions(z_coord: float) -> Vector2:
 	# Normalize noise from [-1, 1] to [0, 1]
 	var raw_x = (track_noise.get_noise_1d(z_coord) + 1.0) / 2.0
 	var raw_y = (track_noise.get_noise_1d(z_coord + 1000.0) + 1.0) / 2.0
-	var x_size = lerp(4.0, 18.0, raw_x)
-	var y_size = lerp(4.0, 15.0, raw_y)
+	var x_size = lerp(4.0, 16.0, raw_x)
+	var y_size = lerp(4.0, 14.0, raw_y)
 	# Ensure minimum safety sizes
 	x_size = max(x_size, 4.0)
 	y_size = max(y_size, 4.0)

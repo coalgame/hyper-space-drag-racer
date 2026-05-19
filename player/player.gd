@@ -32,10 +32,6 @@ var player_name: String
 var start_time := 0.0
 var collision_count := 0
 
-func _init():
-	# Ensure PlayerAI is available for bots
-	pass
-
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.
 	# We use this to identify bots on the client side immediately.
@@ -64,7 +60,6 @@ func _ready() -> void:
 	if info:
 		player_color = info.color
 		player_name = info.name
-	
 	if is_ai:
 		ai_brain = PlayerAI.new()
 		add_child(ai_brain)
@@ -83,9 +78,11 @@ func _ready() -> void:
 		if !ai_brain or !ai_brain.testing_mode:
 			cam.queue_free()
 		$ScoreLabel.queue_free()
+		$Mesh.transparency = 0.7
 	else:
 		# the local player shouldn't have a name label
 		%NameLabel3D.queue_free()
+		$Mesh.transparency = 0.3
 
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority():
@@ -151,13 +148,6 @@ func _physics_process(delta: float) -> void:
 		#if min_human_z != INF:
 			#$CSGBakedCollisionShape3D.disabled = global_position.z < min_human_z
 
-	if tracked_body:
-		# Calculate current distance
-		# this code is kinda flawed cause its tracking the object origin, not the exact closest vertex or whatever
-		var current_dist = global_position.distance_to(tracked_body.global_position)
-		## Keep the smallest value
-		if current_dist < min_distance:
-			min_distance = current_dist
 	
 	var camoffset = Vector3(0, 1.06, -2.2)
 
@@ -272,16 +262,15 @@ func speed_boost(amount):
 	#printt(str(multiplayer.get_unique_id()) , "speed_boost")
 	top_speed += amount
 	speed += amount
-var min_distance: float = 9999.0
+
 var tracked_body: Node3D = null
 
 func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 	if body == tracked_body:
-		var dist = min_distance
 		#print("Near miss distance: ", dist)
 		# Example: Dynamic boost based on closeness
 		# If dist is 2.0 (very close), boost is higher than if dist is 5.0
-		var boost_multiplier = clamp(10.0 / dist, 1.0, 5.0)
+		var boost_multiplier = clamp(10.0 / 3, 1.0, 5.0)
 		
 		speed_boost(0.6 * boost_multiplier)
 		if speed > 2:
@@ -294,7 +283,6 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 func _on_near_miss_area_3d_body_entered(body: Node3D) -> void:
 	if is_zero_approx(near_miss_hit_cooldown):
 		tracked_body = body
-		min_distance = 9999.0 # Reset for the new encounter
 
 
 func _on_spark_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
