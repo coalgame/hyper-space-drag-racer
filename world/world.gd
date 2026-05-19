@@ -1,18 +1,14 @@
 class_name World extends Node3D
 
-const X_SIZE = 8
-const Y_SIZE = 8
-
 var track_length := 5000
 
 var server_random: RandomNumberGenerator
+var track_noise: FastNoiseLite
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
 
 func _ready() -> void:
-	seed(Global.game_seed)
-	
 	add_child(loading_gate)
 	add_child(post_gen_gate)
 	
@@ -36,9 +32,12 @@ func _on_everyone_finished_gen():
 	
 	if not multiplayer.is_server():
 		return
-
+		
 	var p_ids = NetworkManager.players.keys()
 	p_ids.sort()
+	if !NetworkManager.has_connection(): # is singleplayer
+		p_ids = [1]
+		
 	var bot_count = max(0, NetworkManager.MAX_CLIENTS - p_ids.size())
 	
 	# Spawn human players (Host and Peers)
@@ -59,8 +58,9 @@ func get_spawn_position(node_name: String) -> Vector3:
 	var total_count = p_ids.size() + bot_count
 	
 	# Calculate dynamic spacing to fit the track width (16m total)
-	# We leave a margin from the walls (X_SIZE=8) to avoid instant collisions.
-	var available_width = (X_SIZE * 2.0) - 4.0
+	# We leave a margin from the walls to avoid instant collisions.
+	var spawn_dims = get_track_dimensions(0) # Get dimensions at Z=0 for spawning
+	var available_width = (spawn_dims.x * 2.0) - 4.0
 	var spacing = 4.0 # Default max spacing for small groups
 	if total_count > 1:
 		spacing = min(4.0, available_width / float(total_count - 1))
@@ -80,6 +80,20 @@ func get_spawn_position(node_name: String) -> Vector3:
 		
 	return Vector3(start_x + (float(idx) * spacing), 0, 0)
 
+func get_track_dimensions(z_coord: float) -> Vector2:
+	# Map noise from -1 to 1 to desired X_SIZE range (e.g., 5 to 15)
+	var noise_x = track_noise.get_noise_1d(z_coord)
+	var x_size = lerp(5.0, 15.0, (noise_x + 1.0) / 2.0)
+	
+	# Use a different noise offset for Y_SIZE to make it vary independently
+	var noise_y = track_noise.get_noise_1d(z_coord + 1000.0)
+	var y_size = lerp(8.0, 20.0, (noise_y + 1.0) / 2.0)
+	
+	# Ensure minimum sizes
+	x_size = max(x_size, 5.0)
+	y_size = max(y_size, 5.0)
+	
+	return Vector2(x_size, y_size)
 		
 func _on_everyone_spawned():
 	pass
@@ -102,6 +116,12 @@ func add_player(id, start_pos: Vector3):
 	
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
+
+	seed(Global.game_seed)
+	
+	track_noise = FastNoiseLite.new()
+	track_noise.seed = Global.game_seed
+	track_noise.frequency = 0.001 # Controls how fast the track width/height changes
 	
 	if multiplayer.is_server():
 		server_random = RandomNumberGenerator.new()
@@ -112,18 +132,15 @@ func generate() -> void:
 		preload("res://pieces/cube2.blend"),
 	]
 	
-	# Random spread around the center path.
-	var x_range := Vector2(-X_SIZE - 6.5, X_SIZE + 6.5)
-	var y_range := Vector2(-Y_SIZE - 6.5, Y_SIZE + 6.5)
-
-	
 	var z_spacing := 4.15
 	
 	for i in track_length:
-		var x := randf_range(x_range.x, x_range.y)
-		var y := randf_range(y_range.x, y_range.y)
 		var z := 50 + (i * z_spacing)
 		if z > track_length: break
+
+		var current_track_dims = get_track_dimensions(z)
+		var x := randf_range(-current_track_dims.x - 6.5, current_track_dims.x + 6.5)
+		var y := randf_range(-current_track_dims.y - 6.5, current_track_dims.y + 6.5)
 
 		var block_scene = scenes.pick_random()
 		var block = block_scene.instantiate()
@@ -139,8 +156,8 @@ func generate() -> void:
 		)
 	
 				# Position strength from center to edge
-		var edge_x = abs(x) / X_SIZE
-		var edge_y = abs(y) / Y_SIZE
+		var edge_x = abs(x) / current_track_dims.x
+		var edge_y = abs(y) / current_track_dims.y
 
 		# Use whichever axis is closer to the edge
 		var edge_factor = max(edge_x, edge_y)
@@ -165,7 +182,8 @@ func generate() -> void:
 			if server_random.randf() < 0.1:
 				var gem = preload("res://world/gem.tscn").instantiate()
 				add_child.call_deferred(gem, true)
-				gem.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
+				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
+
 			#
 			#if server_random.randf() < 0.05:
 				#var asteroid = preload("res://world/asteroid.tscn").instantiate()
@@ -175,17 +193,43 @@ func generate() -> void:
 	#
 
 func _process(delta: float) -> void:
-	var x = X_SIZE
-	var y = Y_SIZE
-	var z = 9999
-	var c = Color(3.746, 3.746, 3.266, 1.0)
-	DebugDraw3D.draw_line(Vector3(x, y, 0), Vector3(x, y, z), c)
-	DebugDraw3D.draw_line(Vector3(-x, y, 0), Vector3(-x, y, z), c)
-	DebugDraw3D.draw_line(Vector3(x, -y, 0), Vector3(x, -y, z), c)
-	DebugDraw3D.draw_line(Vector3(-x, -y, 0), Vector3(-x, -y, z), c)
+	var cam = get_viewport().get_camera_3d()
+	if !cam:
+		return
 	
-	if get_viewport().get_camera_3d():
-		DebugDraw2D.set_text("cam pos", get_viewport().get_camera_3d().global_position)
+	DebugDraw2D.begin_text_group("world", 15, Color.LIGHT_YELLOW)
+	DebugDraw2D.set_text("cam pos", cam.global_position)
+	DebugDraw2D.set_text("track dimension", get_track_dimensions(cam.global_position.z))
+
+	# Boundary corner lines visualization that follow the camera
+	var z_cam = cam.global_position.z
+	var line_color = Color(0.999, 1.0, 0.93, 0.149) # Glowing neon gold
+	
+	var seg_count = 60
+	var step = 4.0
+	var z_start = snappedf(z_cam - 20.0, step)
+	
+	var last_pts = []
+
+	for i in range(seg_count):
+		var z = z_start + (i * step)
+		var d = get_track_dimensions(z)
+		var curr_pts = [
+			Vector3(-d.x, d.y, z),
+			Vector3(d.x, d.y, z),
+			Vector3(-d.x, -d.y, z),
+			Vector3(d.x, -d.y, z)
+		]
+
+		if i > 0:
+			var alpha_factor = 1.0 - (float(i) / seg_count)
+			var color = line_color
+			color.v *= pow(alpha_factor, 2.0) # Quadratic falloff for a smoother fade
+			
+			for j in range(4):
+				DebugDraw3D.draw_line(last_pts[j], curr_pts[j], color)
+		
+		last_pts = curr_pts
 
 func get_first_place() -> Player:
 	var lead_player: Player = null

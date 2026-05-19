@@ -21,31 +21,31 @@ func _physics_process(delta: float) -> void:
 	if !multiplayer.is_server():
 		return
 
-	var collision := move_and_collide(velocity * delta)
+	# var collision := move_and_collide(velocity * delta)
 
-	if collision:
-		# reflect off physical colliders
-		velocity = velocity.bounce(collision.get_normal()).normalized() * speed
+	# if collision:
+	# 	# reflect off physical colliders
+	# 	velocity = velocity.bounce(collision.get_normal()).normalized() * speed
 
-	# bounce off world bounds
-	if global_position.x < -World.X_SIZE:
-		global_position.x = -World.X_SIZE
-		velocity.x *= -1
+	# # bounce off world bounds
+	# if global_position.x < -World.X_SIZE:
+	# 	global_position.x = -World.X_SIZE
+	# 	velocity.x *= -1
 
-	elif global_position.x > World.X_SIZE:
-		global_position.x = World.X_SIZE
-		velocity.x *= -1
+	# elif global_position.x > World.X_SIZE:
+	# 	global_position.x = World.X_SIZE
+	# 	velocity.x *= -1
 
-	if global_position.y < -World.Y_SIZE:
-		global_position.y = -World.Y_SIZE
-		velocity.y *= -1
+	# if global_position.y < -World.Y_SIZE:
+	# 	global_position.y = -World.Y_SIZE
+	# 	velocity.y *= -1
 
-	elif global_position.y > World.Y_SIZE:
-		global_position.y = World.Y_SIZE
-		velocity.y *= -1
+	# elif global_position.y > World.Y_SIZE:
+	# 	global_position.y = World.Y_SIZE
+	# 	velocity.y *= -1
 
-	# keep movement speed consistent after reflections
-	velocity = velocity.normalized() * speed
+	# # keep movement speed consistent after reflections
+	# velocity = velocity.normalized() * speed
 	
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:

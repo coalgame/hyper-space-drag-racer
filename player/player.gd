@@ -223,8 +223,9 @@ func _physics_process(delta: float) -> void:
 	velocity.y = move_velocity.y
 	velocity.z = speed # still force forward travel direction
 		
-	global_position.x = clamp(global_position.x, -World.X_SIZE, World.X_SIZE)
-	global_position.y = clamp(global_position.y, -World.Y_SIZE, World.Y_SIZE)
+	var current_track_dims = Main.world.get_track_dimensions(global_position.z)
+	global_position.x = clamp(global_position.x, -current_track_dims.x, current_track_dims.x)
+	global_position.y = clamp(global_position.y, -current_track_dims.y, current_track_dims.y)
 	
 	move_and_slide()
 	

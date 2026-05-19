@@ -75,9 +75,11 @@ func get_input() -> Vector2:
 	if closest_gem:
 		world_goal_direction = (closest_gem.global_position - player.global_position).normalized()
 
-	if abs(player.global_position.x) > World.X_SIZE * 0.7:
+	var current_track_dims = Main.world.get_track_dimensions(player.global_position.z)
+	
+	if abs(player.global_position.x) > current_track_dims.x * 0.7:
 		world_goal_direction.x = - sign(player.global_position.x) * 0.5
-	if abs(player.global_position.y) > World.Y_SIZE * 0.7:
+	if abs(player.global_position.y) > current_track_dims.y * 0.7:
 		world_goal_direction.y = - sign(player.global_position.y) * 0.5
 	
 	var interests = []
@@ -105,7 +107,7 @@ func get_input() -> Vector2:
 		elif motion_result[0] < 1.0: dangers[i] = 1.0 - motion_result[0]
 		else:
 			var ray_end = player.global_position + world_ray_dir * sensor_dist
-			if abs(ray_end.x) > World.X_SIZE or abs(ray_end.y) > World.Y_SIZE: dangers[i] = 0.9
+			if abs(ray_end.x) > current_track_dims.x or abs(ray_end.y) > current_track_dims.y: dangers[i] = 0.9
 			else: dangers[i] = 0.0
 
 	var chosen_dir = Vector3.ZERO
@@ -127,18 +129,7 @@ func get_input() -> Vector2:
 	return Vector2(local_dir.x, local_dir.y)
 
 func get_speed_multiplier() -> float:
-	# Base speed multiplier, adjusted by difficulty
-	var mult = speed_multiplier # * (1.0 + (difficulty - 1.0) * 0.2) # +20% speed for each +1 difficulty
-	#mult = clamp(mult, 0.5, 5.0) # Clamp to reasonable range
-
-	#if is_instance_valid(Main.world):
-		#var leader = Main.world.get_first_place()
-		#if is_instance_valid(leader):
-			#if leader != player:
-				#var dist_behind = leader.global_position.z - player.global_position.z
-				#mult += clamp(dist_behind / 250.0, 0.0, 1.0)
-			#else: mult *= 0.85
-	return mult
+	return speed_multiplier
 
 func log_results() -> void:
 	var duration = (Time.get_ticks_msec() - player.start_time) / 1000.0
