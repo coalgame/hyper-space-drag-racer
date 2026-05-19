@@ -21,6 +21,10 @@ func _ready() -> void:
 	var rng = RandomNumberGenerator.new()
 	rng.seed = player.name.hash()
 	
+	var global_diff = Global.get("difficulty")
+	if global_diff != null:
+		difficulty = global_diff
+
 	knockback_multiplier = (-0.12 * difficulty) + 1.2
 	speed_multiplier = (0.42 * difficulty) + 0.8
 	#printt(knockback_multiplier, speed_multiplier)
