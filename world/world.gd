@@ -11,7 +11,7 @@ var post_gen_gate = NetworkGate.new("PostGeneration")
 func _ready() -> void:
 	add_child(loading_gate)
 	add_child(post_gen_gate)
-	
+
 	# TODO when some1 tries to join, host gets this error E 0:00:04:732 world.gd:27 @ _on_everyone_loaded(): Signal 'all_players_ready' is already connected to given callable
 	# CONNECT_ONE_SHOT fixes but idk why
 	
@@ -81,18 +81,14 @@ func get_spawn_position(node_name: String) -> Vector3:
 	return Vector3(start_x + (float(idx) * spacing), 0, 0)
 
 func get_track_dimensions(z_coord: float) -> Vector2:
-	# Map noise from -1 to 1 to desired X_SIZE range (e.g., 5 to 15)
-	var noise_x = track_noise.get_noise_1d(z_coord)
-	var x_size = lerp(5.0, 15.0, (noise_x + 1.0) / 2.0)
-	
-	# Use a different noise offset for Y_SIZE to make it vary independently
-	var noise_y = track_noise.get_noise_1d(z_coord + 1000.0)
-	var y_size = lerp(8.0, 20.0, (noise_y + 1.0) / 2.0)
-	
-	# Ensure minimum sizes
-	x_size = max(x_size, 5.0)
-	y_size = max(y_size, 5.0)
-	
+	# Normalize noise from [-1, 1] to [0, 1]
+	var raw_x = (track_noise.get_noise_1d(z_coord) + 1.0) / 2.0
+	var raw_y = (track_noise.get_noise_1d(z_coord + 1000.0) + 1.0) / 2.0
+	var x_size = lerp(4.0, 18.0, raw_x)
+	var y_size = lerp(4.0, 15.0, raw_y)
+	# Ensure minimum safety sizes
+	x_size = max(x_size, 4.0)
+	y_size = max(y_size, 4.0)
 	return Vector2(x_size, y_size)
 		
 func _on_everyone_spawned():
@@ -132,10 +128,13 @@ func generate() -> void:
 		preload("res://pieces/cube2.blend"),
 	]
 	
-	var z_spacing := 4.15
-	
+	var z: float = 50.0
 	for i in track_length:
-		var z := 50 + (i * z_spacing)
+		# Offset by 2000.0 to keep the noise independent from X and Y scaling
+		var noise_val = (track_noise.get_noise_1d(z + 2000.0) + 1.0) / 2.0
+		var current_z_spacing = lerp(3.0, 6.0, noise_val)
+		
+		z += current_z_spacing
 		if z > track_length: break
 
 		var current_track_dims = get_track_dimensions(z)
@@ -155,25 +154,26 @@ func generate() -> void:
 			randf_range(0.0, TAU)
 		)
 	
-				# Position strength from center to edge
+		# Position strength from center to edge
 		var edge_x = abs(x) / current_track_dims.x
 		var edge_y = abs(y) / current_track_dims.y
 
 		# Use whichever axis is closer to the edge
 		var edge_factor = max(edge_x, edge_y)
-
 		# Smooth the growth so it ramps up nicer
 		edge_factor = pow(edge_factor, 2.0)
 
-		# Scale range
-		var min_scale := 1.5
-		var max_scale := 2.3
+		# Noise-based scale variation (independent from X/Y/Z scaling)
+		var raw_scale_noise = (track_noise.get_noise_1d(z + 3000.0) + 1.0) / 2.0
+		var scale_noise = clamp((raw_scale_noise - 0.5) * 1.5 + 0.5, 0.0, 1.0)
+		
+		# Base scale range (widened for more drastic look)
+		var min_scale := 1.2
+		var max_scale := 2.4
 
 		# Interpolate scale based on edge distance
 		var scale_mul := lerpf(min_scale, max_scale, edge_factor)
-
-		# Optional randomness so sizes are less uniform
-		scale_mul *= randf_range(0.85, 1.15)
+		scale_mul *= lerp(0.7, 1.5, scale_noise)
 
 		block.scale = Vector3.ONE * scale_mul
 		
@@ -184,13 +184,6 @@ func generate() -> void:
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
 
-			#
-			#if server_random.randf() < 0.05:
-				#var asteroid = preload("res://world/asteroid.tscn").instantiate()
-				#add_child.call_deferred(asteroid, true)
-#
-				#asteroid.position = Vector3(server_random.randf_range(-X_SIZE, X_SIZE), server_random.randf_range(-Y_SIZE, Y_SIZE), z)
-	#
 
 func _process(delta: float) -> void:
 	var cam = get_viewport().get_camera_3d()
@@ -230,6 +223,7 @@ func _process(delta: float) -> void:
 				DebugDraw3D.draw_line(last_pts[j], curr_pts[j], color)
 		
 		last_pts = curr_pts
+
 
 func get_first_place() -> Player:
 	var lead_player: Player = null

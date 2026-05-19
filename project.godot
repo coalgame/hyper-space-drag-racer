@@ -110,5 +110,5 @@ world_curve={
 }
 world_curve_z_dist={
 "type": "float",
-"value": 100.0
+"value": 120.0
 }
