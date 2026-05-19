@@ -2,7 +2,7 @@ class_name PlayerAI extends Node
 
 var testing_mode := false
 
-var difficulty := 8.0 # 0 to 10
+var difficulty := 9.9 # 0 to 9.9
 var knockback_multiplier := 1.0
 var speed_multiplier := 1.0
 
