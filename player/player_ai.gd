@@ -2,7 +2,7 @@ class_name PlayerAI extends Node
 
 var testing_mode := false
 
-var difficulty := 9.9 # 0 to 9.9
+var difficulty := 8.0 # 0 to 10
 var knockback_multiplier := 1.0
 var speed_multiplier := 1.0
 
@@ -163,7 +163,7 @@ func log_results() -> void:
 
 	# Check if all participating bots have finished to print the average
 	var testing_bots = get_tree().get_nodes_in_group("player").filter(
-		func(p): return p.is_ai and p.ai_brain #and p.ai_brain.testing_mode
+		func(p): return p.is_ai and p.ai_brain # and p.ai_brain.testing_mode
 	)
 	
 	if all_test_results.size() >= testing_bots.size():
@@ -180,4 +180,4 @@ func log_results() -> void:
 		all_test_results.clear()
 
 func get_crash_knockback_multiplier() -> float:
-	return knockback_multiplier
+	return max(knockback_multiplier, 0.0)

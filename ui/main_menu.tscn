@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dcu50kf72okmx"]
 
-[ext_resource type="Script" path="res://ui/main_menu.gd" id="1_06t4h"]
+[ext_resource type="Script" uid="uid://cs6klss14bhes" path="res://ui/main_menu.gd" id="1_06t4h"]
 
 [node name="MainMenu" type="Control" unique_id=1347431469]
 layout_mode = 3
@@ -115,6 +115,30 @@ text = "Start game"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Quit Lobby"
+
+[node name="DifficultySlider" type="HSlider" parent="." unique_id=1921138481]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -134.0
+offset_top = -110.0
+offset_right = 123.0
+offset_bottom = -94.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="DifficultyLabel" type="Label" parent="DifficultySlider" unique_id=862598450]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 3.0
+offset_top = 14.0
+offset_right = 73.0
+offset_bottom = 37.0
+text = "Difficulty"
 
 [connection signal="pressed" from="MainScreen/SingleplayerButton" to="." method="_on_singleplayer_button_pressed"]
 [connection signal="pressed" from="MainScreen/HostButton" to="." method="_on_host_button_pressed"]

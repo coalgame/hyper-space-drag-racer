@@ -14,6 +14,16 @@ func _ready():
 	
 	%NameLineEdit.text = ProfileManager.data.name
 	
+	if has_node("%DifficultySlider"):
+		%DifficultySlider.min_value = 1.0
+		%DifficultySlider.max_value = 9.9
+		%DifficultySlider.step = 0.1
+		var saved_diff = Global.get("difficulty")
+		%DifficultySlider.value = saved_diff if saved_diff != null else 8.0
+		%DifficultySlider.value_changed.connect(_on_difficulty_slider_value_changed)
+		# Initialize the label and global value
+		_on_difficulty_slider_value_changed(%DifficultySlider.value)
+
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connection_succeeded)
 	multiplayer.connection_failed.connect(_on_connection_failed)
@@ -116,7 +126,7 @@ func _on_color_option_button_item_selected(index: int) -> void:
 
 # host
 func _on_start_game_pressed() -> void:
-	Main.instance.start_world.rpc()
+	Main.instance.start_world.rpc(randi(), Global.difficulty)
 
 
 func _on_quit_lobby_pressed():
@@ -131,8 +141,18 @@ func show_screen(screen_name: String):
 	# Ensure only the host can see the Start Game button when in the lobby
 	if screen_name == "lobby":
 		%LobbyScreen/StartGame.visible = NetworkManager.is_host()
+		if has_node("%DifficultySlider"):
+			%DifficultySlider.visible = NetworkManager.is_host()
+	elif screen_name == "main":
+		if has_node("%DifficultySlider"):
+			%DifficultySlider.visible = true
 		
 
 func _on_name_line_edit_text_changed(new_text: String) -> void:
 	if new_text.strip_edges() != "":
 		ProfileManager.set_username(new_text)
+
+func _on_difficulty_slider_value_changed(value: float) -> void:
+	Global.set("difficulty", value)
+	if has_node("%DifficultyLabel"):
+		%DifficultyLabel.text = "Difficulty: %.1f" % value

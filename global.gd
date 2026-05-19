@@ -3,6 +3,7 @@ extends Node
 
 var game_seed = 0
 var local_player: Player
+var difficulty = 1.0
 
 func _ready() -> void:
 	if OS.get_cmdline_args().has("-capfps"):
