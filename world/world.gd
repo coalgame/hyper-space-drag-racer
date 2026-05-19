@@ -3,7 +3,7 @@ class_name World extends Node3D
 const X_SIZE = 8
 const Y_SIZE = 8
 
-var track_length := 2500
+var track_length := 5000
 
 var server_random : RandomNumberGenerator
 
@@ -67,7 +67,6 @@ func add_bot(bot_name: String, start_pos: Vector3):
 	var bot: Player = preload("res://player/player.tscn").instantiate()
 	bot.name = bot_name
 	bot.position = start_pos
-	bot.is_ai = true
 	add_child.call_deferred(bot)
 
 # the multiplayerspawner will spawn the players automatically as long as the host has them in the scenetree

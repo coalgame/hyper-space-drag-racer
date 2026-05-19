@@ -62,7 +62,10 @@ func _ready() -> void:
 	if info:
 		player_color = info.color
 		player_name = info.name
-
+	
+	if is_ai:
+		player_color = Color.SLATE_GRAY
+	
 	if player_color:
 		var mat = $Mesh.mesh.material as ShaderMaterial
 		if mat:
