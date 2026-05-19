@@ -176,9 +176,9 @@ func _physics_process(delta: float) -> void:
 	if braking:
 		speed = move_toward(speed, 0, delta * 40.0)
 	else:
-		speed = move_toward(speed, top_speed, delta * (10 + (top_speed * 0.4)) * ai_speed_multiplier)
-	acceleration = move_toward(acceleration, top_acceleration, delta * (10 + (top_speed * 0.4)) * ai_speed_multiplier)
-	sideways_speed = move_toward(sideways_speed, top_sideways_speed, delta * 10 * ai_speed_multiplier)
+		speed = move_toward(speed, top_speed, delta * (10 + (top_speed * 0.4)))
+	acceleration = move_toward(acceleration, top_acceleration, delta * (10 + (top_speed * 0.4)))
+	sideways_speed = move_toward(sideways_speed, top_sideways_speed, delta * 10)
 	if sideways_speed < 0:
 		sideways_speed = 0
 	#print(acceleration)
@@ -231,6 +231,10 @@ func _physics_process(delta: float) -> void:
 		if collider is Asteroid:
 			collider.hit()
 		
+		var hit_chance = 1
+		#if ai_brain:
+		#	hit_chance = ai_brain.get_hit_chance()
+			
 		if is_zero_approx(hit_cooldown):
 				# how fast we were moving into the hit
 			var impact_strength = abs(velocity.z)

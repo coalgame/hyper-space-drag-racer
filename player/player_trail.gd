@@ -2,7 +2,7 @@ class_name PlayerTrail extends MeshInstance3D
 
 var scale_multiplier := 0.01
 var min_scale := 0.6
-var max_scale := 2.0
+var max_scale := 3.0
 var source : Player
 
 func _ready() -> void:

@@ -2,8 +2,11 @@ class_name PlayerAI extends Node
 
 var testing_mode := true
 
+var difficulty := 1.0 # 0 to 10
+var knockback_multiplier := 1.0
+var speed_multiplier := 1.0
+
 var bot_radius := 0.5
-var difficulty := 10.0 # 1.0 is normal, higher is harder
 var cone_angle_degrees := 80.0
 var cone_resolution := 0.15
 var num_rays := 0
@@ -11,6 +14,7 @@ var ray_directions: Array[Vector3] = []
 
 var start_time := 0.0
 var collision_count := 0
+
 
 static var all_test_results: Array = []
 
@@ -21,9 +25,12 @@ func _ready() -> void:
 	var rng = RandomNumberGenerator.new()
 	rng.seed = player.name.hash()
 	
+	knockback_multiplier = (-0.12*difficulty) + 1.2
+	speed_multiplier = (0.42*difficulty) + 0.8
+	#printt(knockback_multiplier, speed_multiplier)
 	# Adjust personality based on difficulty
-	cone_angle_degrees += rng.randf_range(-25.0, 25.0) * (1.0 / max(0.1, difficulty)) # Harder AI has less random cone angle
-	cone_resolution = clamp(cone_resolution + rng.randf_range(-0.1, 0.1) * (1.0 / max(0.1, difficulty)), 0.15, 0.5) # Harder AI has more precise rays
+#	cone_angle_degrees += rng.randf_range(-25.0, 25.0) * (1.0 / max(0.1, difficulty)) # Harder AI has less random cone angle
+#	cone_resolution = clamp(cone_resolution + rng.randf_range(-0.1, 0.1) * (1.0 / max(0.1, difficulty)), 0.15, 0.5) # Harder AI has more precise rays
 
 	_generate_ray_directions(rng)
 	
@@ -124,16 +131,16 @@ func get_input() -> Vector2:
 
 func get_speed_multiplier() -> float:
 	# Base speed multiplier, adjusted by difficulty
-	var mult = 2.1 * (1.0 + (difficulty - 1.0) * 0.2) # +20% speed for each +1 difficulty
-	mult = clamp(mult, 0.5, 5.0) # Clamp to reasonable range
+	var mult = speed_multiplier #* (1.0 + (difficulty - 1.0) * 0.2) # +20% speed for each +1 difficulty
+	#mult = clamp(mult, 0.5, 5.0) # Clamp to reasonable range
 
-	if is_instance_valid(Main.world):
-		var leader = Main.world.get_first_place()
-		if is_instance_valid(leader):
-			if leader != player:
-				var dist_behind = leader.global_position.z - player.global_position.z
-				mult += clamp(dist_behind / 250.0, 0.0, 1.0)
-			else: mult *= 0.85
+	#if is_instance_valid(Main.world):
+		#var leader = Main.world.get_first_place()
+		#if is_instance_valid(leader):
+			#if leader != player:
+				#var dist_behind = leader.global_position.z - player.global_position.z
+				#mult += clamp(dist_behind / 250.0, 0.0, 1.0)
+			#else: mult *= 0.85
 	return mult
 
 func log_results() -> void:
@@ -145,10 +152,6 @@ func log_results() -> void:
 		"collisions": collision_count,
 		"difficulty": difficulty
 	})
-	all_test_results.append({
-		"duration": duration,
-		"collisions": collision_count
-	})
 
 	print("--- AI TEST RESULTS [%s] ---" % player.player_name)
 	print("Map length: ", Main.world.track_length)
@@ -157,6 +160,7 @@ func log_results() -> void:
 	print("Time: %.3fs" % duration)
 	print("Collisions: %d" % collision_count)
 	print("Difficulty: %.1f" % difficulty)
+	
 	print("Cone res: ", cone_resolution)
 	print("Cone angle: ", cone_angle_degrees)
 	print("---------------------------")
@@ -180,6 +184,4 @@ func log_results() -> void:
 		all_test_results.clear()
 
 func get_crash_knockback_multiplier() -> float:
-	# Higher difficulty means less reduction in knockback (more affected by crashes)
-	var knockback_mult = 0.82 + (difficulty - 1.0) * 0.2
-	return clamp(knockback_mult, 0.2, 1.0) # Clamp between 20% and 100% of normal knockback
+	return knockback_multiplier

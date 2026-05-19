@@ -45,8 +45,8 @@ func _on_everyone_finished_gen():
 		var current_idx = 0
 		
 		# Spawn Host
-		#add_player(1, Vector3(start_x + (current_idx * spacing), 0, 0))
-		#current_idx += 1
+		add_player(1, Vector3(start_x + (current_idx * spacing), 0, 0))
+		current_idx += 1
 		
 		# Spawn Peers
 		for peer in peers:
@@ -54,6 +54,7 @@ func _on_everyone_finished_gen():
 			current_idx += 1
 			
 		# Spawn Bots
+		bot_count=7
 		for i in range(bot_count):
 			add_bot("BOT-" + str(i), Vector3(start_x + (current_idx * spacing), 0, 0))
 			current_idx += 1
