@@ -1,5 +1,14 @@
 extends Control
 
+
+func on_shown():
+	var player = Global.local_player
+	
+	var s = "Highest speed reached: %du/s" % [player.race_stats.top_speed_reached]
+	s += "\nCollisions: " + str(player.race_stats.collision_count)
+	%Stats.text = s
+	
+	
 func _on_continue_pressed() -> void:
 	if multiplayer.is_server():
 		Main.instance.back_to_lobby.rpc()
@@ -10,9 +19,9 @@ func _process(delta: float) -> void:
 	var world = Main.world
 	if not is_instance_valid(world):
 		return
-		
+	
 	var players = get_tree().get_nodes_in_group("player")
-	players.sort_custom(func(a:Player, b:Player):
+	players.sort_custom(func(a: Player, b: Player):
 		var a_placement = a.race_stats.finish_placement
 		var b_placement = b.race_stats.finish_placement
 		
@@ -27,7 +36,7 @@ func _process(delta: float) -> void:
 	
 	var leaderboard_text = ""
 	for i in range(players.size()):
-		var p : Player = players[i]
+		var p: Player = players[i]
 		if not is_instance_valid(p): continue
 		
 		var pct = clamp(int((p.global_position.z / world.track_length) * 100), 0, 100)
@@ -42,6 +51,8 @@ func _process(delta: float) -> void:
 			time_display = "%d:%02d.%02d" % [mins, secs, cents]
 			
 		var p_name = p.player_name if not p.player_name.is_empty() else "Player"
+		if Global.local_player == p: leaderboard_text += "🫃"
+		
 		leaderboard_text += "%d. %s %d%% %s\n" % [i + 1, p_name.to_upper(), pct, time_display]
 	
-	%StatsLabel.text = leaderboard_text
+	%PlayerInfo.text = leaderboard_text

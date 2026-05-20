@@ -248,6 +248,3 @@ func _on_trail_spawn_timer_timeout() -> void:
 	if mat:
 		c.set_surface_override_material(0, mat.duplicate())
 		c.get_surface_override_material(0).set_shader_parameter("albedo", player_color)
-
-
-	

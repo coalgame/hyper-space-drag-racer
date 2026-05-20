@@ -11,6 +11,8 @@ var finish_placement := 0
 
 var collision_count := 0
 
+var top_speed_reached := 0.0
+
 func _ready() -> void:
 	start_time = Time.get_ticks_msec()
 	
@@ -21,6 +23,8 @@ func _ready() -> void:
 #
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority(): return
+	
+	top_speed_reached = max(player.speed, top_speed_reached)
 	
 	if !has_finished() and player.global_position.z > Main.world.track_length:
 		finish_time = Time.get_ticks_msec() - start_time

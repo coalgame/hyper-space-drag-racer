@@ -22,6 +22,7 @@ func show_finish_screen():
 	if !is_instance_valid(Main.world): return
 	
 	var screen = Main.world.get_node("FinishScreen")
+	screen.on_shown()
 	register_screen(screen)
 
 func clear_all_screens():
