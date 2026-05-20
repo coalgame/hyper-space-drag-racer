@@ -6,11 +6,6 @@ extends Node
 # Path to the NotificationItem scene (MUST BE CORRECT)
 const NOTIFICATION_SCENE_PATH = "res://addons/notifications/notification_item.tscn"
 
-# Path to the container node in your main scene (MUST BE CORRECT)
-# Example: If your Main Scene has a CanvasLayer/Control named 'ToastContainer'
-# positioned on the middle-left of the screen, use that path.
-const CONTAINER_PATH = "res://MainScene.tscn/root/CanvasLayer/ToastContainer"
-
 # Maximum number of notifications visible simultaneously.
 const MAX_NOTIFICATIONS = 5
 
@@ -34,6 +29,7 @@ func _ready():
 	container_node = VBoxContainer.new()
 	container_node.position = Vector2(0,350)
 	container_node.size = Vector2(300, 1000)
+	container_node.z_index = 99
 	add_child(container_node)
 
 # --- Public API ---
