@@ -1,6 +1,7 @@
 class_name Player extends CharacterBody3D
 
 @onready var cam: Camera3D = $PlayerCamera
+@onready var race_stats: PlayerRaceStats = $PlayerRaceStats
 
 var is_ai := false
 var ai_brain: PlayerAI = null
@@ -10,7 +11,6 @@ var starting_speed := 20.
 var sideways_speed := 16.0
 var top_sideways_speed = sideways_speed
 var top_speed := starting_speed
-
 
 var speed = 0
 
@@ -24,13 +24,8 @@ var top_acceleration = acceleration
 var near_miss_tracking = []
 var near_miss_hit_cooldown = 0
 
-var has_finished = false
-
 var player_color: Color
 var player_name: String
-
-var start_time := 0.0
-var collision_count := 0
 
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.
@@ -47,8 +42,6 @@ func _enter_tree() -> void:
 		Global.local_player = self
 		
 func _ready() -> void:
-	start_time = Time.get_ticks_msec()
-
 	# If we are the authority and starting at the origin, snap to the calculated row position.
 	# This ensures authority-controlled peers don't sync (0,0,0) back to the host.
 	if is_multiplayer_authority() and global_position == Vector3.ZERO:
@@ -60,6 +53,7 @@ func _ready() -> void:
 	if info:
 		player_color = info.color
 		player_name = info.name
+		
 	if is_ai:
 		ai_brain = PlayerAI.new()
 		add_child(ai_brain)
@@ -77,7 +71,6 @@ func _ready() -> void:
 	if !is_multiplayer_authority() or is_ai:
 		if !ai_brain or !ai_brain.testing_mode:
 			cam.queue_free()
-		$ScoreLabel.queue_free()
 		$Mesh.transparency = 0.7
 	else:
 		# the local player shouldn't have a name label
@@ -88,69 +81,14 @@ func _process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return
 	
-	if !has_finished and global_position.z > Main.world.track_length:
-		complete_race()
-	
 	if is_ai:
 		return
 	
-	# Hide all indicators initially so they don't get "stuck" if a peer leaves
-	for label in $IndicatorLabels.get_children():
-		label.visible = false
-
-	var i = 0
-	
-	for player in get_tree().get_nodes_in_group("player"):
-		if player == self: continue
-		# Convert world position to screen position
-		var screen_pos := cam.unproject_position(player.global_position)
-		
-		var label: RichTextLabel = $IndicatorLabels.get_child(i)
-		i += 1
-		if cam.is_position_behind(player.global_position):
-			label.visible = true
-			
-			var viewport_size := get_viewport().get_visible_rect().size
-			
-			screen_pos.x = viewport_size.x - screen_pos.x
-			screen_pos.x = clamp(screen_pos.x, 50.0, viewport_size.x - 50.0)
-			
-			# Force labels to bottom of screen
-			screen_pos.y = viewport_size.y - 80.0
-			
-			label.text = player.player_name + " [font_size=60](" + str(int(player.global_position.distance_to(global_position))) + ")[/font_size]"
-			label.position = screen_pos
-	
-	var s = ""
-	s += str(int((global_position.z / Main.world.track_length) * 100)) + "% \n"
-	for player in get_tree().get_nodes_in_group("player"):
-		if player == self: continue
-		s += player.player_name + ": " + str(int((player.global_position.z / Main.world.track_length) * 100)) + "% \n"
-	
-	$ScoreLabel.text = s
-	
-	DebugDraw2D.set_text("top_speed", snappedf(top_speed, 0.1))
-	DebugDraw2D.set_text("speed", snappedf(speed, 0.1))
-	DebugDraw2D.set_text("velocity", velocity)
-	
-
 func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return
 	
-	# If bot is behind ALL human players, disable collision to cheese back into the race
-	#if is_ai:
-		#var min_human_z := INF
-		#for p in get_tree().get_nodes_in_group("player"):
-			#if not p.is_ai:
-				#min_human_z = min(min_human_z, p.global_position.z)
-		#
-		#if min_human_z != INF:
-			#$CSGBakedCollisionShape3D.disabled = global_position.z < min_human_z
-
-	
 	var camoffset = Vector3(0, 1.06, -2.2)
-
 	if !is_ai or ai_brain.testing_mode:
 		cam.global_position = cam.global_position.lerp((global_position + camoffset), delta * 12)
 	
@@ -238,7 +176,7 @@ func _physics_process(delta: float) -> void:
 				# how fast we were moving into the hit
 			var impact_strength = abs(velocity.z)
 
-			collision_count += 1
+			race_stats.collision_count += 1
 
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
 
@@ -311,27 +249,5 @@ func _on_trail_spawn_timer_timeout() -> void:
 		c.set_surface_override_material(0, mat.duplicate())
 		c.get_surface_override_material(0).set_shader_parameter("albedo", player_color)
 
-func complete_race():
-	has_finished = true
-	
-	if ai_brain:
-		#if ai_brain.testing_mode:
-		ai_brain.log_results()
-	else:
-		var duration = (Time.get_ticks_msec() - start_time) / 1000.0
-		print("--- PLAYER RESULTS [%s] ---" % player_name)
-		print("Time: %.3fs" % duration)
-		print("Collisions: %d" % collision_count)
-		print("---------------------------")
 
-	if !ai_brain:
-		UIManager.show_finish_screen(get_standing())
 	
-func get_standing() -> int:
-	var all_players = get_tree().get_nodes_in_group("player")
-	all_players.sort_custom(func(a, b):
-		return a.global_position.z > b.global_position.z
-	)
-	var index = all_players.find(self )
-	# 4. Convert 0-index to 1-based standing (0 becomes 1st)
-	return index + 1

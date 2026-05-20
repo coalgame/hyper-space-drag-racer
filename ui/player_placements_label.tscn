@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://dpoagrq6uskrc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h2yge"]
+bg_color = Color(0.43519253, 0.43519217, 0.43519235, 0.49803922)
+
+[node name="Label" type="Label" unique_id=1838443883]
+theme_override_styles/normal = SubResource("StyleBoxFlat_h2yge")
+text = "1 CHUD1 26%"
+horizontal_alignment = 3

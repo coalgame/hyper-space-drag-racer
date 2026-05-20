@@ -21,7 +21,7 @@ func load_settings():
 	var err = config.load(SAVE_PATH)
 	
 	var default_color = PRESET_COLORS.pick_random()
-	var default_name = "chud" + str(randi_range(0, 9))
+	var default_name = "CHUD" + str(randi_range(0, 9))
 	
 	if err == OK:
 		data.name = config.get_value("profile", "name", default_name)

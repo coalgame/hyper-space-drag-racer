@@ -2,8 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player/player.gd" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://hiace1p32qm4" path="res://player/player_camera.gd" id="2_onrkg"]
-[ext_resource type="PackedScene" uid="uid://wwuqhng0xvum" path="res://player/player_indicator_label.tscn" id="3_g1dw6"]
-[ext_resource type="Script" uid="uid://dy1ckc1oa437c" path="res://player/player_stats.gd" id="4_yw30f"]
+[ext_resource type="Script" uid="uid://dy1ckc1oa437c" path="res://player/player_race_stats.gd" id="4_yw30f"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
 radius = 0.28460053
@@ -71,6 +70,12 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
+properties/2/path = NodePath("PlayerRaceStats:finish_time")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath("PlayerRaceStats:finish_placement")
+properties/3/spawn = true
+properties/3/replication_mode = 1
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4flbx"]
 size = Vector3(1.4324951, 1.9545898, 1.5164185)
@@ -127,19 +132,6 @@ top_level = true
 current = true
 script = ExtResource("2_onrkg")
 
-[node name="ScoreLabel" type="Label" parent="." unique_id=1850027877]
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -40.0
-offset_top = -22.5
-offset_bottom = 22.5
-grow_horizontal = 0
-grow_vertical = 2
-theme_override_font_sizes/font_size = 32
-
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=187439324]
 replication_config = SubResource("SceneReplicationConfig_4flbx")
 
@@ -186,44 +178,6 @@ autostart = true
 [node name="TrailSpawnPos" type="Marker3D" parent="." unique_id=436666744]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3049932, 1.2354006)
 
-[node name="IndicatorLabels" type="Node" parent="." unique_id=561654899]
-
-[node name="PlayerIndicatorLabel" parent="IndicatorLabels" unique_id=2144819437 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel2" parent="IndicatorLabels" unique_id=1881339584 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel3" parent="IndicatorLabels" unique_id=681258728 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel4" parent="IndicatorLabels" unique_id=1299047197 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel5" parent="IndicatorLabels" unique_id=93712157 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel6" parent="IndicatorLabels" unique_id=896319391 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel7" parent="IndicatorLabels" unique_id=738021082 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel8" parent="IndicatorLabels" unique_id=1223295793 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel9" parent="IndicatorLabels" unique_id=2119532667 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel10" parent="IndicatorLabels" unique_id=1090545189 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel11" parent="IndicatorLabels" unique_id=1846972958 instance=ExtResource("3_g1dw6")]
-visible = false
-
-[node name="PlayerIndicatorLabel12" parent="IndicatorLabels" unique_id=1208252037 instance=ExtResource("3_g1dw6")]
-visible = false
-
 [node name="NameLabel3D" type="Label3D" parent="." unique_id=1960586128]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0039229, 0)
@@ -235,8 +189,24 @@ billboard = 1
 fixed_size = true
 text = "Loading..."
 
-[node name="PlayerStats" type="Node" parent="." unique_id=436476586]
+[node name="PlayerRaceStats" type="Node" parent="." unique_id=436476586]
 script = ExtResource("4_yw30f")
+
+[node name="IndicatorLabels" type="Node" parent="PlayerRaceStats" unique_id=561654899]
+unique_name_in_owner = true
+
+[node name="ScoreLabel" type="Label" parent="PlayerRaceStats" unique_id=1850027877]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -22.5
+offset_bottom = 22.5
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
 
 [connection signal="body_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_entered"]
 [connection signal="body_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_exited"]

@@ -132,43 +132,44 @@ func get_speed_multiplier() -> float:
 	return speed_multiplier
 
 func log_results() -> void:
-	var duration = (Time.get_ticks_msec() - player.start_time) / 1000.0
-	
-	# Also log difficulty for analysis
-	all_test_results.append({
-		"duration": duration,
-		"collisions": player.collision_count,
-		"difficulty": difficulty
-	})
-	print("--- AI TEST RESULTS [%s] ---" % player.player_name)
-	print("Map length: ", Main.world.track_length)
-	print("Seed: ", Global.game_seed)
-
-	print("Time: %.3fs" % duration)
-	print("Collisions: %d" % player.collision_count)
-	print("Difficulty: %.1f" % difficulty)
-	
-	print("Cone res: ", cone_resolution)
-	print("Cone angle: ", cone_angle_degrees)
-	print("---------------------------")
-
-	# Check if all participating bots have finished to print the average
-	var testing_bots = get_tree().get_nodes_in_group("player").filter(
-		func(p): return p.is_ai and p.ai_brain # and p.ai_brain.testing_mode
-	)
-	
-	if all_test_results.size() >= testing_bots.size():
-		var total_time := 0.0
-		var total_collisions := 0
-		for res in all_test_results:
-			total_time += res.duration
-			total_collisions += res.collisions
-		
-		print("\n=== FINAL AI AVERAGE RESULTS (%d BOTS) ===" % all_test_results.size())
-		print("Average Time: %.3fs" % (total_time / all_test_results.size()))
-		print("Average Collisions: %.2f" % (float(total_collisions) / all_test_results.size()))
-		print("==========================================\n")
-		all_test_results.clear()
+	pass
+	#var duration = (Time.get_ticks_msec() - player.start_time) / 1000.0
+	#
+	## Also log difficulty for analysis
+	#all_test_results.append({
+		#"duration": duration,
+		#"collisions": player.collision_count,
+		#"difficulty": difficulty
+	#})
+	#print("--- AI TEST RESULTS [%s] ---" % player.player_name)
+	#print("Map length: ", Main.world.track_length)
+	#print("Seed: ", Global.game_seed)
+#
+	#print("Time: %.3fs" % duration)
+	#print("Collisions: %d" % player.collision_count)
+	#print("Difficulty: %.1f" % difficulty)
+	#
+	#print("Cone res: ", cone_resolution)
+	#print("Cone angle: ", cone_angle_degrees)
+	#print("---------------------------")
+#
+	## Check if all participating bots have finished to print the average
+	#var testing_bots = get_tree().get_nodes_in_group("player").filter(
+		#func(p): return p.is_ai and p.ai_brain # and p.ai_brain.testing_mode
+	#)
+	#
+	#if all_test_results.size() >= testing_bots.size():
+		#var total_time := 0.0
+		#var total_collisions := 0
+		#for res in all_test_results:
+			#total_time += res.duration
+			#total_collisions += res.collisions
+		#
+		#print("\n=== FINAL AI AVERAGE RESULTS (%d BOTS) ===" % all_test_results.size())
+		#print("Average Time: %.3fs" % (total_time / all_test_results.size()))
+		#print("Average Collisions: %.2f" % (float(total_collisions) / all_test_results.size()))
+		#print("==========================================\n")
+		#all_test_results.clear()
 
 func get_crash_knockback_multiplier() -> float:
 	return max(knockback_multiplier, 0.0)

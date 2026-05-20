@@ -150,7 +150,14 @@ func show_screen(screen_name: String):
 
 func _on_name_line_edit_text_changed(new_text: String) -> void:
 	if new_text.strip_edges() != "":
-		ProfileManager.set_username(new_text)
+		 # Save current cursor position
+		var caret_pos = %NameLineEdit.caret_column
+		# Convert text to uppercase
+		%NameLineEdit.text = new_text.to_upper()
+		# Restore cursor position (Godot resets it to the end when text changes)
+		%NameLineEdit.caret_column = caret_pos
+		
+		ProfileManager.set_username(%NameLineEdit.text)
 
 func _on_difficulty_slider_value_changed(value: float) -> void:
 	Global.set("difficulty", value)

@@ -3,6 +3,8 @@ class_name Main extends Node
 static var instance: Main
 static var world: World
 
+@onready var hud: HUD = $HUD
+
 func _init() -> void:
 	instance = self
 
