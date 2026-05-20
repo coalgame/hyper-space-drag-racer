@@ -21,11 +21,13 @@ var acceleration := 145.0
 var deceleration := 130.0
 var top_acceleration = acceleration
 
+var tracked_body: Node3D = null
 var near_miss_tracking = []
 var near_miss_hit_cooldown = 0
 
 var player_color: Color
 var player_name: String
+
 
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.
@@ -120,9 +122,9 @@ func _physics_process(delta: float) -> void:
 	var is_out_of_bounds = abs(global_position.x) > current_track_dims.x or abs(global_position.y) > current_track_dims.y
 	
 	if is_out_of_bounds:
-		# Apply significant drag until speed reaches 10
-		top_speed = move_toward(top_speed, 10.0, delta * 40.0)
-		speed = move_toward(speed, 10.0, delta * 40.0)
+		# Apply significant drag
+		#speed = move_toward(speed, 10.0, delta * 20.0)
+		top_speed = move_toward(top_speed, 20.0, delta * 10.0)
 
 	var input := Vector2.ZERO
 	if ai_brain:
@@ -168,11 +170,7 @@ func _physics_process(delta: float) -> void:
 		var collider = collision.get_collider()
 		if collider is Asteroid:
 			collider.hit()
-		
-		var hit_chance = 1
-		#if ai_brain:
-		#	hit_chance = ai_brain.get_hit_chance()
-
+	
 			
 		if is_zero_approx(hit_cooldown):
 				# how fast we were moving into the hit
@@ -206,7 +204,6 @@ func speed_boost(amount):
 	#printt(str(multiplayer.get_unique_id()) , is_ai)
 	#print_stack()
 	
-var tracked_body: Node3D = null
 
 func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 	if body == tracked_body:
