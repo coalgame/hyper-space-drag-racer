@@ -24,6 +24,16 @@ func _ready():
 		# Initialize the label and global value
 		_on_difficulty_slider_value_changed(%DifficultySlider.value)
 
+	if has_node("%TrackLengthSlider"):
+		%TrackLengthSlider.min_value = 100
+		%TrackLengthSlider.max_value = 5000
+		%TrackLengthSlider.step = 100
+		var saved_len = Global.get("track_length")
+		%TrackLengthSlider.value = saved_len if saved_len != null else 500
+		%TrackLengthSlider.value_changed.connect(_on_track_length_slider_value_changed)
+		# Initialize the label and global value
+		_on_track_length_slider_value_changed(%TrackLengthSlider.value)
+
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connection_succeeded)
 	multiplayer.connection_failed.connect(_on_connection_failed)
@@ -117,6 +127,7 @@ func _on_player_connected(peer_id: int):
 
 func _on_singleplayer_button_pressed():
 	Main.instance.start_world()
+	Main.instance.start_world(randi(), int(%TrackLengthSlider.value))
 
 
 func _on_color_option_button_item_selected(index: int) -> void:
@@ -127,6 +138,7 @@ func _on_color_option_button_item_selected(index: int) -> void:
 # host
 func _on_start_game_pressed() -> void:
 	Main.instance.start_world.rpc(randi())
+	Main.instance.start_world.rpc(randi(), int(%TrackLengthSlider.value))
 
 
 func _on_quit_lobby_pressed():
@@ -143,9 +155,13 @@ func show_screen(screen_name: String):
 		%LobbyScreen/StartGame.visible = NetworkManager.is_host()
 		if has_node("%DifficultySlider"):
 			%DifficultySlider.visible = NetworkManager.is_host()
+		if has_node("%TrackLengthSlider"):
+			%TrackLengthSlider.visible = NetworkManager.is_host()
 	elif screen_name == "main":
 		if has_node("%DifficultySlider"):
 			%DifficultySlider.visible = true
+		if has_node("%TrackLengthSlider"):
+			%TrackLengthSlider.visible = true
 		
 
 func _on_name_line_edit_text_changed(new_text: String) -> void:
@@ -163,3 +179,8 @@ func _on_difficulty_slider_value_changed(value: float) -> void:
 	Global.set("difficulty", value)
 	if has_node("%DifficultyLabel"):
 		%DifficultyLabel.text = "Difficulty: %.1f" % value
+
+func _on_track_length_slider_value_changed(value: float) -> void:
+	Global.set("track_length", int(value))
+	if has_node("%TrackLengthLabel"):
+		%TrackLengthLabel.text = "Track Length: %d" % value

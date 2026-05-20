@@ -185,11 +185,18 @@ func generate() -> void:
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
 
 
+
 func _process(delta: float) -> void:
 	var cam = get_viewport().get_camera_3d()
 	if !cam:
 		return
 	
+	if not NetworkManager.has_connection() and Input.is_action_just_pressed("restart_race"):
+		# HACK this will be removed later
+		Main.instance.exit_world()
+		Main.instance.main_menu._on_singleplayer_button_pressed()
+		
+
 	DebugDraw2D.begin_text_group("world", 15, Color.LIGHT_YELLOW)
 	DebugDraw2D.set_text("cam pos", cam.global_position)
 	DebugDraw2D.set_text("track dimension", get_track_dimensions(cam.global_position.z))

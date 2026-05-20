@@ -4,6 +4,7 @@ static var instance: Main
 static var world: World
 
 @onready var hud: HUD = $HUD
+@onready var main_menu: Control = $MainMenu
 
 func _init() -> void:
 	instance = self

@@ -40,7 +40,7 @@ func _enter_tree() -> void:
 
 	if is_multiplayer_authority() and !is_ai:
 		Global.local_player = self
-		
+
 func _ready() -> void:
 	# If we are the authority and starting at the origin, snap to the calculated row position.
 	# This ensures authority-controlled peers don't sync (0,0,0) back to the host.
@@ -48,12 +48,14 @@ func _ready() -> void:
 		if Main.world:
 			global_position = Main.world.get_spawn_position(name)
 
-	
 	var info = NetworkManager.players.get(name.to_int())
 	if info:
 		player_color = info.color
 		player_name = info.name
-		
+	else:
+		player_color = Color.BROWN
+		player_name = "CHUD"
+	
 	if is_ai:
 		ai_brain = PlayerAI.new()
 		add_child(ai_brain)
@@ -77,13 +79,7 @@ func _ready() -> void:
 		%NameLabel3D.queue_free()
 		$Mesh.transparency = 0.3
 
-func _process(delta: float) -> void:
-	if !is_multiplayer_authority():
-		return
-	
-	if is_ai:
-		return
-	
+
 func _physics_process(delta: float) -> void:
 	if !is_multiplayer_authority():
 		return

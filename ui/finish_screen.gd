@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 			var cents = int((duration - int(duration)) * 100)
 			time_display = "%d:%02d.%02d" % [mins, secs, cents]
 			
-		var p_name = p.player_name if not p.player_name.is_empty() else "Player"
+		var p_name = p.player_name
 		if Global.local_player == p: leaderboard_text += "🫃"
 		
 		leaderboard_text += "%d. %s %d%% %s\n" % [i + 1, p_name.to_upper(), pct, time_display]
