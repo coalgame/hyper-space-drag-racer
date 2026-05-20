@@ -99,6 +99,7 @@ func _physics_process(delta: float) -> void:
 	var speed_damp = ((speed_damp_strength * top_speed) + 1) - (20 * speed_damp_strength)
 	top_speed += delta * 0.5 * ai_speed_multiplier * speed_damp
 	
+	
 	var braking = false
 	# Only humans check the hardware brake key
 	if !is_ai:
@@ -115,6 +116,14 @@ func _physics_process(delta: float) -> void:
 	#print(acceleration)
 	#print(sideways_speed)
 	
+	var current_track_dims = Main.world.get_track_dimensions(global_position.z)
+	var is_out_of_bounds = abs(global_position.x) > current_track_dims.x or abs(global_position.y) > current_track_dims.y
+	
+	if is_out_of_bounds:
+		# Apply significant drag until speed reaches 10
+		top_speed = move_toward(top_speed, 10.0, delta * 40.0)
+		speed = move_toward(speed, 10.0, delta * 40.0)
+
 	var input := Vector2.ZERO
 	if ai_brain:
 		input = ai_brain.get_input()
@@ -147,9 +156,6 @@ func _physics_process(delta: float) -> void:
 	velocity.y = move_velocity.y
 	velocity.z = speed # still force forward travel direction
 		
-	var current_track_dims = Main.world.get_track_dimensions(global_position.z)
-	global_position.x = clamp(global_position.x, -current_track_dims.x, current_track_dims.x)
-	global_position.y = clamp(global_position.y, -current_track_dims.y, current_track_dims.y)
 	
 	move_and_slide()
 	
@@ -186,17 +192,20 @@ func _physics_process(delta: float) -> void:
 			# optional: also reduce max speed so it matters long-term
 			top_speed -= (knockback - 5) * 2.5
 			
-			if top_speed < 20:
-				top_speed = 20
+			if top_speed < 10:
+				top_speed = 10
 				
 			hit_cooldown = 1
 
 @rpc("any_peer", "call_local")
 func speed_boost(amount):
+	if !is_multiplayer_authority(): return
 	#printt(str(multiplayer.get_unique_id()) , "speed_boost")
 	top_speed += amount
 	speed += amount
-
+	#printt(str(multiplayer.get_unique_id()) , is_ai)
+	#print_stack()
+	
 var tracked_body: Node3D = null
 
 func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:

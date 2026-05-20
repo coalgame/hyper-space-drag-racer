@@ -51,26 +51,27 @@ func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
 		if body.is_multiplayer_authority():
 			hide() # show pick it up immediately
-			request_pickup.rpc_id(1)
+			request_pickup.rpc_id(1, body.name)
 
 @rpc("any_peer", "call_local")
-func request_pickup():
+func request_pickup(player_node_name: String):
 	if not multiplayer.is_server():
 		return
 	
 	# already collected?
 	if is_queued_for_deletion():
 		return
-		
-	var id = multiplayer.get_remote_sender_id()
-	var player : Player = Main.world.get_player(id)
+	
+	var player: Player = Main.world.get_node_or_null(player_node_name)
 	if player:
 		var first_place_player = Main.world.get_first_place()
 		if is_instance_valid(first_place_player):
 			var distance = abs(first_place_player.global_position.z - player.global_position.z)
-			var gemboost = (0.002*distance) + 1
+			var gemboost = (0.002 * distance) + 1
 			
-			player.speed_boost.rpc_id(id, 3 * gemboost)
+	 		# FIX: dont use multiplayer.get_remote_sender_id() because a bot could pick it up and bots dont have a network id, instead pass the player node name and look it up in the world
+			# Apply boost specifically to the authority of this ship instance
+			player.speed_boost.rpc_id(player.get_multiplayer_authority(), 3 * gemboost)
 			
 			# deletes for everyone (multiplayerspawner)
 			queue_free()

@@ -187,7 +187,6 @@ func generate() -> void:
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
 
 
-
 func _process(delta: float) -> void:
 	var cam = get_viewport().get_camera_3d()
 	if !cam:
