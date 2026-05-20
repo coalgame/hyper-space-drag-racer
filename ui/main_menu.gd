@@ -25,11 +25,11 @@ func _ready():
 		_on_difficulty_slider_value_changed(%DifficultySlider.value)
 
 	if has_node("%TrackLengthSlider"):
-		%TrackLengthSlider.min_value = 100
-		%TrackLengthSlider.max_value = 5000
+		%TrackLengthSlider.min_value = 1000
+		%TrackLengthSlider.max_value = 10000
 		%TrackLengthSlider.step = 100
 		var saved_len = Global.get("track_length")
-		%TrackLengthSlider.value = saved_len if saved_len != null else 500
+		%TrackLengthSlider.value = saved_len if saved_len != null else 5000
 		%TrackLengthSlider.value_changed.connect(_on_track_length_slider_value_changed)
 		# Initialize the label and global value
 		_on_track_length_slider_value_changed(%TrackLengthSlider.value)
@@ -126,7 +126,6 @@ func _on_player_connected(peer_id: int):
 
 
 func _on_singleplayer_button_pressed():
-	Main.instance.start_world()
 	Main.instance.start_world(randi(), int(%TrackLengthSlider.value))
 
 
@@ -137,7 +136,6 @@ func _on_color_option_button_item_selected(index: int) -> void:
 
 # host
 func _on_start_game_pressed() -> void:
-	Main.instance.start_world.rpc(randi())
 	Main.instance.start_world.rpc(randi(), int(%TrackLengthSlider.value))
 
 

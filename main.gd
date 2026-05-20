@@ -51,13 +51,15 @@ func _toggle_freecam():
 		Notifications.notify("Freecam Enabled (WASD/QE to fly, F1 to exit)")
 
 @rpc("call_local")
-func start_world(game_seed: int = randi()):
+func start_world(game_seed: int = randi(), p_track_length: int = 5000):
 	Notifications.notify("Starting world...")
 	Global.game_seed = game_seed
+	Global.track_length = p_track_length
 	#Global.game_seed = 67
 	
 	$MainMenu.hide()
 	
+	# Only the server should instantiate the world and set its properties
 	if not multiplayer.is_server():
 		return
 

@@ -1,6 +1,6 @@
 class_name World extends Node3D
 
-var track_length := 500
+var track_length:=5000
 
 var server_random: RandomNumberGenerator
 var track_noise: FastNoiseLite
@@ -9,6 +9,8 @@ var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
 
 func _ready() -> void:
+	track_length = Global.track_length
+	
 	add_child(loading_gate)
 	add_child(post_gen_gate)
 
@@ -179,7 +181,7 @@ func generate() -> void:
 		
 		## spawn gem (independent roll)
 		if multiplayer.is_server():
-			if server_random.randf() < 0.1:
+			if server_random.randf() < 0.12:
 				var gem = preload("res://world/gem.tscn").instantiate()
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
