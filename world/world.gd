@@ -134,7 +134,7 @@ func generate() -> void:
 	for i in track_length:
 		# Offset by 2000.0 to keep the noise independent from X and Y scaling
 		var noise_val = (track_noise.get_noise_1d(z + 2000.0) + 1.0) / 2.0
-		var current_z_spacing = lerp(4.0, 6.0, noise_val)
+		var current_z_spacing = lerp(3.0, 5.0, noise_val)
 		
 		z += current_z_spacing
 		if z > track_length: break
@@ -165,23 +165,18 @@ func generate() -> void:
 		# Smooth the growth so it ramps up nicer
 		edge_factor = pow(edge_factor, 2.0)
 
-		# Noise-based scale variation (independent from X/Y/Z scaling)
-		var raw_scale_noise = (track_noise.get_noise_1d(z + 3000.0) + 1.0) / 2.0
-		var scale_noise = clamp((raw_scale_noise - 0.5) * 1.2 + 0.3, 0.0, 1.0)
-		
-		# Base scale range (widened for more drastic look)
-		var min_scale := 1.2
-		var max_scale := 2.1
+		var min_scale := 1.5
+		var max_scale := 2.3
 
 		# Interpolate scale based on edge distance
 		var scale_mul := lerpf(min_scale, max_scale, edge_factor)
-		scale_mul *= lerp(0.7, 1.3, scale_noise)
+		scale_mul *= randf_range(0.9, 1.15)
 
 		block.scale = Vector3.ONE * scale_mul
 		
 		## spawn gem (independent roll)
 		if multiplayer.is_server():
-			if server_random.randf() < 0.12:
+			if server_random.randf() < 0.1:
 				var gem = preload("res://world/gem.tscn").instantiate()
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
