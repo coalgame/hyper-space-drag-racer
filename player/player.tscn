@@ -2,7 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dnteqtgpmvri4" path="res://player/player.gd" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://hiace1p32qm4" path="res://player/player_camera.gd" id="2_onrkg"]
+[ext_resource type="Script" uid="uid://cxw4t04h8hrrv" path="res://player/gpu_particles_3d.gd" id="4_qjkh3"]
 [ext_resource type="Script" uid="uid://dy1ckc1oa437c" path="res://player/player_race_stats.gd" id="4_yw30f"]
+[ext_resource type="Texture2D" uid="uid://b1qpgyrw71s4f" path="res://world/robot_bits.png" id="5_qjkh3"]
+[ext_resource type="Script" uid="uid://cs87t2lag0vbf" path="res://player/bits_and_bobs.gd" id="6_g6k8r"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_e2o6t"]
 radius = 0.28460053
@@ -114,6 +117,59 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_i3pqv")
 size = Vector2(0.15, 0.1)
 
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_g1dw6"]
+emission_shape = 3
+emission_box_extents = Vector3(99, 99, 99)
+direction = Vector3(0, 0, -1)
+spread = 0.0
+initial_velocity_min = 2.95
+initial_velocity_max = 2.95
+gravity = Vector3(0, 0, 0)
+anim_offset_max = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g1dw6"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(2.651465, 2.651465, 2.651465, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 50.71
+distance_fade_max_distance = 143.55
+
+[sub_resource type="BoxMesh" id="BoxMesh_yw30f"]
+material = SubResource("StandardMaterial3D_g1dw6")
+size = Vector3(0.18, 0.185, 2.345)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_g6k8r"]
+emission_shape = 3
+emission_box_extents = Vector3(22, 22, 22)
+direction = Vector3(0, 0, -1)
+spread = 0.0
+initial_velocity_min = -81.75
+initial_velocity_max = -81.549995
+gravity = Vector3(0, 0, 0)
+anim_offset_max = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wawfe"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9647059, 0.09411765, 0.40392157, 1)
+albedo_texture = ExtResource("5_qjkh3")
+texture_filter = 0
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 4
+particles_anim_v_frames = 2
+particles_anim_loop = false
+proximity_fade_distance = 1756.42
+distance_fade_mode = 1
+distance_fade_min_distance = 26.84
+distance_fade_max_distance = 49.61
+
+[sub_resource type="QuadMesh" id="QuadMesh_7tsx8"]
+material = SubResource("StandardMaterial3D_wawfe")
+
 [node name="Player" type="CharacterBody3D" unique_id=63911568 groups=["player"]]
 collision_layer = 2
 motion_mode = 1
@@ -194,6 +250,30 @@ script = ExtResource("4_yw30f")
 
 [node name="IndicatorLabels" type="Node" parent="PlayerRaceStats" unique_id=561654899]
 unique_name_in_owner = true
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=2128357702 node_paths=PackedStringArray("ship")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 134.57895)
+cast_shadow = 0
+amount = 2000
+lifetime = 6.57
+trail_lifetime = 1.18
+process_material = SubResource("ParticleProcessMaterial_g1dw6")
+draw_pass_1 = SubResource("BoxMesh_yw30f")
+script = ExtResource("4_qjkh3")
+ship = NodePath("..")
+base_speed = 0.02
+hyperspace_multiplier = 1.0
+
+[node name="BitsAndBobs" type="GPUParticles3D" parent="." unique_id=1148473596]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 7.1054274e-15, 0, 1, 0, 2.1316282e-14, 0, 1, 4.5474735e-13, -1.7881393e-06, 0.34658623)
+cast_shadow = 0
+amount = 30
+lifetime = 3.26
+visibility_aabb = AABB(-99, -99, -99, 99, 99, 99)
+process_material = SubResource("ParticleProcessMaterial_g6k8r")
+draw_pass_1 = SubResource("QuadMesh_7tsx8")
+script = ExtResource("6_g6k8r")
 
 [connection signal="body_entered" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_entered"]
 [connection signal="body_exited" from="NearMissArea3D" to="." method="_on_near_miss_area_3d_body_exited"]

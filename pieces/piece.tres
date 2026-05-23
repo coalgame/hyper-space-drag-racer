@@ -6,5 +6,8 @@
 [resource]
 render_priority = 0
 shader = ExtResource("1_asi6m")
-shader_parameter/albedo = Color(1.7560499, 1.7560499, 1.7560499, 1)
+shader_parameter/albedo = Color(1, 1, 1, 1)
 shader_parameter/texture_albedo = ExtResource("2_v71dm")
+shader_parameter/uv1_blend_sharpness = 1.090000051775
+shader_parameter/uv1_scale = Vector3(0.5, 0.5, 0.5)
+shader_parameter/uv1_offset = Vector3(0.5, 0.5, 0.5)

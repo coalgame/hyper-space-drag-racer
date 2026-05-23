@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://dxa57kmy3375e"]
+
+[ext_resource type="Texture2D" uid="uid://b1qpgyrw71s4f" path="res://world/robot_bits.png" id="1_43k8w"]
+
+[sub_resource type="Curve" id="Curve_43k8w"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.12987015, 1), -0.021614, -0.021614, 0, 0, Vector2(0.87012994, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_d1y7q"]
+curve = SubResource("Curve_43k8w")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_khi8y"]
+emission_shape = 3
+emission_box_extents = Vector3(1, 1, 1)
+spread = 180.0
+initial_velocity_min = 8.0
+initial_velocity_max = 10.15
+angular_velocity_min = 549.68
+angular_velocity_max = 719.99994
+gravity = Vector3(0, -7.105, 0)
+scale_min = 0.5
+scale_max = 0.7
+scale_curve = SubResource("CurveTexture_d1y7q")
+color = Color(0.08111344, 0.09858954, 0.11856222, 1)
+hue_variation_min = -0.020000022
+hue_variation_max = 0.019999977
+anim_offset_max = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wawfe"]
+transparency = 2
+alpha_scissor_threshold = 0.914
+alpha_antialiasing_mode = 0
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9647059, 0.09411765, 0.40392157, 1)
+albedo_texture = ExtResource("1_43k8w")
+texture_filter = 0
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 4
+particles_anim_v_frames = 2
+particles_anim_loop = false
+proximity_fade_distance = 1756.42
+distance_fade_min_distance = 83.34
+distance_fade_max_distance = 441.16
+
+[sub_resource type="QuadMesh" id="QuadMesh_7tsx8"]
+material = SubResource("StandardMaterial3D_wawfe")
+
+[node name="RobotBits" type="GPUParticles3D" unique_id=1148473596]
+cast_shadow = 0
+emitting = false
+amount = 11
+lifetime = 2.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_khi8y")
+draw_pass_1 = SubResource("QuadMesh_7tsx8")

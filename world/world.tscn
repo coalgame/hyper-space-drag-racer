@@ -2,16 +2,30 @@
 
 [ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://world/world.gd" id="1_aqk2v"]
 [ext_resource type="PackedScene" uid="uid://c830q5yix4hev" path="res://ui/pause_menu.tscn" id="3_dwbse"]
+[ext_resource type="Texture2D" uid="uid://bgep85kxmc7tb" path="res://world/if-2048-vessel-cc.jpg" id="4_h5o24"]
 [ext_resource type="PackedScene" uid="uid://jcjmqylt1g0f" path="res://ui/finish_screen.tscn" id="4_pkg7o"]
 
+[sub_resource type="Gradient" id="Gradient_h5o24"]
+offsets = PackedFloat32Array(0.01, 0.55, 1)
+colors = PackedColorArray(0.35686275, 0.019607844, 0.20392157, 1, 0.23137255, 0.003921569, 0.15686275, 1, 0.33333334, 0.02745098, 0.32156864, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_mmdvd"]
+gradient = SubResource("Gradient_h5o24")
+fill_from = Vector2(0.4602804, 0)
+fill_to = Vector2(0.5070093, 1)
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_h5o24"]
+panorama = SubResource("GradientTexture2D_mmdvd")
+
 [sub_resource type="Sky" id="Sky_e2o6t"]
+sky_material = SubResource("PanoramaSkyMaterial_h5o24")
 
 [sub_resource type="Environment" id="Environment_feb5d"]
 background_mode = 2
+background_color = Color(0.6064876, 0.6457323, 0.6162321, 1)
 sky = SubResource("Sky_e2o6t")
 ambient_light_source = 2
-ambient_light_color = Color(0.23137255, 0.23137255, 0.23137255, 1)
-reflected_light_source = 2
+ambient_light_color = Color(0.87, 0.5829, 0.75994503, 1)
 tonemap_mode = 2
 ssao_enabled = true
 glow_enabled = true
@@ -21,8 +35,20 @@ glow_bloom = 0.13
 fog_mode = 1
 fog_light_color = Color(9.535274e-05, 0.00011561906, 0.00015177995, 1)
 fog_density = 1.0
-fog_aerial_perspective = 1.0
 fog_depth_end = 329.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4717r"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+disable_ambient_light = true
+disable_fog = true
+albedo_texture = ExtResource("4_h5o24")
+grow = true
+grow_amount = 0.4
+
+[sub_resource type="QuadMesh" id="QuadMesh_4717r"]
+material = SubResource("StandardMaterial3D_4717r")
 
 [node name="World" type="Node3D" unique_id=628509721]
 script = ExtResource("1_aqk2v")
@@ -42,3 +68,9 @@ visible = false
 
 [node name="FinishScreen" parent="." unique_id=1391553711 instance=ExtResource("4_pkg7o")]
 visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1908723756]
+transform = Transform3D(-785.48035, 84.9455, -613.0293, 178.0378, 979.67865, -92.37062, 592.7252, -181.6977, -784.6418, 2626.269, -721.5658, 3487.0786)
+visible = false
+cast_shadow = 0
+mesh = SubResource("QuadMesh_4717r")

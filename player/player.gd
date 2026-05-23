@@ -75,11 +75,14 @@ func _ready() -> void:
 	if !is_multiplayer_authority() or is_ai:
 		if !ai_brain or !ai_brain.testing_mode:
 			cam.queue_free()
-		$Mesh.transparency = 0.7
+		$Mesh.transparency = 0.67
+		$GPUParticles3D.queue_free()
+		%BitsAndBobs.queue_free()
+		
 	else:
 		# the local player shouldn't have a name label
 		%NameLabel3D.queue_free()
-		$Mesh.transparency = 0.3
+		$Mesh.transparency = 0.1
 
 
 func _physics_process(delta: float) -> void:

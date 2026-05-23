@@ -127,7 +127,7 @@ func generate() -> void:
 	
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
-		#preload("res://pieces/cube2.blend"),
+		preload("res://pieces/cube2.blend"),
 	]
 	
 	var z: float = 50.0
