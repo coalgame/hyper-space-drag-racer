@@ -1,15 +1,10 @@
 [gd_scene format=3 uid="uid://cwxnxadtjd7g0"]
 
 [ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://world/world.gd" id="1_aqk2v"]
-[ext_resource type="Texture2D" uid="uid://2ygc4p0drp6o" path="res://world/space.png" id="2_036b0"]
 [ext_resource type="PackedScene" uid="uid://c830q5yix4hev" path="res://ui/pause_menu.tscn" id="3_dwbse"]
 [ext_resource type="PackedScene" uid="uid://jcjmqylt1g0f" path="res://ui/finish_screen.tscn" id="4_pkg7o"]
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_feb5d"]
-panorama = ExtResource("2_036b0")
-
 [sub_resource type="Sky" id="Sky_e2o6t"]
-sky_material = SubResource("PanoramaSkyMaterial_feb5d")
 
 [sub_resource type="Environment" id="Environment_feb5d"]
 background_mode = 2
@@ -21,12 +16,13 @@ tonemap_mode = 2
 ssao_enabled = true
 glow_enabled = true
 glow_intensity = 0.57
-glow_strength = 0.27
+glow_strength = 0.34
 glow_bloom = 0.13
 fog_mode = 1
 fog_light_color = Color(9.535274e-05, 0.00011561906, 0.00015177995, 1)
 fog_density = 1.0
 fog_aerial_perspective = 1.0
+fog_depth_end = 329.5
 
 [node name="World" type="Node3D" unique_id=628509721]
 script = ExtResource("1_aqk2v")

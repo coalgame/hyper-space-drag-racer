@@ -86,12 +86,14 @@ size = Vector3(1, 0.765, 1)
 radius = 2.5
 
 [node name="PlayerTrail" type="MeshInstance3D" unique_id=1177150298]
+visible = false
 transparency = 0.64
 cast_shadow = 0
 mesh = SubResource("BoxMesh_i3pqv")
 script = ExtResource("1_g5lsc")
 
 [node name="Area3D" type="Area3D" parent="." unique_id=1183574589]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.046262264, 0, 0)
 collision_layer = 0
 collision_mask = 2
 

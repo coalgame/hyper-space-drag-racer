@@ -1,11 +1,25 @@
 shader_type spatial;
+
+render_mode unshaded;
+
 #include "res://world/world_bend.gdshaderinc"
 
+uniform vec4 albedo : source_color;
+uniform sampler2D texture_albedo : source_color, filter_nearest_mipmap_anisotropic, repeat_enable;
+
 void vertex() {
+	UV = UV;
+
 	apply_world_bend(VERTEX, MODEL_MATRIX, MODELVIEW_MATRIX);
 }
 
 void fragment(){
+	
+	vec2 base_uv = UV;
+
+	vec4 albedo_tex = texture(texture_albedo, base_uv);
+	ALBEDO = albedo.rgb * albedo_tex.rgb;
+
 	{
 		// Distance Fade: Object Dither
 		float fade_distance = length((VIEW_MATRIX * MODEL_MATRIX[3]));

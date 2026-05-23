@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://cha2hamggomdf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_teqfm"]
+size = Vector3(2, 2, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ap314"]
+transparency = 1
+albedo_color = Color(1, 0.568, 0.04000002, 0.42352942)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ywur7"]
+material = SubResource("StandardMaterial3D_ap314")
+
+[node name="SpeedBooster" type="Area3D" unique_id=585227602]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1133327260]
+shape = SubResource("BoxShape3D_teqfm")
+debug_color = Color(0.7608831, 0.4518847, 0.030211095, 0.41960785)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2044216407]
+visibility_range_end = 116.55
+mesh = SubResource("BoxMesh_ywur7")

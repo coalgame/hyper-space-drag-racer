@@ -1,7 +1,10 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://2f5hvt578sp1"]
 
 [ext_resource type="Shader" uid="uid://d3roa6t6re5qj" path="res://pieces/piece.gdshader" id="1_asi6m"]
+[ext_resource type="Texture2D" uid="uid://chg4le7ejgyx2" path="res://pieces/Untitled-1.png" id="2_v71dm"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_asi6m")
+shader_parameter/albedo = Color(1.7560499, 1.7560499, 1.7560499, 1)
+shader_parameter/texture_albedo = ExtResource("2_v71dm")

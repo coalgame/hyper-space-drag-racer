@@ -102,7 +102,7 @@ func _register_player(info):
 	update_ui.emit()
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if !has_connection(): return
 	
 	DebugDraw2D.begin_text_group("network", 10, Color.ANTIQUE_WHITE)

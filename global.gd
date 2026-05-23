@@ -13,7 +13,7 @@ func _ready() -> void:
 	DebugDraw3D.debug_enabled = true
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	DebugDraw2D.begin_text_group("main", 5, Color.WHITE)
 	DebugDraw2D.set_text("fps", Engine.get_frames_per_second())
 	DebugDraw2D.end_text_group()

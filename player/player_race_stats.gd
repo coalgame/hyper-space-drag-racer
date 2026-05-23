@@ -21,7 +21,7 @@ func _ready() -> void:
 	#	indicator_labels.add_child(preload("res://player/player_indicator_label.tscn").instantiate())
 		
 #
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if !is_multiplayer_authority(): return
 	
 	top_speed_reached = max(player.speed, top_speed_reached)

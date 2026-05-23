@@ -127,7 +127,7 @@ func generate() -> void:
 	
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
-		preload("res://pieces/cube2.blend"),
+		#preload("res://pieces/cube2.blend"),
 	]
 	
 	var z: float = 50.0
@@ -182,7 +182,7 @@ func generate() -> void:
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var cam = get_viewport().get_camera_3d()
 	if !cam:
 		return

@@ -14,6 +14,7 @@ var _freecam_node: Camera3D = null
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	
 
 func _on_peer_connected(id: int):
 	# If a world exists on the server, a race is already in progress.

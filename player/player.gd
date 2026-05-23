@@ -122,9 +122,9 @@ func _physics_process(delta: float) -> void:
 	var is_out_of_bounds = abs(global_position.x) > current_track_dims.x or abs(global_position.y) > current_track_dims.y
 	
 	if is_out_of_bounds:
-		# Apply significant drag
-		#speed = move_toward(speed, 10.0, delta * 20.0)
-		top_speed = move_toward(top_speed, 20.0, delta * 10.0)
+		# Slow down proportionately: high speeds bleed off faster than low speeds.
+		var slowdown_rate = top_speed * 0.3
+		top_speed = move_toward(top_speed, 20.0, delta * slowdown_rate)
 
 	var input := Vector2.ZERO
 	if ai_brain:
@@ -225,7 +225,7 @@ func _on_near_miss_area_3d_body_entered(body: Node3D) -> void:
 		tracked_body = body
 
 
-func _on_spark_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
+func _on_spark_area_3d_body_shape_entered(_body_rid: RID, _body: Node3D, _body_shape_index: int, local_shape_index: int) -> void:
 	var local_shape_owner = $SparkArea3D.shape_find_owner(local_shape_index)
 	var local_shape_node = $SparkArea3D.shape_owner_get_owner(local_shape_owner)
 	if speed > 2:
@@ -233,7 +233,7 @@ func _on_spark_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shap
 		$Sparks.global_rotation = local_shape_node.global_rotation
 		$Sparks.emitting = true
 
-func _on_spark_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
+func _on_spark_area_3d_body_shape_exited(_body_rid: RID, _body: Node3D, _body_shape_index: int, _local_shape_index: int) -> void:
 	await Util.wait(0.1)
 	$Sparks.emitting = false
 
