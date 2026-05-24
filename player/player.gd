@@ -55,7 +55,7 @@ func _ready() -> void:
 		player_color = info.color
 		player_name = info.name
 	else:
-		player_color = Color.BROWN
+		player_color = Color.YELLOW
 		player_name = "CHUD"
 	
 	if is_ai:
