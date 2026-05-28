@@ -17,8 +17,7 @@ func _process(_delta: float) -> void:
 	DebugDraw2D.begin_text_group("main", 5, Color.WHITE)
 	DebugDraw2D.set_text("fps", Engine.get_frames_per_second())
 	DebugDraw2D.end_text_group()
-
-
+	
 	#if Input.is_action_just_pressed("fullscreen_toggle"):
 		#if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
 			#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)

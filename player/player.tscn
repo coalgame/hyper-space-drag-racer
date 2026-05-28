@@ -125,7 +125,6 @@ spread = 0.0
 initial_velocity_min = 2.95
 initial_velocity_max = 2.95
 gravity = Vector3(0, 0, 0)
-anim_offset_max = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g1dw6"]
 transparency = 1

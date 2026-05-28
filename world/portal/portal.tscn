@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://cf5wjnn14eveu"]
+
+[ext_resource type="Script" uid="uid://c0yaa4567dbll" path="res://world/portal/portal.gd" id="1_g82av"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nitiy"]
+size = Vector3(44, 44, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g82av"]
+albedo_color = Color(0.33333325, 1, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5ml7h"]
+size = Vector3(11, 11, 1)
+
+[node name="Portal" type="Area3D" unique_id=1878882118]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_g82av")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1574659206]
+shape = SubResource("BoxShape3D_nitiy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1920560322]
+material_override = SubResource("StandardMaterial3D_g82av")
+mesh = SubResource("BoxMesh_5ml7h")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

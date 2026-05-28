@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://c830q5yix4hev" path="res://ui/pause_menu.tscn" id="3_dwbse"]
 [ext_resource type="Texture2D" uid="uid://bgep85kxmc7tb" path="res://world/if-2048-vessel-cc.jpg" id="4_h5o24"]
 [ext_resource type="PackedScene" uid="uid://jcjmqylt1g0f" path="res://ui/finish_screen.tscn" id="4_pkg7o"]
+[ext_resource type="PackedScene" uid="uid://cly3yidht0hpf" path="res://world/props/big_asteroid.blend" id="5_mmdvd"]
+[ext_resource type="PackedScene" uid="uid://cf5wjnn14eveu" path="res://world/portal/portal.tscn" id="6_fn3g3"]
 
 [sub_resource type="Gradient" id="Gradient_h5o24"]
 offsets = PackedFloat32Array(0.01, 0.55, 1)
@@ -55,6 +57,7 @@ script = ExtResource("1_aqk2v")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=443020558]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+light_specular = 0.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=537346513]
 environment = SubResource("Environment_feb5d")
@@ -74,3 +77,13 @@ transform = Transform3D(-785.48035, 84.9455, -613.0293, 178.0378, 979.67865, -92
 visible = false
 cast_shadow = 0
 mesh = SubResource("QuadMesh_4717r")
+
+[node name="big_asteroid" parent="." unique_id=1950295887 instance=ExtResource("5_mmdvd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 117)
+
+[node name="EndPortal" parent="." unique_id=1878882118 instance=ExtResource("6_fn3g3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
+is_end_portal = true
+
+[node name="StartPortal" parent="." unique_id=1200636193 instance=ExtResource("6_fn3g3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 163)

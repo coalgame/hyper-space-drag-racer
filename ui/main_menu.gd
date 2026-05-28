@@ -25,9 +25,6 @@ func _ready():
 		_on_difficulty_slider_value_changed(%DifficultySlider.value)
 
 	if has_node("%TrackLengthSlider"):
-		%TrackLengthSlider.min_value = 1000
-		%TrackLengthSlider.max_value = 10000
-		%TrackLengthSlider.step = 100
 		var saved_len = Global.get("track_length")
 		%TrackLengthSlider.value = saved_len if saved_len != null else 5000
 		%TrackLengthSlider.value_changed.connect(_on_track_length_slider_value_changed)

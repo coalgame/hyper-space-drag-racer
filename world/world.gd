@@ -1,6 +1,9 @@
 class_name World extends Node3D
 
-var track_length:=5000
+@onready var end_portal: Area3D = $EndPortal
+@onready var start_portal: Area3D = $StartPortal
+
+var track_length
 
 var server_random: RandomNumberGenerator
 var track_noise: FastNoiseLite
@@ -21,6 +24,9 @@ func _ready() -> void:
 	loading_gate.start_check()
 	
 func _on_everyone_loaded():
+	end_portal.global_position.z = track_length
+	end_portal.to_z = start_portal.global_position.z + 5
+	
 	generate()
 
 	# Wait a frame to ensure all generated geometry is fully in the scene tree and ready for physics queries. 
@@ -84,18 +90,16 @@ func get_spawn_position(node_name: String) -> Vector3:
 
 func get_track_dimensions(z_coord: float) -> Vector2:
 	# Normalize noise from [-1, 1] to [0, 1]
-	var raw_x = (track_noise.get_noise_1d(z_coord) + 1.0) / 2.0
-	var raw_y = (track_noise.get_noise_1d(z_coord + 1000.0) + 1.0) / 2.0
-	var x_size = lerp(4.0, 16.0, raw_x)
-	var y_size = lerp(4.0, 14.0, raw_y)
-	# Ensure minimum safety sizes
-	x_size = max(x_size, 4.0)
-	y_size = max(y_size, 4.0)
-	return Vector2(x_size, y_size)
+	#var raw_x = (track_noise.get_noise_1d(z_coord) + 1.0) / 2.0
+	#var raw_y = (track_noise.get_noise_1d(z_coord + 1000.0) + 1.0) / 2.0
+	#var x_size = lerp(4.0, 16.0, raw_x)
+	#var y_size = lerp(4.0, 14.0, raw_y)
+	## Ensure minimum safety sizes
+	#x_size = max(x_size, 4.0)
+	#y_size = max(y_size, 4.0)
+	return Vector2(9, 9)
 		
-func _on_everyone_spawned():
-	pass
-
+		
 func add_bot(bot_name: String, start_pos: Vector3):
 	var bot: Player = preload("res://player/player.tscn").instantiate()
 	bot.name = bot_name
@@ -130,7 +134,7 @@ func generate() -> void:
 		preload("res://pieces/cube2.blend"),
 	]
 	
-	var z: float = 50.0
+	var z: float = 200.0
 	for i in track_length:
 		# Offset by 2000.0 to keep the noise independent from X and Y scaling
 		var noise_val = (track_noise.get_noise_1d(z + 2000.0) + 1.0) / 2.0

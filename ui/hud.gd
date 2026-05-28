@@ -23,6 +23,7 @@ func _process(_delta: float) -> void:
 	DebugDraw2D.set_text("top_speed", snappedf(player.top_speed, 0.1))
 	DebugDraw2D.set_text("speed", snappedf(player.speed, 0.1))
 	DebugDraw2D.set_text("velocity", player.velocity)
+	DebugDraw2D.set_text("lap", player.lap)
 	
 	# Sort active players by race progress (Z position)
 	var active_players = _player_labels.keys().filter(func(p): return is_instance_valid(p))

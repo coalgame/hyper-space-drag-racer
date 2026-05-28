@@ -26,21 +26,7 @@ func _process(_delta: float) -> void:
 	
 	top_speed_reached = max(player.speed, top_speed_reached)
 	
-	if !has_finished() and player.global_position.z > Main.world.track_length:
-		finish_time = Time.get_ticks_msec() - start_time
-		finish_placement = get_placement()
-		
-		if player.ai_brain:
-			#if ai_brain.testing_mode:
-			player.ai_brain.log_results()
-		#else:
-			#print("--- PLAYER RESULTS [%s] ---" % player_name)
-			#print("Time: %.3fs" % finish_time / 1000.0)
-			#print("Collisions: %d" % player_race_stats.collision_count)
-			#print("---------------------------")
-
-		if !player.ai_brain:
-			UIManager.show_finish_screen()
+	
 
 	#
 	## Hide all indicators initially so they don't get "stuck" if a peer leaves
@@ -89,3 +75,21 @@ func get_placement() -> int:
 
 func has_finished():
 	return finish_time != INF
+
+func finish():
+	if has_finished(): return
+	
+	finish_time = Time.get_ticks_msec() - start_time
+	finish_placement = get_placement()
+	
+	if player.ai_brain:
+		#if ai_brain.testing_mode:
+		player.ai_brain.log_results()
+	#else:
+		#print("--- PLAYER RESULTS [%s] ---" % player_name)
+		#print("Time: %.3fs" % finish_time / 1000.0)
+		#print("Collisions: %d" % player_race_stats.collision_count)
+		#print("---------------------------")
+
+	if !player.ai_brain:
+		UIManager.show_finish_screen()

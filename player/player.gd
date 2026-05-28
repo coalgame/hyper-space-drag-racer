@@ -28,6 +28,8 @@ var near_miss_hit_cooldown = 0
 var player_color: Color
 var player_name: String
 
+var lap := 0
+
 
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.
