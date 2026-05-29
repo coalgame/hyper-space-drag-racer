@@ -49,11 +49,10 @@ func _on_everyone_finished_gen():
 	var bot_count = max(0, NetworkManager.MAX_CLIENTS - p_ids.size())
 	
 	# Spawn human players (Host and Peers)
-	#for id in p_ids:
-	#	add_player(id, get_spawn_position(str(id)))
+	for id in p_ids:
+		add_player(id, get_spawn_position(str(id)))
 		
 	# Spawn Bots
-	bot_count=12
 	for i in range(bot_count):
 		add_bot("BOT-" + str(i), get_spawn_position("BOT-" + str(i)))
 

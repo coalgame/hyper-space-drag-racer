@@ -3,12 +3,17 @@ class_name PlayerTrail extends MeshInstance3D
 var scale_multiplier := 0.01
 var min_scale := 0.6
 var max_scale := 3.0
-var source : Player
+var source: Player
+
+static var _cam: Camera3D
+
 
 func _ready() -> void:
 	scale=Util.VEC3ZERO
-	
+
 	await Util.wait(1)
+
+
 	
 	var tween = create_tween()
 	tween.parallel().tween_property(self, "scale", Util.VEC3ZERO, 3)
@@ -16,25 +21,20 @@ func _ready() -> void:
 	
 	tween.tween_callback(queue_free)
 
-
 func _process(delta: float) -> void:
-	var camera := get_viewport().get_camera_3d()
-	
-	if camera == null:
+	if not is_instance_valid(_cam):
+		_cam = get_viewport().get_camera_3d()
+	if not _cam:
 		return
 	
-	var distance := global_position.distance_to(camera.global_position)
+	var distance := global_position.distance_to(_cam.global_position)
 	
 	# Bigger when farther away
 	var scale_amount := clampf(distance * scale_multiplier, min_scale, max_scale)
 	
 	scale = Vector3.ONE * scale_amount
-
-	var rotate_speed = 3   
-	rotate_x(delta*rotate_speed)
-	rotate_y(delta*rotate_speed)
-	rotate_z(delta*rotate_speed)
-
+	
+	rotation += Vector3.ONE * 3 * delta
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if body is Player:
@@ -43,4 +43,3 @@ func _on_area_3d_body_entered(body: Node3D) -> void:
 			body.speed_boost(0.45)
 			# client side only, other players can eat the same trail 
 			queue_free()
-			

@@ -16,6 +16,8 @@ func _on_continue_pressed() -> void:
 		Notifications.notify("Only the host can continue")
 
 func _process(_delta: float) -> void:
+	if !visible: return
+	
 	var world = Main.world
 	if not is_instance_valid(world):
 		return

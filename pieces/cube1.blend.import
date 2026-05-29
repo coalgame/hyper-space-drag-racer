@@ -48,6 +48,7 @@ _subresources={
 "nodes": {
 "PATH:Cube": {
 "generate/physics": true,
+"mesh_instance/visibility_range_end": 1000.0,
 "physics/shape_type": 3
 }
 }
