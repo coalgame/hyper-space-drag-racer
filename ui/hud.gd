@@ -28,7 +28,7 @@ func _process(_delta: float) -> void:
 	# Sort active players by race progress (Z position)
 	var active_players = _player_labels.keys().filter(func(p): return is_instance_valid(p))
 	active_players.sort_custom(func(a, b):
-		return a.global_position.z > b.global_position.z
+		return a.get_total_distance() > b.get_total_distance()
 	)
 	
 	# Update labels and reorder them in the UI container
@@ -48,7 +48,7 @@ func _process(_delta: float) -> void:
 				label.remove_theme_font_size_override("font_size")
 
 			# Sync with name and color from player.gd
-			label.text = "%d. %s %s" % [i + 1, display_name, str(int((p.global_position.z / Main.world.track_length) * 100)) + "%"]
+			label.text = "%d. %s %s" % [i + 1, display_name, str(int(p.get_progress_percentage())) + "%"]
 			label.modulate = p.player_color
 			# Visually move the label to the correct index in the list
 			%PlayerPlacements.move_child(label, i)

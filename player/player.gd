@@ -30,6 +30,18 @@ var player_name: String
 
 var lap := 0
 
+func get_total_distance() -> float:
+	var l = max(0, lap - 1)
+	if Main.world:
+		return (l * Main.world.track_length) + global_position.z
+	return global_position.z
+
+func get_progress_percentage() -> float:
+	if !Main.world: return 0.0
+	var total_dist = get_total_distance()
+	var total_race_dist = (Global.max_laps - 1) * Main.world.track_length
+	return (total_dist / total_race_dist) * 100.0
+
 
 func _enter_tree() -> void:
 	# The MultiplayerSpawner syncs the node name before adding it to the tree.

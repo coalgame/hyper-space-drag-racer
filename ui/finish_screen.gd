@@ -39,7 +39,7 @@ func _process(_delta: float) -> void:
 		var p: Player = players[i]
 		if not is_instance_valid(p): continue
 		
-		var pct = clamp(int((p.global_position.z / world.track_length) * 100), 0, 100)
+		var pct = clamp(int(p.get_progress_percentage()), 0, 100)
 		var time_display = "---"
 		
 		# Display time only if the player has finished the race

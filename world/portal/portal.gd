@@ -18,7 +18,7 @@ func _on_body_entered(body: Node3D) -> void:
 		if is_end_portal:
 			player.lap += 1
 			
-			if player.lap == 4: # TODO hardcode for now, make it dynamic 
+			if player.lap == Global.max_laps: 
 				player.race_stats.finish()
 				return # dont teleport
 				

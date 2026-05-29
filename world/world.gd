@@ -234,14 +234,15 @@ func _process(_delta: float) -> void:
 
 func get_first_place() -> Player:
 	var lead_player: Player = null
-	var max_z: float = - INF # Start at negative infinity
+	var max_dist: float = - INF # Start at negative infinity
 	
 	# We use get_tree().get_nodes_in_group() or loop through children 
 	# to make sure we include the Host and the Clients.
 	for player in get_tree().get_nodes_in_group("player"):
 		if player is Player:
-			if player.global_position.z > max_z:
-				max_z = player.global_position.z
+			var dist = player.get_total_distance()
+			if dist > max_dist:
+				max_dist = dist
 				lead_player = player
 				
 	return lead_player

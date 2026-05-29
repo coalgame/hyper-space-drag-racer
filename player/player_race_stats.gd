@@ -67,7 +67,7 @@ func _process(_delta: float) -> void:
 func get_placement() -> int:
 	var all_players = get_tree().get_nodes_in_group("player")
 	all_players.sort_custom(func(a, b):
-		return a.global_position.z > b.global_position.z
+		return a.get_total_distance() > b.get_total_distance()
 	)
 	var index = all_players.find(player)
 	# 4. Convert 0-index to 1-based standing (0 becomes 1st)

@@ -66,7 +66,7 @@ func request_pickup(player_node_name: String):
 	if player:
 		var first_place_player = Main.world.get_first_place()
 		if is_instance_valid(first_place_player):
-			var distance = abs(first_place_player.global_position.z - player.global_position.z)
+			var distance = abs(first_place_player.get_total_distance() - player.get_total_distance())
 			var gemboost = (0.002 * distance) + 1
 			
 	 		# FIX: dont use multiplayer.get_remote_sender_id() because a bot could pick it up and bots dont have a network id, instead pass the player node name and look it up in the world

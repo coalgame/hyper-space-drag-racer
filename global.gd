@@ -5,6 +5,7 @@ var game_seed = 0
 var local_player: Player
 var difficulty = 1.0
 var track_length := 5000
+var max_laps := 4
 
 func _ready() -> void:
 	if OS.get_cmdline_args().has("-capfps"):
