@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c0yaa4567dbll" path="res://world/portal/portal.gd" id="1_g82av"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nitiy"]
-size = Vector3(44, 44, 1.5)
+size = Vector3(44, 44, 5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g82av"]
 albedo_color = Color(0.33333325, 1, 0, 1)
