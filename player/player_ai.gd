@@ -51,7 +51,6 @@ func _ready() -> void:
 	shape_params = PhysicsShapeQueryParameters3D.new()
 	shape_params.shape = avoid_shape
 	shape_params.collision_mask = 1
-	shape_params.exclude = [player.get_rid()]
 	
 	gem_ray_params = PhysicsRayQueryParameters3D.create(Vector3.ZERO, Vector3.ZERO, 1, [player.get_rid()])
 

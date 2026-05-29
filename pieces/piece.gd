@@ -19,7 +19,7 @@ func _find_mesh(node: Node) -> MeshInstance3D:
 func _ready() -> void:
 	# Health based on scale
 	var avg_scale = (global_transform.basis.get_scale().x + global_transform.basis.get_scale().y + global_transform.basis.get_scale().z) / 3.0
-	max_health = avg_scale * 50.0
+	max_health = avg_scale * 100.0
 	health = max_health
 	
 	if mesh:
@@ -32,6 +32,7 @@ func _ready() -> void:
 			mesh.set_surface_override_material(0, mat.duplicate())
 
 func hit(damage_amount: float):
+	if damage_amount < 15: return # dont let players 'slide' in to blocks, dealing a billion damage instantly
 	request_hit.rpc_id(1, damage_amount)
 
 @rpc("any_peer", "call_local")

@@ -185,9 +185,12 @@ func _physics_process(delta: float) -> void:
 	
 		var collision := get_slide_collision(i)
 		var collider = collision.get_collider()
+		var piece_knockback_modifier := 1.0
 		if collider is Asteroid:
 			collider.hit()
 		elif collider is Piece:
+			if collider.max_health > 0:
+				piece_knockback_modifier = clamp(collider.health / collider.max_health, 0.0, 1.0)
 			# deal damage proportional to how fast we are going
 			collider.hit(abs(velocity.z))
 	
@@ -199,6 +202,7 @@ func _physics_process(delta: float) -> void:
 			race_stats.collision_count += 1
 
 			var knockback = clamp(impact_strength * 0.2, 5.0, 40.0)
+			knockback *= piece_knockback_modifier
 
 			if ai_brain:
 				knockback *= ai_brain.get_crash_knockback_multiplier()
@@ -208,7 +212,9 @@ func _physics_process(delta: float) -> void:
 			sideways_speed -= knockback * 0.6
 
 			# optional: also reduce max speed so it matters long-term
-			top_speed -= (knockback - 5) * 2.5
+			var speed_loss = (knockback - 5.0) * 2.5
+			if speed_loss > 0.0:
+				top_speed -= speed_loss
 			
 			if top_speed < 10:
 				top_speed = 10
