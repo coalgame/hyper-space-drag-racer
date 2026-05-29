@@ -187,6 +187,9 @@ func _physics_process(delta: float) -> void:
 		var collider = collision.get_collider()
 		if collider is Asteroid:
 			collider.hit()
+		elif collider is Piece:
+			# deal damage proportional to how fast we are going
+			collider.hit(abs(velocity.z))
 	
 			
 		if is_zero_approx(hit_cooldown):

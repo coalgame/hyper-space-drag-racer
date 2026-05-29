@@ -49,10 +49,11 @@ func _on_everyone_finished_gen():
 	var bot_count = max(0, NetworkManager.MAX_CLIENTS - p_ids.size())
 	
 	# Spawn human players (Host and Peers)
-	for id in p_ids:
-		add_player(id, get_spawn_position(str(id)))
+	#for id in p_ids:
+	#	add_player(id, get_spawn_position(str(id)))
 		
 	# Spawn Bots
+	bot_count=12
 	for i in range(bot_count):
 		add_bot("BOT-" + str(i), get_spawn_position("BOT-" + str(i)))
 
@@ -116,6 +117,15 @@ func add_player(id, start_pos: Vector3):
 	player.position = start_pos
 	add_child.call_deferred(player)
 	
+func _setup_piece(node: Node):
+	if node is StaticBody3D:
+		node.set_script(preload("res://pieces/piece.gd"))
+		# We must call _ready manually because set_script doesn't trigger it if the node is already in the tree
+		node._ready()
+	
+	for child in node.get_children():
+		_setup_piece(child)
+
 func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
 
@@ -177,6 +187,8 @@ func generate() -> void:
 		scale_mul *= randf_range(0.9, 1.15)
 
 		block.scale = Vector3.ONE * scale_mul
+		
+		_setup_piece(block)
 		
 		## spawn gem (independent roll)
 		if multiplayer.is_server():

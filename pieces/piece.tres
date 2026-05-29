@@ -2,12 +2,15 @@
 
 [ext_resource type="Shader" uid="uid://d3roa6t6re5qj" path="res://pieces/piece.gdshader" id="1_asi6m"]
 [ext_resource type="Texture2D" uid="uid://chg4le7ejgyx2" path="res://pieces/Untitled-1.png" id="2_v71dm"]
+[ext_resource type="Texture2D" uid="uid://dtry8hfhfw2bu" path="res://icon.svg" id="3_iv4qy"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_asi6m")
 shader_parameter/albedo = Color(1, 1, 1, 1)
 shader_parameter/texture_albedo = ExtResource("2_v71dm")
+shader_parameter/texture_damage = ExtResource("3_iv4qy")
+shader_parameter/damage_blend = 0.0
 shader_parameter/uv1_blend_sharpness = 1.090000051775
 shader_parameter/uv1_scale = Vector3(0.5, 0.5, 0.5)
 shader_parameter/uv1_offset = Vector3(0.5, 0.5, 0.5)

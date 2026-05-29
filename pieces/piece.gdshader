@@ -6,6 +6,8 @@ shader_type spatial;
 
 uniform vec4 albedo : source_color;
 uniform sampler2D texture_albedo : source_color, filter_nearest_mipmap_anisotropic, repeat_enable;
+uniform sampler2D texture_damage : source_color, filter_nearest_mipmap_anisotropic, repeat_enable;
+uniform float damage_blend : hint_range(0.0, 1.0) = 0.0;
 
 varying vec3 uv1_triplanar_pos;
 
@@ -50,8 +52,9 @@ void fragment(){
 	vec2 base_uv = UV;
 
 	vec4 albedo_tex = triplanar_texture(texture_albedo, uv1_power_normal, uv1_triplanar_pos);
+	vec4 damage_tex = triplanar_texture(texture_damage, uv1_power_normal, uv1_triplanar_pos);
 	
-	ALBEDO = albedo.rgb * albedo_tex.rgb;
+	ALBEDO = albedo.rgb * mix(albedo_tex.rgb, damage_tex.rgb, damage_blend);
 
 	{
 		// Distance Fade: Object Dither

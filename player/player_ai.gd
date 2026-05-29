@@ -1,14 +1,14 @@
 class_name PlayerAI extends Node
 
-var testing_mode := false
+var testing_mode := true
 
 var difficulty := 8.0 # 0 to 10
 var knockback_multiplier := 1.0
 var speed_multiplier := 1.0
 
 var bot_radius := 0.5
-var cone_angle_degrees := 80.0
-var cone_resolution := 0.15
+var cone_angle_degrees := 60.0
+var cone_resolution := 0.25
 var num_rays := 0
 var ray_directions: Array[Vector3] = []
 
