@@ -60,6 +60,22 @@ func sync_damage(new_health: float):
 
 @rpc("any_peer", "call_local")
 func destroy():
+	if multiplayer.is_server():
+		var gem_scene = preload("res://world/gem.tscn")
+		var p = Main.world
+		for i in randi_range(1,2):
+			var gem = gem_scene.instantiate()
+			# Add immediately to the world so we can start a Tween
+			p.add_child(gem, true)
+			gem.global_position = global_position
+			
+			# Calculate a random 'pop' target with horizontal and vertical spread
+			var dir = Vector3(randf_range(-1, 1), randf_range(0.2, 1.2), randf_range(-1, 1)).normalized()
+			var target = global_position + dir * randf_range(6.0, 10.0)
+			
+			var tw = gem.create_tween()
+			tw.tween_property(gem, "global_position", target, 1.0).set_trans(Tween.TransitionType.TRANS_CUBIC).set_ease(Tween.EaseType.EASE_OUT)
+
 	spawn_particles()
 	if owner:
 		owner.queue_free()

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://b58vwv1u3yuve" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://dcu50kf72okmx" path="res://ui/main_menu.tscn" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://cq6s8h6vd2fom" path="res://ui/hud.gd" id="3_h2yge"]
+[ext_resource type="Texture2D" uid="uid://c7ymytg2xsipb" path="res://ui/player_indicator.png" id="4_1bvp3"]
 
 [node name="Main" type="Node" unique_id=270901479]
 script = ExtResource("1_0xm2m")
@@ -16,6 +17,7 @@ spawn_limit = 1
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1941688192]
 script = ExtResource("3_h2yge")
+rear_indicator_texture = ExtResource("4_1bvp3")
 
 [node name="PlayerPlacements" type="VBoxContainer" parent="HUD" unique_id=833726283]
 unique_name_in_owner = true
