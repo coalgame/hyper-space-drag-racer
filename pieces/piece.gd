@@ -31,12 +31,12 @@ func _ready() -> void:
 		if mat:
 			mesh.set_surface_override_material(0, mat.duplicate())
 
-func hit(damage_amount: float):
+func hit(damage_amount: float, hitter: Player = null):
 	if damage_amount < 15: return # dont let players 'slide' in to blocks, dealing a billion damage instantly
-	request_hit.rpc_id(1, damage_amount)
+	request_hit.rpc_id(1, damage_amount, hitter.name if hitter else "")
 
 @rpc("any_peer", "call_local")
-func request_hit(damage_amount: float):
+func request_hit(damage_amount: float, hitter_name: String = ""):
 	if not multiplayer.is_server():
 		return
 	
@@ -47,6 +47,10 @@ func request_hit(damage_amount: float):
 	sync_damage.rpc(health)
 	
 	if health <= 0:
+		if hitter_name != "":
+			var hitter = Main.world.get_node_or_null(hitter_name)
+			if hitter and hitter is Player:
+				hitter.race_stats.add_score.rpc_id(hitter.get_multiplayer_authority(), hitter.race_stats.score_piece)
 		destroy.rpc()
 
 @rpc("any_peer", "call_local")
@@ -63,14 +67,14 @@ func destroy():
 	if multiplayer.is_server():
 		var gem_scene = preload("res://world/gem.tscn")
 		var p = Main.world
-		for i in randi_range(1,2):
+		for i in randi_range(1, 2):
 			var gem = gem_scene.instantiate()
 			# Add immediately to the world so we can start a Tween
 			p.add_child(gem, true)
 			gem.global_position = global_position
 			
-			# Calculate a random 'pop' target with horizontal and vertical spread
-			var dir = Vector3(randf_range(-1, 1), randf_range(0.2, 1.2), randf_range(-1, 1)).normalized()
+			# Calculate a random 'pop' target with lift and a forward Z bias
+			var dir = Vector3(randf_range(-1.0, 1.0), randf_range(0.2, 1.2), randf_range(0.5, 2.0)).normalized()
 			var target = global_position + dir * randf_range(6.0, 10.0)
 			
 			var tw = gem.create_tween()

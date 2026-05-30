@@ -30,6 +30,10 @@ var player_name: String
 
 var lap := 0
 
+var is_boost_mode := false
+var boost_timer := 0.0
+var has_block_smash_charge := false
+
 func get_total_distance() -> float:
 	var l = max(0, lap - 1)
 	if Main.world:
@@ -56,6 +60,7 @@ func _enter_tree() -> void:
 
 	if is_multiplayer_authority() and !is_ai:
 		Global.local_player = self
+	
 
 func _ready() -> void:
 	# If we are the authority and starting at the origin, snap to the calculated row position.
@@ -97,6 +102,7 @@ func _ready() -> void:
 		# the local player shouldn't have a name label
 		%NameLabel3D.queue_free()
 		$Mesh.transparency = 0.1
+		race_stats.boost_activated.connect(activate_boost)
 
 
 func _physics_process(delta: float) -> void:
@@ -110,9 +116,16 @@ func _physics_process(delta: float) -> void:
 	hit_cooldown = move_toward(hit_cooldown, 0, delta)
 	near_miss_hit_cooldown = move_toward(near_miss_hit_cooldown, 0, delta)
 	
+	if is_boost_mode:
+		boost_timer -= delta
+		if boost_timer <= 0:
+			end_boost()
+
 	var ai_speed_multiplier = 1.0
 	if ai_brain:
 		ai_speed_multiplier = ai_brain.get_speed_multiplier()
+	
+	var boost_speed_mult = 1.2 if is_boost_mode else 1.0
 
 	var speed_damp_strength = -0.008
 	var speed_damp = ((speed_damp_strength * top_speed) + 1) - (20 * speed_damp_strength)
@@ -127,8 +140,8 @@ func _physics_process(delta: float) -> void:
 	if braking:
 		speed = move_toward(speed, 0, delta * 40.0)
 	else:
-		speed = move_toward(speed, top_speed, delta * (10 + (top_speed * 0.4)))
-	acceleration = move_toward(acceleration, top_acceleration, delta * (10 + (top_speed * 0.4)))
+		speed = move_toward(speed, top_speed * boost_speed_mult, delta * (10 + (top_speed * 0.4)) * boost_speed_mult)
+	acceleration = move_toward(acceleration, top_acceleration * boost_speed_mult, delta * (10 + (top_speed * 0.4)) * boost_speed_mult)
 	sideways_speed = move_toward(sideways_speed, top_sideways_speed, delta * 10)
 	if sideways_speed < 0:
 		sideways_speed = 0
@@ -190,11 +203,16 @@ func _physics_process(delta: float) -> void:
 		if collider is Asteroid:
 			collider.hit()
 		elif collider is Piece:
+			if has_block_smash_charge:
+				collider.hit(999999, self) # Instant destroy
+				end_boost()
+				continue
+
 			if collider.health - impact_strength <= 0: # only reduce penalty if we will kill the block
 				piece_knockback_modifier = clamp(collider.health / collider.max_health, 0.0, 1.0)
 				
 			# deal damage proportional to how fast we are going
-			collider.hit(impact_strength)
+			collider.hit(impact_strength, self)
 			
 	
 			
@@ -234,6 +252,7 @@ func speed_boost(amount):
 	
 
 func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
+	if !is_multiplayer_authority(): return
 	if body == tracked_body:
 		#print("Near miss distance: ", dist)
 		# Example: Dynamic boost based on closeness
@@ -244,11 +263,28 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		if speed > 2:
 			speed += (top_speed * 0.04) + (boost_multiplier) + 4
 			#print((top_speed * 0.04) + (boost_multiplier) + 4)
+		
+		race_stats.add_score(race_stats.score_near_miss)
+		
 		tracked_body = null # Stop tracking
 		
 		#cam.fov_boost(1.05)
 
+func activate_boost():
+	is_boost_mode = true
+	boost_timer = 2.0
+	has_block_smash_charge = true
+	if is_multiplayer_authority() and !is_ai:
+		cam.fov_boost(2.0)
+	# Visual feedback could be added here (e.g. speed lines, color shift)
+
+func end_boost():
+	is_boost_mode = false
+	boost_timer = 0.0
+	has_block_smash_charge = false
+
 func _on_near_miss_area_3d_body_entered(body: Node3D) -> void:
+	if !is_multiplayer_authority(): return
 	if is_zero_approx(near_miss_hit_cooldown):
 		tracked_body = body
 

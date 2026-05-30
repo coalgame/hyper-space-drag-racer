@@ -4,7 +4,8 @@ extends Control
 func on_shown():
 	var player = Global.local_player
 	
-	var s = "Highest speed reached: %du/s" % [player.race_stats.top_speed_reached]
+	var s = "Score: %d" % [player.race_stats.score]
+	s += "\nHighest speed reached: %du/s" % [player.race_stats.top_speed_reached]
 	s += "\nCollisions: " + str(player.race_stats.collision_count)
 	%Stats.text = s
 	

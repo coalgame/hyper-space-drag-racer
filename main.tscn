@@ -28,5 +28,36 @@ offset_left = -177.0
 offset_bottom = 204.0
 grow_horizontal = 0
 
+[node name="BoostContainer" type="VBoxContainer" parent="HUD" unique_id=602597119]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 20.0
+offset_right = 150.0
+offset_bottom = 70.0
+grow_horizontal = 2
+
+[node name="BoostBar" type="ProgressBar" parent="HUD/BoostContainer" unique_id=927314153]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+show_percentage = false
+
+[node name="ScoreLabel" type="Label" parent="HUD/BoostContainer" unique_id=834051782]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 1
+
+[node name="BoostText" type="Label" parent="HUD/BoostContainer" unique_id=594670423]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "BOOST!"
+horizontal_alignment = 1
+
 [connection signal="despawned" from="WorldSpawner" to="." method="_on_world_spawner_despawned"]
 [connection signal="spawned" from="WorldSpawner" to="." method="_on_world_spawner_spawned"]

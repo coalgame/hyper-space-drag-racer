@@ -4,6 +4,20 @@ class_name PlayerRaceStats extends Node
 
 @onready var indicator_labels: Node = $IndicatorLabels
 
+@export var score_gem := 1500
+@export var score_piece := 500
+@export var score_near_miss := 100
+
+var score: int = 0:
+
+	set(val):
+		score = val
+		score_changed.emit(score)
+
+var boost_threshold: int = 10000
+
+signal score_changed(new_score: int)
+signal boost_activated
 
 var start_time := 0.0
 var finish_time := INF
@@ -26,6 +40,16 @@ func _process(_delta: float) -> void:
 	
 	top_speed_reached = max(player.speed, top_speed_reached)
 	
+
+@rpc("any_peer", "call_local")
+func add_score(amount: int) -> void:
+	if !is_multiplayer_authority(): return
+	if amount <= 0: return
+	score += amount
+	
+	while score >= boost_threshold:
+		boost_activated.emit()
+		boost_threshold += 10000
 
 func get_placement() -> int:
 	var all_players = get_tree().get_nodes_in_group("player")

@@ -5,6 +5,10 @@ class_name HUD extends CanvasLayer
 var _player_labels: Dictionary = {} # Player node -> Label node
 var _indicators: Dictionary = {} # Player node -> TextureRect
 
+@onready var score_label: Label = %ScoreLabel
+@onready var boost_bar: ProgressBar = %BoostBar
+@onready var boost_text: Label = %BoostText
+
 func _ready() -> void:
 	# Connect to tree signals to handle players joining/leaving mid-game
 	get_tree().node_added.connect(_on_node_added)
@@ -58,6 +62,28 @@ func _process(_delta: float) -> void:
 			%PlayerPlacements.move_child(label, i)
 
 	_update_rear_indicators(player, active_players, screen_size)
+	
+	_update_score_and_boost(player)
+
+func _update_score_and_boost(player: Player) -> void:
+	if !is_instance_valid(player.race_stats): return
+	
+	score_label.text = str(player.race_stats.score)
+	
+	var prev_threshold = player.race_stats.boost_threshold - 10000
+	var current_score = player.race_stats.score
+	
+	var progress = float(current_score - prev_threshold) / 10000.0
+	boost_bar.value = progress * 100.0
+	
+	if player.is_boost_mode:
+		boost_bar.modulate = Color.CYAN
+		score_label.modulate = Color.CYAN
+		boost_text.visible = true
+	else:
+		boost_bar.modulate = Color.WHITE
+		score_label.modulate = Color.WHITE
+		boost_text.visible = false
 
 func _update_rear_indicators(local_player: Player, active_players: Array, screen_size: Vector2) -> void:
 	if !rear_indicator_texture: return
@@ -71,13 +97,13 @@ func _update_rear_indicators(local_player: Player, active_players: Array, screen
 		var dist_z = local_player.global_position.z - p.global_position.z
 		
 		if cam.is_position_behind(p.global_position) and dist_z < max_dist:
-			var icon : TextureRect
+			var icon: TextureRect
 			
 			if not _indicators.has(p):
 				icon = TextureRect.new()
 				icon.texture = rear_indicator_texture
 				icon.custom_minimum_size = Vector2(64, 64)
-				icon.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
+				icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 				add_child(icon)
 				_indicators[p] = icon
 			
