@@ -182,6 +182,7 @@ func _physics_process(delta: float) -> void:
 		#near_miss_tracking.clear()
 		near_miss_hit_cooldown = 3
 		#print(1)
+		var impact_strength = abs(velocity.z)
 	
 		var collision := get_slide_collision(i)
 		var collider = collision.get_collider()
@@ -189,15 +190,16 @@ func _physics_process(delta: float) -> void:
 		if collider is Asteroid:
 			collider.hit()
 		elif collider is Piece:
-			if collider.max_health > 0:
+			if collider.health - impact_strength <= 0: # only reduce penalty if we will kill the block
 				piece_knockback_modifier = clamp(collider.health / collider.max_health, 0.0, 1.0)
+				
 			# deal damage proportional to how fast we are going
-			collider.hit(abs(velocity.z))
+			collider.hit(impact_strength)
+			
 	
 			
 		if is_zero_approx(hit_cooldown):
 				# how fast we were moving into the hit
-			var impact_strength = abs(velocity.z)
 
 			race_stats.collision_count += 1
 
