@@ -41,12 +41,14 @@ grow_horizontal = 2
 
 [node name="BoostBar" type="ProgressBar" parent="HUD/BoostContainer" unique_id=927314153]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 show_percentage = false
 
 [node name="ScoreLabel" type="Label" parent="HUD/BoostContainer" unique_id=834051782]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "0"
 horizontal_alignment = 1

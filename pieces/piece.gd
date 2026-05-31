@@ -69,6 +69,8 @@ func destroy():
 		var p = Main.world
 		for i in randi_range(1, 2):
 			var gem = gem_scene.instantiate()
+			if randf() < 0.05:
+				gem.is_golden = true
 			# Add immediately to the world so we can start a Tween
 			p.add_child(gem, true)
 			gem.global_position = global_position

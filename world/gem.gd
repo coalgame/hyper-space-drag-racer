@@ -2,6 +2,21 @@ class_name Gem extends Area3D
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
+@export var is_golden := false
+
+func _ready() -> void:
+	if is_golden:
+		var mat = mesh.get_surface_override_material(0)
+		if !mat:
+			mat = mesh.mesh.material
+		
+		if mat:
+			var gold_mat = mat.duplicate()
+			gold_mat.set_shader_parameter("albedo", Color(1.0, 0.84, 0.0))
+			gold_mat.set_shader_parameter("emission", Color(1.0, 0.84, 0.0))
+			mesh.set_surface_override_material(0, gold_mat)
+			mesh.scale *= 1.4
+
 func _process(delta: float) -> void:
 	mesh.rotation += Vector3.ONE * delta
 	
@@ -34,5 +49,8 @@ func request_pickup(player_node_name: String):
 			player.speed_boost.rpc_id(player.get_multiplayer_authority(), 3 * gemboost)
 			player.race_stats.add_score.rpc_id(player.get_multiplayer_authority(), player.race_stats.score_gem)
 			
+			if is_golden:
+				player.activate_boost_rpc.rpc_id(player.get_multiplayer_authority())
+
 			# deletes for everyone (multiplayerspawner)
 			queue_free()

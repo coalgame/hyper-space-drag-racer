@@ -47,9 +47,9 @@ func add_score(amount: int) -> void:
 	if amount <= 0: return
 	score += amount
 	
-	while score >= boost_threshold:
-		boost_activated.emit()
-		boost_threshold += 10000
+	#while score >= boost_threshold:
+		#boost_activated.emit()
+		#boost_threshold += 10000
 
 func get_placement() -> int:
 	var all_players = get_tree().get_nodes_in_group("player")

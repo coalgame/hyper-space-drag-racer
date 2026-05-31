@@ -270,6 +270,11 @@ func _on_near_miss_area_3d_body_exited(body: Node3D) -> void:
 		
 		#cam.fov_boost(1.05)
 
+@rpc("any_peer", "call_local")
+func activate_boost_rpc():
+	if !is_multiplayer_authority(): return
+	activate_boost()
+
 func activate_boost():
 	is_boost_mode = true
 	boost_timer = 2.0

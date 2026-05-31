@@ -92,6 +92,9 @@ size = Vector3(1.27, 1.29, 1.27)
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 2
+properties/1/path = NodePath(".:is_golden")
+properties/1/spawn = true
+properties/1/replication_mode = 2
 
 [node name="Gem" type="Area3D" unique_id=319216000 groups=["gem"]]
 collision_layer = 0
