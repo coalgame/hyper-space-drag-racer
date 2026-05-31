@@ -193,7 +193,7 @@ func generate() -> void:
 		if multiplayer.is_server():
 			if server_random.randf() < 0.1:
 				var gem = preload("res://world/gem.tscn").instantiate()
-				if server_random.randf() < 0.1:
+				if server_random.randf() < 0.05:
 					gem.is_golden = true
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)

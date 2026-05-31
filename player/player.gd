@@ -35,16 +35,26 @@ var boost_timer := 0.0
 var has_block_smash_charge := false
 
 func get_total_distance() -> float:
-	var l = max(0, lap - 1)
-	if Main.world:
-		return (l * Main.world.track_length) + global_position.z
-	return global_position.z
+	if !Main.world: return global_position.z
+	
+	var start_z = Main.world.start_portal.global_position.z
+	var end_z = Main.world.end_portal.global_position.z
+	var lap_dist = end_z - start_z
+	
+	if lap <= 0:
+		return global_position.z
+	
+	# Total distance = distance to start portal + completed laps + progress into current lap
+	return start_z + (lap - 1) * lap_dist + (global_position.z - start_z)
 
 func get_progress_percentage() -> float:
 	if !Main.world: return 0.0
+	var start_z = Main.world.start_portal.global_position.z
+	var end_z = Main.world.end_portal.global_position.z
+	var total_race_dist = start_z + Global.max_laps * (end_z - start_z)
+	
 	var total_dist = get_total_distance()
-	var total_race_dist = (Global.max_laps - 1) * Main.world.track_length
-	return (total_dist / total_race_dist) * 100.0
+	return clamp((total_dist / total_race_dist) * 100.0, 0.0, 100.0)
 
 
 func _enter_tree() -> void:
@@ -277,12 +287,12 @@ func activate_boost_rpc():
 
 func activate_boost():
 	is_boost_mode = true
-	boost_timer = 2.0
+	boost_timer = 3.0
 	has_block_smash_charge = true
 	if is_multiplayer_authority() and !is_ai:
 		cam.fov_boost(2.0)
 	# Visual feedback could be added here (e.g. speed lines, color shift)
-
+	
 func end_boost():
 	is_boost_mode = false
 	boost_timer = 0.0

@@ -85,6 +85,9 @@ properties/4/replication_mode = 1
 properties/5/path = NodePath(".:is_boost_mode")
 properties/5/spawn = true
 properties/5/replication_mode = 1
+properties/6/path = NodePath(".:lap")
+properties/6/spawn = true
+properties/6/replication_mode = 1
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4flbx"]
 size = Vector3(1.4324951, 1.9545898, 1.5164185)

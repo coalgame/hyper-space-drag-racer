@@ -16,10 +16,9 @@ func _on_body_entered(body: Node3D) -> void:
 		player.lap = 1
 	else:
 		if is_end_portal:
-			player.lap += 1
-			if player.lap == Global.max_laps: 
-				player.lap = Global.max_laps
+			if player.lap >= Global.max_laps: 
 				player.race_stats.finish()
 				return # dont teleport
 				
+			player.lap += 1
 			player.global_position.z = to_z
