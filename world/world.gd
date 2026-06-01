@@ -97,7 +97,7 @@ func get_track_dimensions(z_coord: float) -> Vector2:
 	## Ensure minimum safety sizes
 	#x_size = max(x_size, 4.0)
 	#y_size = max(y_size, 4.0)
-	return Vector2(9, 9)
+	return Vector2(8, 8)
 		
 		
 func add_bot(bot_name: String, start_pos: Vector3):
@@ -143,13 +143,13 @@ func generate() -> void:
 		preload("res://pieces/cube2.blend"),
 	]
 	
-	var z: float = 200.0
+	#var z: float = 200.0
 	for i in track_length:
 		# Offset by 2000.0 to keep the noise independent from X and Y scaling
-		var noise_val = (track_noise.get_noise_1d(z + 2000.0) + 1.0) / 2.0
-		var current_z_spacing = lerp(3.0, 5.0, noise_val)
-		
-		z += current_z_spacing
+		#var noise_val = (track_noise.get_noise_1d(z + 2000.0) + 1.0) / 2.0
+		#var current_z_spacing = lerp(3.0, 5.0, noise_val)
+		#z += current_z_spacing
+		var z = 200 + (i * 4.15)
 		if z > track_length: break
 
 		var current_track_dims = get_track_dimensions(z)
@@ -183,7 +183,7 @@ func generate() -> void:
 
 		# Interpolate scale based on edge distance
 		var scale_mul := lerpf(min_scale, max_scale, edge_factor)
-		scale_mul *= randf_range(0.9, 1.15)
+		scale_mul *= randf_range(0.85, 1.15)
 
 		block.scale = Vector3.ONE * scale_mul
 		
