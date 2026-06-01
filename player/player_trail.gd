@@ -2,23 +2,25 @@ class_name PlayerTrail extends MeshInstance3D
 
 var scale_multiplier := 0.01
 var min_scale := 0.6
-var max_scale := 3.0
+var max_scale := 2.5
 var source: Player
 
 static var _cam: Camera3D
 
 
 func _ready() -> void:
-	scale=Util.VEC3ZERO
+	scale = Util.VEC3ZERO
 
-	await Util.wait(1)
+	await Util.wait(0.5)
 
 
-	
+	var mat := get_surface_override_material(0) as ShaderMaterial
+	if mat == null:
+		mat = mesh.material as ShaderMaterial
+	var base_color: Color = mat.get_shader_parameter("albedo")
 	var tween = create_tween()
-	tween.parallel().tween_property(self, "scale", Util.VEC3ZERO, 3)
-	tween.parallel().tween_property(self, "transparency", 1, 3)
-	
+	tween.parallel().tween_property(self , "scale", Util.VEC3ZERO, 2)
+	tween.parallel().tween_method(func(a): mat.set_shader_parameter("albedo", Color(base_color.r, base_color.g, base_color.b, a)), base_color.a, 0.0, 2)
 	tween.tween_callback(queue_free)
 
 func _process(delta: float) -> void:

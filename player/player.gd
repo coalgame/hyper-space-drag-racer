@@ -158,13 +158,16 @@ func _physics_process(delta: float) -> void:
 	#print(acceleration)
 	#print(sideways_speed)
 	
-	var current_track_dims = Main.world.get_track_dimensions(global_position.z)
-	var is_out_of_bounds = abs(global_position.x) > current_track_dims.x or abs(global_position.y) > current_track_dims.y
 	
-	if is_out_of_bounds:
-		# Slow down proportionately: high speeds bleed off faster than low speeds.
-		var slowdown_rate = top_speed * 0.3
-		top_speed = move_toward(top_speed, 20.0, delta * slowdown_rate)
+	var current_track_dims = Main.world.get_track_dimensions(global_position.z)
+	global_position.x = clamp(global_position.x, -current_track_dims.x, current_track_dims.x)
+	global_position.y = clamp(global_position.y, -current_track_dims.y, current_track_dims.y)
+	#var is_out_of_bounds = abs(global_position.x) > current_track_dims.x or abs(global_position.y) > current_track_dims.y
+	#
+	#if is_out_of_bounds:
+		## Slow down proportionately: high speeds bleed off faster than low speeds.
+		#var slowdown_rate = top_speed * 0.3
+		#top_speed = move_toward(top_speed, 20.0, delta * slowdown_rate)
 
 	var input := Vector2.ZERO
 	if ai_brain:
@@ -328,4 +331,4 @@ func _on_trail_spawn_timer_timeout() -> void:
 	var mat = c.mesh.material as ShaderMaterial
 	if mat:
 		c.set_surface_override_material(0, mat.duplicate())
-		c.get_surface_override_material(0).set_shader_parameter("albedo", player_color)
+		c.get_surface_override_material(0).set_shader_parameter("albedo", Color(player_color.r, player_color.g, player_color.b, 0.36))

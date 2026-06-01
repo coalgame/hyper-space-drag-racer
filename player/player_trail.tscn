@@ -39,6 +39,7 @@ void fragment() {
 
 	vec4 albedo_tex = texture(texture_albedo, base_uv);
 	ALBEDO = albedo.rgb * albedo_tex.rgb;
+	ALPHA = albedo.a * albedo_tex.a;
 
 	float metallic_tex = dot(texture(texture_metallic, base_uv), metallic_texture_channel);
 	METALLIC = metallic_tex * metallic;
@@ -66,7 +67,7 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qwnmc"]
 render_priority = 0
 shader = SubResource("Shader_dygnl")
-shader_parameter/albedo = Color(0.71141654, 1.8715144, 1.1983713, 1)
+shader_parameter/albedo = Color(0.71141654, 1.8715144, 1.1983713, 0.36)
 shader_parameter/albedo_texture_size = Vector2i(0, 0)
 shader_parameter/point_size = 1.0
 shader_parameter/roughness = 1.0
@@ -86,7 +87,6 @@ size = Vector3(1, 0.765, 1)
 radius = 2.5
 
 [node name="PlayerTrail" type="MeshInstance3D" unique_id=1177150298]
-transparency = 0.64
 cast_shadow = 0
 mesh = SubResource("BoxMesh_i3pqv")
 script = ExtResource("1_g5lsc")

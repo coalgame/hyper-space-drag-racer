@@ -76,7 +76,7 @@ func destroy():
 			gem.global_position = global_position
 			
 			# Calculate a random 'pop' target with lift and a forward Z bias
-			var dir = Vector3(randf_range(-1.0, 1.0), randf_range(0.2, 1.2), randf_range(0.5, 2.0)).normalized()
+			var dir = Vector3(randf_range(-1.0, 1.0), randf_range(0.2, 1.2), randf_range(3.5, 9.0)).normalized()
 			var target = global_position + dir * randf_range(6.0, 10.0)
 			
 			var tw = gem.create_tween()
