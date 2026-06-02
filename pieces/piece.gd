@@ -19,7 +19,7 @@ func _find_mesh(node: Node) -> MeshInstance3D:
 func _ready() -> void:
 	# Health based on scale
 	var avg_scale = (global_transform.basis.get_scale().x + global_transform.basis.get_scale().y + global_transform.basis.get_scale().z) / 3.0
-	max_health = avg_scale * 100.0
+	max_health = avg_scale * 200.0
 	health = max_health
 	
 	if mesh:
@@ -67,7 +67,7 @@ func destroy():
 	if multiplayer.is_server():
 		var gem_scene = preload("res://world/gem.tscn")
 		var p = Main.world
-		for i in randi_range(1, 2):
+		for i in randi_range(2, 2):
 			var gem = gem_scene.instantiate()
 			if randf() < 0.05:
 				gem.is_golden = true

@@ -5,7 +5,7 @@ class_name World extends Node3D
 
 var track_length : int
 
-const EASY_SPACING := 9.0
+const EASY_SPACING := 4.15
 const HARD_SPACING := 4.15
 const BREAK_INTERVAL := 3000.0
 const ASTEROID_RADIUS := 90.0
@@ -191,7 +191,7 @@ func generate() -> void:
 			if server_random.randf() < 0.1:
 				var gem = preload("res://world/gem.tscn").instantiate()
 				if server_random.randf() < 0.05:
-					gem.is_golden = true
+					gem.is_golden = false
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
 
