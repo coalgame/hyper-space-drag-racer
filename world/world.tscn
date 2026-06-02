@@ -1,32 +1,24 @@
 [gd_scene format=3 uid="uid://cwxnxadtjd7g0"]
 
 [ext_resource type="Script" uid="uid://d3tnsa37e67ih" path="res://world/world.gd" id="1_aqk2v"]
+[ext_resource type="Texture2D" uid="uid://2ygc4p0drp6o" path="res://world/space.png" id="2_036b0"]
 [ext_resource type="PackedScene" uid="uid://c830q5yix4hev" path="res://ui/pause_menu.tscn" id="3_dwbse"]
 [ext_resource type="Texture2D" uid="uid://bgep85kxmc7tb" path="res://world/if-2048-vessel-cc.jpg" id="4_h5o24"]
 [ext_resource type="PackedScene" uid="uid://jcjmqylt1g0f" path="res://ui/finish_screen.tscn" id="4_pkg7o"]
 [ext_resource type="PackedScene" uid="uid://cf5wjnn14eveu" path="res://world/portal/portal.tscn" id="6_fn3g3"]
 
-[sub_resource type="Gradient" id="Gradient_h5o24"]
-offsets = PackedFloat32Array(0.01, 0.55, 1)
-colors = PackedColorArray(0.35686275, 0.019607844, 0.20392157, 1, 0.23137255, 0.003921569, 0.15686275, 1, 0.33333334, 0.02745098, 0.32156864, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_mmdvd"]
-gradient = SubResource("Gradient_h5o24")
-fill_from = Vector2(0.4602804, 0)
-fill_to = Vector2(0.5070093, 1)
-
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_h5o24"]
-panorama = SubResource("GradientTexture2D_mmdvd")
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_fn3g3"]
+panorama = ExtResource("2_036b0")
 
 [sub_resource type="Sky" id="Sky_e2o6t"]
-sky_material = SubResource("PanoramaSkyMaterial_h5o24")
+sky_material = SubResource("PanoramaSkyMaterial_fn3g3")
 
 [sub_resource type="Environment" id="Environment_feb5d"]
 background_mode = 2
 background_color = Color(0.6064876, 0.6457323, 0.6162321, 1)
 sky = SubResource("Sky_e2o6t")
 ambient_light_source = 2
-ambient_light_color = Color(0.75, 0.5475, 0.67574996, 1)
+ambient_light_color = Color(0.3854925, 0.3854925, 0.3854924, 1)
 reflected_light_source = 2
 tonemap_mode = 2
 ssao_enabled = true

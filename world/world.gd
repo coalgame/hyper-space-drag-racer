@@ -7,7 +7,7 @@ var track_length : int
 
 const EASY_SPACING := 4.15
 const HARD_SPACING := 4.15
-const BREAK_INTERVAL := 3000.0
+const BREAK_INTERVAL :=13000.0
 const ASTEROID_RADIUS := 90.0
 
 var _big_asteroid = preload("res://world/props/big_asteroid.blend")
@@ -139,9 +139,9 @@ func generate() -> void:
 
 	_breaks = _compute_break_positions()
 
-	place_tunnel_asteroid(117)
+	#place_tunnel_asteroid(117)
 
-	var z := 200.0
+	var z := 100.0
 	var next_break_idx := 0
 	var piece_index := 0
 
