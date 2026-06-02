@@ -37,7 +37,8 @@ func _ready() -> void:
 		difficulty = global_diff
 
 	knockback_multiplier = (-0.12 * difficulty) + 1.2
-	speed_multiplier = (0.42 * difficulty) + 0.8
+	#speed_multiplier = (0.42 * difficulty) + 0.8
+	
 	#printt(knockback_multiplier, speed_multiplier)
 	# Adjust personality based on difficulty
 #	cone_angle_degrees += rng.randf_range(-25.0, 25.0) * (1.0 / max(0.1, difficulty)) # Harder AI has less random cone angle

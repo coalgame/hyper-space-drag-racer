@@ -8,7 +8,7 @@ Tech stack:
 * DebugDraw3D
 
 Please try to use simple code and solutions when possible. 
-Use short naming schemes, eg pos_x instead of position_x. Don't use underscores in front of variable names.
+Use short naming schemes, eg pos_x instead of position_x. **Don't use underscores in front of variable names.**
 
 ## Philosophy: under-engineer
 

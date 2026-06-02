@@ -3,10 +3,16 @@ class_name World extends Node3D
 @onready var end_portal: Area3D = $EndPortal
 @onready var start_portal: Area3D = $StartPortal
 
-var track_length
+var track_length : int
 
+const EASY_SPACING := 9.0
+const HARD_SPACING := 4.15
+const BREAK_INTERVAL := 3000.0
+const ASTEROID_RADIUS := 90.0
+
+var _big_asteroid = preload("res://world/props/big_asteroid.blend")
 var server_random: RandomNumberGenerator
-var track_noise: FastNoiseLite
+var _breaks: Array[float]
 
 var loading_gate = NetworkGate.new("Loading")
 var post_gen_gate = NetworkGate.new("PostGeneration")
@@ -88,15 +94,7 @@ func get_spawn_position(node_name: String) -> Vector3:
 		
 	return Vector3(start_x + (float(idx) * spacing), 0, 0)
 
-func get_track_dimensions(z_coord: float) -> Vector2:
-	# Normalize noise from [-1, 1] to [0, 1]
-	#var raw_x = (track_noise.get_noise_1d(z_coord) + 1.0) / 2.0
-	#var raw_y = (track_noise.get_noise_1d(z_coord + 1000.0) + 1.0) / 2.0
-	#var x_size = lerp(4.0, 16.0, raw_x)
-	#var y_size = lerp(4.0, 14.0, raw_y)
-	## Ensure minimum safety sizes
-	#x_size = max(x_size, 4.0)
-	#y_size = max(y_size, 4.0)
+func get_track_dimensions(_z_coord: float) -> Vector2:
 	return Vector2(8, 8)
 		
 		
@@ -129,28 +127,33 @@ func generate() -> void:
 	printt(multiplayer.get_unique_id(), "is generating")
 
 	seed(Global.game_seed)
-	
-	track_noise = FastNoiseLite.new()
-	track_noise.seed = Global.game_seed
-	track_noise.frequency = 0.001 # Controls how fast the track width/height changes
-	
+
 	if multiplayer.is_server():
 		server_random = RandomNumberGenerator.new()
 		server_random.seed = Global.game_seed
-	
+
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
 		preload("res://pieces/cube2.blend"),
 	]
-	
-	#var z: float = 200.0
-	for i in track_length:
-		# Offset by 2000.0 to keep the noise independent from X and Y scaling
-		#var noise_val = (track_noise.get_noise_1d(z + 2000.0) + 1.0) / 2.0
-		#var current_z_spacing = lerp(3.0, 5.0, noise_val)
-		#z += current_z_spacing
-		var z = 200 + (i * 4.15)
-		if z > track_length: break
+
+	_breaks = _compute_break_positions()
+
+	place_tunnel_asteroid(117)
+
+	var z := 200.0
+	var next_break_idx := 0
+	var piece_index := 0
+
+	while z < track_length:
+		if next_break_idx < _breaks.size() and z + ASTEROID_RADIUS >= _breaks[next_break_idx]:
+			place_tunnel_asteroid(_breaks[next_break_idx])
+			next_break_idx += 1
+			z = _breaks[next_break_idx - 1] + ASTEROID_RADIUS
+			continue
+
+		var difficulty := get_difficulty_at(z)
+		var spacing := lerpf(EASY_SPACING, HARD_SPACING, difficulty)
 
 		var current_track_dims = get_track_dimensions(z)
 		var x := randf_range(-current_track_dims.x - 6.5, current_track_dims.x + 6.5)
@@ -159,37 +162,31 @@ func generate() -> void:
 		var block_scene = scenes.pick_random()
 		var block = block_scene.instantiate()
 		add_child(block)
-		block.name = "cube_" + str(i) # Ensure we can identify them for baking
+		block.name = "cube_" + str(piece_index)
 		block.position = Vector3(x, y, z)
 
-		# Random rotation helps break up obvious repetition.
 		block.rotation = Vector3(
 			randf_range(0.0, TAU),
 			randf_range(0.0, TAU),
 			randf_range(0.0, TAU)
 		)
-	
-		# Position strength from center to edge
+
 		var edge_x = abs(x) / current_track_dims.x
 		var edge_y = abs(y) / current_track_dims.y
 
-		# Use whichever axis is closer to the edge
 		var edge_factor = max(edge_x, edge_y)
-		# Smooth the growth so it ramps up nicer
 		edge_factor = pow(edge_factor, 2.0)
 
 		var min_scale := 1.5
 		var max_scale := 2.3
 
-		# Interpolate scale based on edge distance
 		var scale_mul := lerpf(min_scale, max_scale, edge_factor)
 		scale_mul *= randf_range(0.85, 1.15)
 
 		block.scale = Vector3.ONE * scale_mul
-		
+
 		_setup_piece(block)
-		
-		## spawn gem (independent roll)
+
 		if multiplayer.is_server():
 			if server_random.randf() < 0.1:
 				var gem = preload("res://world/gem.tscn").instantiate()
@@ -197,6 +194,42 @@ func generate() -> void:
 					gem.is_golden = true
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
+
+		z += spacing
+		piece_index += 1
+
+
+func _compute_break_positions() -> Array[float]:
+	var num_breaks := maxi(0, ceili(track_length / BREAK_INTERVAL))
+	var segment_len := track_length / (num_breaks + 1.0)
+	var result: Array[float] = []
+	for i in range(num_breaks):
+		result.append(segment_len * (i + 1.0))
+	return result
+
+
+func get_difficulty_at(z: float) -> float:
+	var segment_start := 200.0
+	var segment_end := track_length
+
+	for break_z in _breaks:
+		if z < break_z:
+			segment_end = break_z
+			break
+		segment_start = break_z
+
+	var segment_len := segment_end - segment_start
+	if segment_len <= 0.0:
+		return 1.0
+
+	var t := (z - segment_start) / segment_len
+	return clampf(t / 0.36, 0.0, 1.0)
+
+
+func place_tunnel_asteroid(z: float) -> void:
+	var ast = _big_asteroid.instantiate()
+	ast.position = Vector3(0, 0, z)
+	add_child(ast)
 
 
 func _process(_delta: float) -> void:
@@ -213,6 +246,7 @@ func _process(_delta: float) -> void:
 	DebugDraw2D.begin_text_group("world", 15, Color.LIGHT_YELLOW)
 	DebugDraw2D.set_text("cam pos", cam.global_position)
 	DebugDraw2D.set_text("track dimension", get_track_dimensions(cam.global_position.z))
+	DebugDraw2D.set_text("difficulty", str(snappedf(get_difficulty_at(cam.global_position.z), 0.01)))
 
 	# Boundary corner lines visualization that follow the camera
 	var z_cam = cam.global_position.z

@@ -1,6 +1,8 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://jjy6m7wdtdop"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://jjy6m7wdtdop"]
+
+[ext_resource type="Shader" path="res://world/props/big_asteroid.gdshader" id="1_6r8iy"]
 
 [resource]
 resource_name = "Material.001"
-albedo_color = Color(0.6438949, 0.61437756, 0.5098797, 1)
-metallic_specular = 0.0
+shader = ExtResource("1_6r8iy")
+shader_parameter/albedo = Color(0.6438949, 0.61437756, 0.5098797, 1)

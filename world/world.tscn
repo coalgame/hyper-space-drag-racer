@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://c830q5yix4hev" path="res://ui/pause_menu.tscn" id="3_dwbse"]
 [ext_resource type="Texture2D" uid="uid://bgep85kxmc7tb" path="res://world/if-2048-vessel-cc.jpg" id="4_h5o24"]
 [ext_resource type="PackedScene" uid="uid://jcjmqylt1g0f" path="res://ui/finish_screen.tscn" id="4_pkg7o"]
-[ext_resource type="PackedScene" uid="uid://cly3yidht0hpf" path="res://world/props/big_asteroid.blend" id="5_mmdvd"]
 [ext_resource type="PackedScene" uid="uid://cf5wjnn14eveu" path="res://world/portal/portal.tscn" id="6_fn3g3"]
 
 [sub_resource type="Gradient" id="Gradient_h5o24"]
@@ -32,9 +31,9 @@ reflected_light_source = 2
 tonemap_mode = 2
 ssao_enabled = true
 glow_enabled = true
-glow_intensity = 0.57
+glow_intensity = 0.5
 glow_strength = 0.34
-glow_bloom = 0.13
+glow_bloom = 0.1
 fog_mode = 1
 fog_light_color = Color(9.535274e-05, 0.00011561906, 0.00015177995, 1)
 fog_density = 1.0
@@ -80,12 +79,10 @@ visible = false
 cast_shadow = 0
 mesh = SubResource("QuadMesh_4717r")
 
-[node name="big_asteroid" parent="." unique_id=1950295887 instance=ExtResource("5_mmdvd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 117)
-
 [node name="EndPortal" parent="." unique_id=1878882118 instance=ExtResource("6_fn3g3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 is_end_portal = true
 
 [node name="StartPortal" parent="." unique_id=1200636193 instance=ExtResource("6_fn3g3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 163)
+visible = false
