@@ -56,7 +56,7 @@ light_specular = 0.0
 environment = SubResource("Environment_feb5d")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=758682921]
-_spawnable_scenes = PackedStringArray("uid://ccg8f1p4hr1pj", "uid://cyaijmcchcr48", "uid://cn0cgqin8kyk0")
+_spawnable_scenes = PackedStringArray("uid://ccg8f1p4hr1pj", "uid://cyaijmcchcr48", "uid://cn0cgqin8kyk0", "uid://cha2hamggomdf")
 spawn_path = NodePath("..")
 
 [node name="PauseMenu" parent="." unique_id=477721276 instance=ExtResource("3_dwbse")]

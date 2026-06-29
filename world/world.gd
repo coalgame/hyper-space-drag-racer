@@ -132,6 +132,7 @@ func generate() -> void:
 		server_random = RandomNumberGenerator.new()
 		server_random.seed = Global.game_seed
 
+
 	var scenes = [
 		preload("res://pieces/cube1.blend"),
 		preload("res://pieces/cube2.blend"),
@@ -139,12 +140,14 @@ func generate() -> void:
 
 	_breaks = _compute_break_positions()
 
-	#place_tunnel_asteroid(117)
+	place_tunnel_asteroid(100)
+	place_tunnel_asteroid(track_length)
 
-	var z := 100.0
+	var z := 150.0
 	var next_break_idx := 0
 	var piece_index := 0
 
+	var boosters: Array[Vector3] = []
 	while z < track_length:
 		if next_break_idx < _breaks.size() and z + ASTEROID_RADIUS >= _breaks[next_break_idx]:
 			place_tunnel_asteroid(_breaks[next_break_idx])
@@ -195,9 +198,23 @@ func generate() -> void:
 				add_child.call_deferred(gem, true)
 				gem.position = Vector3(server_random.randf_range(-current_track_dims.x, current_track_dims.x), server_random.randf_range(-current_track_dims.y, current_track_dims.y), z)
 
+			if server_random.randf() < 0.01:
+				var booster = preload("res://world/speed_booster.tscn").instantiate()
+				add_child.call_deferred(booster, true)
+				booster.position = Vector3(server_random.randf_range(-current_track_dims.x * 0.5, current_track_dims.x * 0.5), server_random.randf_range(-current_track_dims.y * 0.5, current_track_dims.y * 0.5), z)
+				boosters.append(booster.position)
+
 		z += spacing
 		piece_index += 1
 
+	if multiplayer.is_server() and boosters.size() > 0:
+		for child in get_children():
+			if !child.name.begins_with("cube_"): continue
+			
+			for v in boosters:
+				if child.position.distance_to(v) < 12.0:
+					child.queue_free()
+					break
 
 func _compute_break_positions() -> Array[float]:
 	var num_breaks := maxi(0, ceili(track_length / BREAK_INTERVAL))
